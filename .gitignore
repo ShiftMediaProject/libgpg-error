@@ -45,3 +45,13 @@ src/err-sources.h
 /tests/Makefile
 /tests/t-strerror
 /tests/t-syserror
+
+*.obj
+*.log
+*.tlog
+*.pdb
+*.ildb
+*.suo
+*.sdf
+[Oo]bj/
+*.exe
