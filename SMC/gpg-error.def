@@ -1,0 +1,26 @@
+
+EXPORTS
+    gpg_strerror
+    gpg_strerror_r
+    gpg_strsource
+    gpg_err_code_from_errno 
+    gpg_err_code_to_errno
+    gpg_err_init
+    gpg_err_code_from_syserror
+    gpg_err_set_errno
+
+    _gpg_w32_bindtextdomain
+    _gpg_w32_textdomain
+    _gpg_w32_gettext
+    _gpg_w32_dgettext
+    _gpg_w32_dngettext
+    _gpg_w32_gettext_localename
+    _gpg_w32_gettext_use_utf8
+    gpg_err_deinit
+    gpg_error_check_version
+
+    gpgrt_lock_init
+    gpgrt_lock_lock
+    gpgrt_lock_unlock
+    gpgrt_lock_destroy 
+    gpgrt_yield
