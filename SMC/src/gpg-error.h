@@ -675,7 +675,7 @@ const char *gpg_error_check_version (const char *req_version);
 #define GPG_ERROR_VERSION "1.13"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 1.13
+#define GPG_ERROR_VERSION_NUMBER 0x010d00
 
 
 /* Decide whether to use the format_arg attribute.  */

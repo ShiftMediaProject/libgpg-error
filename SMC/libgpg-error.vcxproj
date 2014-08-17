@@ -70,7 +70,14 @@
     <ClCompile Include="..\src\w32-thread.c" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="versioninfo.rc" />
+    <ResourceCompile Include="versioninfo.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'">true</ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -253,7 +260,7 @@
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -332,7 +339,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -412,7 +419,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -491,7 +498,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -583,7 +590,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -675,7 +682,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -767,7 +774,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -859,7 +866,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -950,7 +957,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -1041,7 +1048,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <Command>mkdir $(OutDir)\include
 copy .\src\gpg-error.h $(OutDir)\include\
 mkdir $(OutDir)\licenses
-copy ..\COPYING $(OutDir)\licenses\libgpg-error.txt</Command>
+copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
