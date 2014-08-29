@@ -1,8 +1,4 @@
 
-#define BUILD_REVISION "b04a601"
-
-#define BUILD_TIMESTAMP __TIMESTAMP__
-
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
 /* #undef ENABLE_NLS */
