@@ -239,6 +239,7 @@ static const char msgstr[] =
   gettext_noop ("Bad hexadecimal character in S-expression") "\0"
   gettext_noop ("Odd hexadecimal numbers in S-expression") "\0"
   gettext_noop ("Bad octal character in S-expression") "\0"
+  gettext_noop ("Key disabled") "\0"
   gettext_noop ("Not possible with a card based key") "\0"
   gettext_noop ("Invalid lock object") "\0"
   gettext_noop ("General IPC error") "\0"
@@ -503,51 +504,52 @@ static const int msgidx[] =
     3896,
     3936,
     3972,
-    4007,
-    4027,
-    4045,
-    4068,
-    4092,
-    4113,
-    4141,
-    4171,
-    4199,
-    4219,
-    4243,
-    4270,
-    4288,
-    4306,
-    4334,
-    4349,
-    4365,
-    4393,
-    4416,
-    4436,
-    4453,
-    4481,
-    4505,
-    4530,
-    4550,
-    4570,
-    4596,
-    4622,
-    4648,
-    4674,
-    4700,
-    4726,
-    4752,
-    4778,
-    4804,
-    4831,
-    4858,
-    4885,
-    4912,
-    4939,
-    4966,
-    4993,
-    5016,
-    5037,
-    5049
+    3985,
+    4020,
+    4040,
+    4058,
+    4081,
+    4105,
+    4126,
+    4154,
+    4184,
+    4212,
+    4232,
+    4256,
+    4283,
+    4301,
+    4319,
+    4347,
+    4362,
+    4378,
+    4406,
+    4429,
+    4449,
+    4466,
+    4494,
+    4518,
+    4543,
+    4563,
+    4583,
+    4609,
+    4635,
+    4661,
+    4687,
+    4713,
+    4739,
+    4765,
+    4791,
+    4817,
+    4844,
+    4871,
+    4898,
+    4925,
+    4952,
+    4979,
+    5006,
+    5029,
+    5050,
+    5062
   };
 
 static GPG_ERR_INLINE int
@@ -555,10 +557,10 @@ msgidxof (int code)
 {
   return (0 ? 0
   : ((code >= 0) && (code <= 213)) ? (code - 0)
-  : ((code >= 253) && (code <= 254)) ? (code - 39)
-  : ((code >= 257) && (code <= 271)) ? (code - 41)
-  : ((code >= 273) && (code <= 281)) ? (code - 42)
-  : ((code >= 1024) && (code <= 1039)) ? (code - 784)
-  : ((code >= 16381) && (code <= 16383)) ? (code - 16125)
-  : 16384 - 16125);
+  : ((code >= 252) && (code <= 254)) ? (code - 38)
+  : ((code >= 257) && (code <= 271)) ? (code - 40)
+  : ((code >= 273) && (code <= 281)) ? (code - 41)
+  : ((code >= 1024) && (code <= 1039)) ? (code - 783)
+  : ((code >= 16381) && (code <= 16383)) ? (code - 16124)
+  : 16384 - 16124);
 }

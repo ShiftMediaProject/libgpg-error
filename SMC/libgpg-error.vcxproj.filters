@@ -39,6 +39,18 @@
     <ClInclude Include="..\src\w32-add.h">
       <Filter>Header Files\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\gpgrt-int.h">
+      <Filter>Header Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\estream.h">
+      <Filter>Header Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\estream-printf.h">
+      <Filter>Header Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\visibility.h">
+      <Filter>Header Files\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="gpg-error.def">
@@ -80,6 +92,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\strsource-sym.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\estream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\estream-printf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\visibility.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

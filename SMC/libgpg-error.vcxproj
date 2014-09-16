@@ -43,10 +43,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\estream-printf.h" />
+    <ClInclude Include="..\src\estream.h" />
     <ClInclude Include="..\src\gettext.h" />
+    <ClInclude Include="..\src\gpgrt-int.h" />
     <ClInclude Include="..\src\init.h" />
     <ClInclude Include="..\src\lock.h" />
     <ClInclude Include="..\src\thread.h" />
+    <ClInclude Include="..\src\visibility.h" />
     <ClInclude Include="..\src\w32-add.h" />
     <ClInclude Include="..\src\w32-lock-obj.h" />
     <ClInclude Include="config.h" />
@@ -58,6 +62,8 @@
   <ItemGroup>
     <ClCompile Include="..\src\code-from-errno.c" />
     <ClCompile Include="..\src\code-to-errno.c" />
+    <ClCompile Include="..\src\estream-printf.c" />
+    <ClCompile Include="..\src\estream.c" />
     <ClCompile Include="..\src\gpg-error.c" />
     <ClCompile Include="..\src\init.c" />
     <ClCompile Include="..\src\strerror-sym.c" />
@@ -65,6 +71,7 @@
     <ClCompile Include="..\src\strsource-sym.c" />
     <ClCompile Include="..\src\strsource.c" />
     <ClCompile Include="..\src\version.c" />
+    <ClCompile Include="..\src\visibility.c" />
     <ClCompile Include="..\src\w32-gettext.c" />
     <ClCompile Include="..\src\w32-lock.c" />
     <ClCompile Include="..\src\w32-thread.c" />
@@ -91,50 +98,50 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
@@ -142,14 +149,14 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -246,7 +253,7 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -325,7 +332,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -405,7 +412,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -484,7 +491,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -573,7 +580,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -665,7 +672,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -757,7 +764,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -849,7 +856,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -941,7 +948,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -1032,7 +1039,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
