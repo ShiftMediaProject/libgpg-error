@@ -52,6 +52,7 @@
 #  pragma weak pthread_cancel
 #  pragma weak pthread_mutex_init
 #  pragma weak pthread_mutex_lock
+#  pragma weak pthread_mutex_trylock
 #  pragma weak pthread_mutex_unlock
 #  pragma weak pthread_mutex_destroy
 #  if ! PTHREAD_IN_USE_DETECTION_HARD
@@ -114,7 +115,7 @@ get_lock_object (gpgrt_lock_t *lockhd)
 
 
 gpg_err_code_t
-gpgrt_lock_init (gpgrt_lock_t *lockhd)
+_gpgrt_lock_init (gpgrt_lock_t *lockhd)
 {
   _gpgrt_lock_t *lock = (_gpgrt_lock_t*)lockhd;
   int rc;
@@ -149,7 +150,7 @@ gpgrt_lock_init (gpgrt_lock_t *lockhd)
 
 
 gpg_err_code_t
-gpgrt_lock_lock (gpgrt_lock_t *lockhd)
+_gpgrt_lock_lock (gpgrt_lock_t *lockhd)
 {
   _gpgrt_lock_t *lock = get_lock_object (lockhd);
   int rc;
@@ -172,7 +173,30 @@ gpgrt_lock_lock (gpgrt_lock_t *lockhd)
 
 
 gpg_err_code_t
-gpgrt_lock_unlock (gpgrt_lock_t *lockhd)
+_gpgrt_lock_trylock (gpgrt_lock_t *lockhd)
+{
+  _gpgrt_lock_t *lock = get_lock_object (lockhd);
+  int rc;
+
+#if USE_POSIX_THREADS
+  if (use_pthread_p())
+    {
+      rc = pthread_mutex_trylock (&lock->u.mtx);
+      if (rc)
+        rc = gpg_err_code_from_errno (rc);
+    }
+  else
+    rc = 0; /* Threads are not used.  */
+#else /* Unknown thread system.  */
+  rc = GPG_ERR_NOT_IMPLEMENTED;
+#endif /* Unknown thread system.  */
+
+  return rc;
+}
+
+
+gpg_err_code_t
+_gpgrt_lock_unlock (gpgrt_lock_t *lockhd)
 {
   _gpgrt_lock_t *lock = get_lock_object (lockhd);
   int rc;
@@ -197,7 +221,7 @@ gpgrt_lock_unlock (gpgrt_lock_t *lockhd)
 /* Note: Use this function only if no other thread holds or waits for
    this lock.  */
 gpg_err_code_t
-gpgrt_lock_destroy (gpgrt_lock_t *lockhd)
+_gpgrt_lock_destroy (gpgrt_lock_t *lockhd)
 {
   _gpgrt_lock_t *lock = get_lock_object (lockhd);
   int rc;

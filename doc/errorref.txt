@@ -240,7 +240,14 @@ GPG_ERR_MISSING_CERT		Missing certificate
 76	GPG_ERR_INV_RESPONSE		Invalid response
 77	GPG_ERR_NO_AGENT		No agent running
 78	GPG_ERR_AGENT			agent error
-79	GPG_ERR_INV_DATA		Invalid data
+
+GPG_ERR_INV_DATA		Invalid data
+
+    GNUPG:  - Used in app-openpgp.c for a badly formatted request.
+    GCRYPT: - No passphrase given for gcry_kdf_derive.
+            - An opaque MPI is given to a public key function but not
+              expected.
+
 80	GPG_ERR_ASSUAN_SERVER_FAULT	Unspecific Assuan server fault
 81	GPG_ERR_ASSUAN			General Assuan error
 82	GPG_ERR_INV_SESSION_KEY		Invalid session key
@@ -331,6 +338,8 @@ GPG_ERR_MISSING_VALUE		Missing value
 
     GNUPG: - Not enough parameters for a secret key send to gpg-agent.
 
+    GCRYPT: - A required parameter has not been given.
+
 
 129	GPG_ERR_HARDWARE		Hardware problem
 130	GPG_ERR_PIN_BLOCKED		PIN blocked
@@ -417,7 +426,8 @@ GPG_ERR_INV_CERT_OBJ		Invalid certificate object
         Used by GPG to indicate an unknown ECC curve name (may also
         indicate missing ECC support).  It is also used to indicate an
         unsuported parameter name in functions which take a name and
-        value to update state.
+        value to update state.  Note that GPG_ERR_UNKNOWN_CURVE is
+        used instead by newer code.
 
 166	GPG_ERR_LOCALE_PROBLEM		A locale function failed
 167	GPG_ERR_NOT_LOCKED		Not locked
@@ -471,7 +481,10 @@ GPG_ERR_INV_CURVE		Invalid elliptic curve
         example it is not possible to get affine coordinates for the
         public key.
 
-188	GPG_ERR_UNKNOWN_CURVE		Unknown elliptic curve
+GPG_ERR_UNKNOWN_CURVE		Unknown elliptic curve
+
+        The curve is not known or not supported by the protocol.
+
 
 GPG_ERR_DUP_KEY                 Duplicated key
 
@@ -527,6 +540,11 @@ GPG_ERR_MAC_ALGO
 198     GPG_ERR_FULLY_CANCELED          Operation fully cancelled
 199	GPG_ERR_UNFINISHED		Operation not yet finished
 200	GPG_ERR_BUFFER_TOO_SHORT	Buffer too short
+
+
+GPG_ERR_KEY_DISABLED            Key disabled
+
+    GNUPG: - The key has been disabled by the user.
 
 GPG_ERR_KEY_ON_CARD		Not possible with a card based key
 

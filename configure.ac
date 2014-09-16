@@ -1,5 +1,5 @@
 # configure.ac for libgpg-error
-# Copyright (C) 2003, 2004, 2006, 2010, 2013 g10 Code GmbH
+# Copyright (C) 2003, 2004, 2006, 2010, 2013, 2014 g10 Code GmbH
 #
 # This file is part of libgpg-error.
 #
@@ -27,7 +27,7 @@ min_automake_version="1.11"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [13])
+m4_define([mym4_version_minor], [14])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,8 +51,8 @@ AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=11
-LIBGPG_ERROR_LT_AGE=11
+LIBGPG_ERROR_LT_CURRENT=12
+LIBGPG_ERROR_LT_AGE=12
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -136,9 +136,15 @@ AH_BOTTOM([
 #if defined(HAVE_W32_SYSTEM) && !defined(ENABLE_NLS)
 #define ENABLE_NLS 1
 #endif
+
+/* Connect the generic estream-printf.c to our framework.  */
+#define _ESTREAM_PRINTF_REALLOC _gpgrt_realloc
+#define _ESTREAM_PRINTF_EXTRA_INCLUDE "gpgrt-int.h"
+
 /* For building we need to define these macro.  */
 #define GPG_ERR_ENABLE_GETTEXT_MACROS 1
 #define GPG_ERR_ENABLE_ERRNO_MACROS 1
+#define GPGRT_ENABLE_ES_MACROS 1
 ])
 
 
@@ -161,13 +167,200 @@ AC_MSG_WARN([[Without strerror_r, gpg_strerror_r might not be thread-safe]]))
      ;;
 esac
 
-AC_CHECK_FUNCS([flockfile])
+AC_CHECK_FUNCS([flockfile vasprintf])
 
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
 
+#
+# Setup gcc specific options
+#
+AC_MSG_NOTICE([checking for cc features])
+if test "$GCC" = yes; then
+    # Check whether gcc does not emit a diagnostic for unknown -Wno-*
+    # options.  This is the case for gcc >= 4.6
+    AC_MSG_CHECKING([if gcc ignores unknown -Wno-* options])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 6 )
+#kickerror
+#endif]],[])],[_gcc_silent_wno=yes],[_gcc_silent_wno=no])
+    AC_MSG_RESULT($_gcc_silent_wno)
+
+    # Note that it is okay to use CFLAGS here because these are just
+    # warning options and the user should have a chance of overriding
+    # them.
+    if test "$USE_MAINTAINER_MODE" = "yes"; then
+        CFLAGS="$CFLAGS -O3 -Wall -Wcast-align -Wshadow -Wstrict-prototypes"
+        CFLAGS="$CFLAGS -Wformat -Wno-format-y2k -Wformat-security"
+        if test x"$_gcc_silent_wno" = xyes ; then
+          _gcc_wopt=yes
+        else
+          AC_MSG_CHECKING([if gcc supports -Wno-missing-field-initializers])
+          _gcc_cflags_save=$CFLAGS
+          CFLAGS="-Wno-missing-field-initializers"
+          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])],
+                            [_gcc_wopt=yes],[_gcc_wopt=no])
+          AC_MSG_RESULT($_gcc_wopt)
+          CFLAGS=$_gcc_cflags_save;
+        fi
+        if test x"$_gcc_wopt" = xyes ; then
+          CFLAGS="$CFLAGS -W -Wno-sign-compare -Wno-missing-field-initializers"
+        fi
+
+        AC_MSG_CHECKING([if gcc supports -Wdeclaration-after-statement])
+        _gcc_cflags_save=$CFLAGS
+        CFLAGS="-Wdeclaration-after-statement"
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])],_gcc_wopt=yes,_gcc_wopt=no)
+        AC_MSG_RESULT($_gcc_wopt)
+        CFLAGS=$_gcc_cflags_save;
+        if test x"$_gcc_wopt" = xyes ; then
+          CFLAGS="$CFLAGS -Wdeclaration-after-statement"
+        fi
+    else
+        CFLAGS="$CFLAGS -Wall"
+    fi
+
+    AC_MSG_CHECKING([if gcc supports -Wpointer-arith])
+    _gcc_cflags_save=$CFLAGS
+    CFLAGS="-Wpointer-arith"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])],_gcc_psign=yes,_gcc_psign=no)
+    AC_MSG_RESULT($_gcc_psign)
+    CFLAGS=$_gcc_cflags_save;
+    if test x"$_gcc_psign" = xyes ; then
+       CFLAGS="$CFLAGS -Wpointer-arith"
+    fi
+
+    # The undocumented option -Wno-psabi suppresses the annoying
+    #   "the ABI of passing union with long double has changed in GCC 4.4"
+    # which is emitted in estream-printf.c but entirely irrelvant
+    # because that union is local to the file.
+    if test x"$_gcc_silent_wno" = xyes ; then
+       CFLAGS="$CFLAGS -Wno-psabi"
+    fi
+fi
+
+#
+# Check whether the compiler supports the GCC style aligned attribute
+#
+AC_CACHE_CHECK([whether the GCC style aligned attribute is supported],
+       [gcry_cv_gcc_attribute_aligned],
+       [gcry_cv_gcc_attribute_aligned=no
+        AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+          [[struct { int a; } foo __attribute__ ((aligned (16)));]])],
+          [gcry_cv_gcc_attribute_aligned=yes])])
+if test "$gcry_cv_gcc_attribute_aligned" = "yes" ; then
+   AC_DEFINE(HAVE_GCC_ATTRIBUTE_ALIGNED,1,
+     [Defined if a GCC style "__attribute__ ((aligned (n))" is supported])
+fi
+
+#
+# Check for ELF visibility support.
+#
+AC_CACHE_CHECK(whether the visibility attribute is supported,
+       gcry_cv_visibility_attribute,
+       [gcry_cv_visibility_attribute=no
+        AC_LANG_CONFTEST([AC_LANG_SOURCE(
+          [[int foo __attribute__ ((visibility ("hidden"))) = 1;
+            int bar __attribute__ ((visibility ("protected"))) = 1;
+          ]])])
+
+        if ${CC-cc} -Werror -S conftest.c -o conftest.s \
+                  1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+            if grep '\.hidden.*foo' conftest.s >/dev/null 2>&1 ; then
+                if grep '\.protected.*bar' conftest.s >/dev/null 2>&1; then
+                    gcry_cv_visibility_attribute=yes
+                fi
+            fi
+        fi
+       ])
+if test "$gcry_cv_visibility_attribute" = "yes"; then
+    AC_CACHE_CHECK(for broken visibility attribute,
+       gcry_cv_broken_visibility_attribute,
+       [gcry_cv_broken_visibility_attribute=yes
+        AC_LANG_CONFTEST([AC_LANG_SOURCE(
+          [[int foo (int x);
+            int bar (int x) __asm__ ("foo")
+                            __attribute__ ((visibility ("hidden")));
+            int bar (int x) { return x; }
+          ]])])
+
+        if ${CC-cc} -Werror -S conftest.c -o conftest.s \
+                  1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+           if grep '\.hidden@<:@ 	_@:>@foo' conftest.s >/dev/null 2>&1;
+            then
+               gcry_cv_broken_visibility_attribute=no
+           fi
+        fi
+       ])
+fi
+if test "$gcry_cv_visibility_attribute" = "yes"; then
+    AC_CACHE_CHECK(for broken alias attribute,
+       gcry_cv_broken_alias_attribute,
+       [gcry_cv_broken_alias_attribute=yes
+        AC_LANG_CONFTEST([AC_LANG_SOURCE(
+          [[extern int foo (int x) __asm ("xyzzy");
+            int bar (int x) { return x; }
+            extern __typeof (bar) foo __attribute ((weak, alias ("bar")));
+            extern int dfoo;
+            extern __typeof (dfoo) dfoo __asm ("abccb");
+            int dfoo = 1;
+          ]])])
+
+        if ${CC-cc} -Werror -S conftest.c -o conftest.s \
+                  1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+           if grep 'xyzzy' conftest.s >/dev/null 2>&1 && \
+              grep 'abccb' conftest.s >/dev/null 2>&1; then
+              gcry_cv_broken_alias_attribute=no
+           fi
+        fi
+        ])
+fi
+if test "$gcry_cv_visibility_attribute" = "yes"; then
+    AC_CACHE_CHECK(if gcc supports -fvisibility=hidden,
+       gcry_cv_gcc_has_f_visibility,
+       [gcry_cv_gcc_has_f_visibility=no
+        _gcc_cflags_save=$CFLAGS
+        CFLAGS="-fvisibility=hidden"
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])],
+                          gcry_cv_gcc_has_f_visibility=yes)
+        CFLAGS=$_gcc_cflags_save;
+       ])
+fi
+if test "$gcry_cv_visibility_attribute" = "yes" \
+   && test "$gcry_cv_broken_visibility_attribute" != "yes" \
+   && test "$gcry_cv_broken_alias_attribute" != "yes" \
+   && test "$gcry_cv_gcc_has_f_visibility" = "yes"
+ then
+   AC_DEFINE(GPGRT_USE_VISIBILITY, 1,
+             [Define to use the GNU C visibility attribute.])
+   CFLAGS="$CFLAGS -fvisibility=hidden"
+fi
+
+#
+# Check whether ld supports a version script.
+# (Actually not a check but a list of systems which are known to support it.)
+#
+have_ld_version_script=no
+case "${host}" in
+    *-*-linux*)
+	have_ld_version_script=yes
+        ;;
+    *-*-gnu*)
+	have_ld_version_script=yes
+        ;;
+esac
+AC_ARG_ENABLE([ld-version-script],
+              AC_HELP_STRING([--enable-ld-version-script],
+                             [enable/disable use of linker version script.
+                              (default is system dependent)]),
+              [have_ld_version_script=$enableval],
+              [ : ] )
+AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$have_ld_version_script" = "yes")
+
+
+#
 # Check for thread library.
 #
 # Windows has always thread support; thus we don't bother to test for
@@ -191,8 +384,14 @@ else
   fi
 fi
 
+#
+# Prepare building of estream
+#
+estream_INIT
 
+#
 # Substitution used for gpg-error-config
+#
 GPG_ERROR_CONFIG_LIBS="-lgpg-error"
 if test "x$LIBTHREAD" != x; then
   GPG_ERROR_CONFIG_LIBS="${GPG_ERROR_CONFIG_LIBS} ${LIBTHREAD}"
@@ -218,7 +417,9 @@ AC_SUBST(GPG_ERROR_CONFIG_ISUBDIRAFTER)
 AC_SUBST(GPG_ERROR_CONFIG_HOST)
 
 
+#
 # Special defines for certain platforms
+#
 if test "$have_w32_system" = yes; then
     AC_DEFINE(HAVE_W32_SYSTEM,1,[Defined if we run on a W32 API based system])
     if test "$have_w64_system" = yes; then
@@ -262,8 +463,9 @@ AC_ARG_ENABLE(languages,
 [  --disable-languages     do not build support for other languages than C])
 AM_CONDITIONAL([LANGUAGES_SOME], [test "x$enable_languages" != xno])
 
-
+#
 # Substitution
+#
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([po/Makefile.in m4/Makefile])
 AC_CONFIG_FILES([src/Makefile tests/Makefile])
@@ -278,5 +480,12 @@ echo "
 
         Revision: mym4_revision  (mym4_revision_dec)
         Platform: $host
-
 "
+if test "$gcry_cv_gcc_attribute_aligned" != "yes" ; then
+cat <<G10EOF
+***
+***  Please note that your compiler does not support the GCC style
+***  aligned attribute.  Using this software may evoke bus errors.
+***
+G10EOF
+fi
