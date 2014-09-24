@@ -37,6 +37,9 @@
 /* Define if you have the iconv() function and it works. */
 #define HAVE_ICONV 1
 
+/* Define to 1 if the system has the type `intmax_t'. */
+#define HAVE_INTMAX_T 1
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
@@ -134,6 +137,18 @@
 
 /* Define if the pthread_in_use() detection is hard. */
 /* #undef PTHREAD_IN_USE_DETECTION_HARD */
+
+/* Used by mkheader to insert the replacement type. */
+#define REPLACEMENT_FOR_OFF_T "int64_t"
+
+/* The size of `int', as computed by sizeof. */
+#define SIZEOF_INT 4
+
+/* The size of `long', as computed by sizeof. */
+#define SIZEOF_LONG 4
+
+/* The size of `long long', as computed by sizeof. */
+#define SIZEOF_LONG_LONG 8
 
 /* The size of `pthread_mutex_t', as computed by sizeof. */
 /* #undef SIZEOF_PTHREAD_MUTEX_T */

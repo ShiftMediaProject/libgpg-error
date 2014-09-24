@@ -253,7 +253,7 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -332,7 +332,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;4267</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -412,7 +412,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -491,7 +491,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;4267</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -580,7 +580,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -672,7 +672,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -764,7 +764,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;4267</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -856,7 +856,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;4267</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
@@ -948,7 +948,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -1039,7 +1039,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <PreprocessorDefinitions>HAVE_CONFIG_H;snprintf=_snprintf;strcasecmp=_stricmp;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996;4018;4005;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4018;4005;4244;4267</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

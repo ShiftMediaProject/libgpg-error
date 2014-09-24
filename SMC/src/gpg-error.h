@@ -705,10 +705,17 @@ const char *gpgrt_check_version (const char *req_version);
 const char *gpg_error_check_version (const char *req_version);
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.14"
+#define GPG_ERROR_VERSION "1.16"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x010e00
+#define GPG_ERROR_VERSION_NUMBER 0x011000
+
+/* System specific type definitions.  */
+# include <stdint.h>
+typedef int64_t gpgrt_ssize_t;
+
+typedef int64_t gpgrt_off_t;
+
 
 
 /* Decide whether to use the format_arg attribute.  */
@@ -744,6 +751,7 @@ int _gpg_w32_gettext_use_utf8 (int value);
 # define gettext_localename() _gpg_w32_gettext_localename ()
 # define gettext_use_utf8(a) _gpg_w32_gettext_use_utf8 (a)
 #endif /*GPG_ERR_ENABLE_GETTEXT_MACROS*/
+
 
 
 
@@ -782,10 +790,10 @@ typedef struct
 } gpgrt_lock_t;
 #pragma pack(pop)
 
-#define GPGRT_LOCK_INITIALIZER {1,0,0,0,0,0,0,0,255,255,255,255, \
-                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
-                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
-                                0,0,0,0,0,0,0,0,0,0,0,0}
+#define GPGRT_LOCK_INITIALIZER {{1,0,0,0,0,0,0,0,255,255,255,255, \
+                                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
+                                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
+                                 0,0,0,0,0,0,0,0,0,0,0,0}}
 
 #else
 
@@ -796,10 +804,11 @@ typedef struct
 } gpgrt_lock_t;
 #pragma pack(pop)
 
-#define GPGRT_LOCK_INITIALIZER {1,0,0,0,0,0,0,0,255,255,255,255, \
-                                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
-                                0,0,0,0,0,0,0,0}
+#define GPGRT_LOCK_INITIALIZER {{1,0,0,0,0,0,0,0,255,255,255,255, \
+                                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
+                                 0,0,0,0,0,0,0,0}}
 #endif
+
 
 #define GPGRT_LOCK_DEFINE(name) \
   static gpgrt_lock_t name  = GPGRT_LOCK_INITIALIZER
@@ -871,13 +880,13 @@ typedef struct _gpgrt__stream *gpgrt_stream_t;
 typedef struct _gpgrt__stream *estream_t;
 #endif
 
-typedef ssize_t (*gpgrt_cookie_read_function_t) (void *cookie,
+typedef gpgrt_ssize_t (*gpgrt_cookie_read_function_t) (void *cookie,
                                                  void *buffer, size_t size);
-typedef ssize_t (*gpgrt_cookie_write_function_t) (void *cookie,
+typedef gpgrt_ssize_t (*gpgrt_cookie_write_function_t) (void *cookie,
                                                   const void *buffer,
                                                   size_t size);
 typedef int (*gpgrt_cookie_seek_function_t) (void *cookie,
-                                             off_t *pos, int whence);
+                                             gpgrt_off_t *pos, int whence);
 typedef int (*gpgrt_cookie_close_function_t) (void *cookie);
 
 struct _gpgrt_cookie_io_functions
@@ -981,9 +990,9 @@ void gpgrt_clearerr_unlocked (gpgrt_stream_t stream);
 
 int gpgrt_fflush (gpgrt_stream_t stream);
 int gpgrt_fseek (gpgrt_stream_t stream, long int offset, int whence);
-int gpgrt_fseeko (gpgrt_stream_t stream, off_t offset, int whence);
+int gpgrt_fseeko (gpgrt_stream_t stream, gpgrt_off_t offset, int whence);
 long int gpgrt_ftell (gpgrt_stream_t stream);
-off_t gpgrt_ftello (gpgrt_stream_t stream);
+gpgrt_off_t gpgrt_ftello (gpgrt_stream_t stream);
 void gpgrt_rewind (gpgrt_stream_t stream);
 
 int gpgrt_fgetc (gpgrt_stream_t stream);
@@ -1038,10 +1047,10 @@ int gpgrt_fputs (const char *_GPGRT__RESTRICT s,
 int gpgrt_fputs_unlocked (const char *_GPGRT__RESTRICT s,
                           gpgrt_stream_t _GPGRT__RESTRICT stream);
 
-ssize_t gpgrt_getline (char *_GPGRT__RESTRICT *_GPGRT__RESTRICT lineptr,
+gpgrt_ssize_t gpgrt_getline (char *_GPGRT__RESTRICT *_GPGRT__RESTRICT lineptr,
                        size_t *_GPGRT__RESTRICT n,
                        gpgrt_stream_t stream);
-ssize_t gpgrt_read_line (gpgrt_stream_t stream,
+gpgrt_ssize_t gpgrt_read_line (gpgrt_stream_t stream,
                          char **addr_of_buffer, size_t *length_of_buffer,
                          size_t *max_length);
 void gpgrt_free (void *a);

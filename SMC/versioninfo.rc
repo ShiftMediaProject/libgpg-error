@@ -18,8 +18,8 @@
 
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,14,0,61903
- PRODUCTVERSION 1,14,0,61903
+ FILEVERSION 1,16,0,2746
+ PRODUCTVERSION 1,16,0,2746
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x21L
@@ -37,15 +37,15 @@ BEGIN
             VALUE "Comments", "Provided under the terms of the GNU Lesser General Public License.\0"
             VALUE "CompanyName", "g10 Code GmbH\0"
             VALUE "FileDescription", "libgpg-error - Common error codes\0"
-            VALUE "FileVersion", "12.12.0.f1cf85e\0"
+            VALUE "FileVersion", "12.12.2.0aba009\0"
             VALUE "InternalName", "libgpg-error\0"
             VALUE "LegalCopyright", "Copyright © 2013 g10 Code GmbH\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "libgpg-error.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "libgpg-error\0"
-            VALUE "ProductVersion", "1.14\0"
-            VALUE "SpecialBuild", "2014-09-16T04:59+0000\0"
+            VALUE "ProductVersion", "1.16\0"
+            VALUE "SpecialBuild", "2014-09-24T08:21+0000\0"
         END
     END
 END
