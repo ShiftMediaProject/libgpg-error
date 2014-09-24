@@ -42,10 +42,12 @@ endif
 # Distributed lock object definitions for cross compilation.
 lock_obj_pub = \
         syscfg/lock-obj-pub.aarch64-unknown-linux-gnu.h     \
+	syscfg/lock-obj-pub.aarch64-apple-darwin.h          \
         syscfg/lock-obj-pub.alpha-unknown-linux-gnu.h       \
         syscfg/lock-obj-pub.arm-unknown-linux-androideabi.h \
         syscfg/lock-obj-pub.arm-unknown-linux-gnueabi.h     \
         syscfg/lock-obj-pub.arm-unknown-linux-gnueabihf.h   \
+	syscfg/lock-obj-pub.arm-apple-darwin.h              \
         syscfg/lock-obj-pub.hppa-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.i486-pc-gnu.h                   \
         syscfg/lock-obj-pub.i486-pc-kfreebsd-gnu.h          \
@@ -66,7 +68,7 @@ lock_obj_pub = \
 
 
 lib_LTLIBRARIES = libgpg-error.la
-include_HEADERS = gpg-error.h
+nodist_include_HEADERS = gpg-error.h
 bin_SCRIPTS = gpg-error-config
 m4datadir = $(datadir)/aclocal
 m4data_DATA = gpg-error.m4
@@ -151,11 +153,12 @@ libgpg_error_la_LDFLAGS = \
   -version-info \
   @LIBGPG_ERROR_LT_CURRENT@:@LIBGPG_ERROR_LT_REVISION@:@LIBGPG_ERROR_LT_AGE@
 
-libgpg_error_la_SOURCES = gpg-error.h gettext.h $(arch_sources) \
+libgpg_error_la_SOURCES = gettext.h $(arch_sources) \
 	gpgrt-int.h init.c init.h version.c lock.h thread.h \
 	estream.c estream-printf.c estream-printf.h \
 	strsource.c strerror.c code-to-errno.c code-from-errno.c \
 	visibility.c visibility.h
+nodist_libgpg_error_la_SOURCES = gpg-error.h
 
 # libgpg_error_la_DEPENDENCIES = \
 #        $(srcdir)/gpg-error.vers
@@ -268,17 +271,18 @@ else
 pre_mkheader_cmds = :
 parts_of_gpg_error_h += ./lock-obj-pub.native.h
 
-lock-obj-pub.native.h: Makefile gen-posix-lock-obj posix-lock-obj.h
+./lock-obj-pub.native.h: Makefile gen-posix-lock-obj posix-lock-obj.h
 	./gen-posix-lock-obj >$@
 endif
 endif
 
 # We also depend on versioninfo.rc because that is build by
 # config.status and thus has up-to-date version numbers.
-gpg-error.h: Makefile mkheader $(parts_of_gpg_error_h) versioninfo.rc
+gpg-error.h: Makefile mkheader $(parts_of_gpg_error_h) \
+             versioninfo.rc ../config.h
 	$(pre_mkheader_cmds)
 	./mkheader $(host_os) $(host_triplet)  $(srcdir)/gpg-error.h.in \
-                   $(PACKAGE_VERSION) $(VERSION_NUMBER) >$@
+                   ../config.h $(PACKAGE_VERSION) $(VERSION_NUMBER) >$@
 
 
 install-data-local:

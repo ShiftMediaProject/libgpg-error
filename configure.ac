@@ -27,7 +27,7 @@ min_automake_version="1.11"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [14])
+m4_define([mym4_version_minor], [16])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -53,7 +53,7 @@ AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
 # Note that added error codes don't constitute an interface change.
 LIBGPG_ERROR_LT_CURRENT=12
 LIBGPG_ERROR_LT_AGE=12
-LIBGPG_ERROR_LT_REVISION=0
+LIBGPG_ERROR_LT_REVISION=2
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -110,6 +110,12 @@ if test "$have_w32_system" != yes; then
   gl_THREADLIB_EARLY
 fi
 
+# We build libgpg-error with large file support so that we have a 64
+# bit off_t.  Our external interface uses the gpgrt_off_t which is
+# anyway specified as 64 bit.  Thus the same libgpg-error can be used
+# by software which is not build with large file support.
+AC_SYS_LARGEFILE
+
 
 LT_PREREQ([2.2.6])
 LT_INIT([win32-dll disable-static])
@@ -154,7 +160,7 @@ AM_GNU_GETTEXT([external])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h locale.h])
+AC_CHECK_HEADERS([stdlib.h locale.h stdint.h])
 AC_FUNC_STRERROR_R
 case "${host_os}" in
      solaris*)
@@ -170,8 +176,34 @@ esac
 AC_CHECK_FUNCS([flockfile vasprintf])
 
 
+#
 # Checks for typedefs, structures, and compiler characteristics.
+#
 AC_C_CONST
+
+AC_CHECK_SIZEOF(int)
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(long long)
+
+# Find a 64 bit integer type to be used instead of off_t.  We prefer
+# the standard integer types over int64_t and finally try long long.
+if test "$ac_cv_sizeof_int" = "8"; then
+   replacement_for_off_t="int"
+elif test "$ac_cv_sizeof_long" = "8"; then
+   replacement_for_off_t="long"
+elif test "$ac_cv_header_stdint_h" = yes; then
+   replacement_for_off_t="int64_t"
+elif test "$ac_cv_sizeof_long_long" = "8"; then
+   replacement_for_off_t="long long"
+else
+   AC_MSG_ERROR([[
+***
+*** No 64 bit signed integer type found.  Can't build this library.
+***]])
+fi
+AC_DEFINE_UNQUOTED(REPLACEMENT_FOR_OFF_T, "$replacement_for_off_t",
+                   [Used by mkheader to insert the replacement type.])
+
 
 
 #

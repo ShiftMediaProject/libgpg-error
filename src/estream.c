@@ -165,7 +165,7 @@ struct _gpgrt_stream_internal
   void *opaque;			 /* Opaque data.           */
   unsigned int modeflags;	 /* Flags for the backend. */
   char *printable_fname;         /* Malloced filename for es_fname_get.  */
-  off_t offset;
+  gpgrt_off_t offset;
   gpgrt_cookie_read_function_t  func_read;
   gpgrt_cookie_write_function_t func_write;
   gpgrt_cookie_seek_function_t  func_seek;
@@ -339,6 +339,18 @@ init_stream_lock (estream_t _GPGRT__RESTRICT stream)
   else
     rc = 0;
   return rc;
+}
+
+
+static void
+destroy_stream_lock (estream_t _GPGRT__RESTRICT stream)
+{
+  if (!stream->intern->samethread)
+    {
+      dbg_lock_1 ("enter destroy_stream_lock for %p\n", stream);
+      _gpgrt_lock_destroy (&stream->intern->lock);
+      dbg_lock_1 ("leave destroy_stream_lock for %p\n", stream);
+    }
 }
 
 
@@ -607,11 +619,11 @@ func_mem_create (void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
 
 
 /* Read function for memory objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_mem_read (void *cookie, void *buffer, size_t size)
 {
   estream_cookie_mem_t mem_cookie = cookie;
-  ssize_t ret;
+  gpgrt_ssize_t ret;
 
   if (size > mem_cookie->data_len - mem_cookie->offset)
     size = mem_cookie->data_len - mem_cookie->offset;
@@ -628,11 +640,11 @@ es_func_mem_read (void *cookie, void *buffer, size_t size)
 
 
 /* Write function for memory objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_mem_write (void *cookie, const void *buffer, size_t size)
 {
   estream_cookie_mem_t mem_cookie = cookie;
-  ssize_t ret;
+  gpgrt_ssize_t ret;
   size_t nleft;
 
   if (!size)
@@ -715,10 +727,10 @@ es_func_mem_write (void *cookie, const void *buffer, size_t size)
 
 /* Seek function for memory objects.  */
 static int
-es_func_mem_seek (void *cookie, off_t *offset, int whence)
+es_func_mem_seek (void *cookie, gpgrt_off_t *offset, int whence)
 {
   estream_cookie_mem_t mem_cookie = cookie;
-  off_t pos_new;
+  gpgrt_off_t pos_new;
 
   switch (whence)
     {
@@ -879,12 +891,12 @@ func_fd_create (void **cookie, int fd, unsigned int modeflags, int no_close)
 }
 
 /* Read function for fd objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_fd_read (void *cookie, void *buffer, size_t size)
 
 {
   estream_cookie_fd_t file_cookie = cookie;
-  ssize_t bytes_read;
+  gpgrt_ssize_t bytes_read;
 
   if (IS_INVALID_FD (file_cookie->fd))
     {
@@ -908,11 +920,11 @@ es_func_fd_read (void *cookie, void *buffer, size_t size)
 }
 
 /* Write function for fd objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_fd_write (void *cookie, const void *buffer, size_t size)
 {
   estream_cookie_fd_t file_cookie = cookie;
-  ssize_t bytes_written;
+  gpgrt_ssize_t bytes_written;
 
   if (IS_INVALID_FD (file_cookie->fd))
     {
@@ -937,10 +949,10 @@ es_func_fd_write (void *cookie, const void *buffer, size_t size)
 
 /* Seek function for fd objects.  */
 static int
-es_func_fd_seek (void *cookie, off_t *offset, int whence)
+es_func_fd_seek (void *cookie, gpgrt_off_t *offset, int whence)
 {
   estream_cookie_fd_t file_cookie = cookie;
-  off_t offset_new;
+  gpgrt_off_t offset_new;
   int err;
 
   if (IS_INVALID_FD (file_cookie->fd))
@@ -1039,11 +1051,11 @@ es_func_w32_create (void **cookie, HANDLE hd,
 }
 
 /* Read function for W32 handle objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_w32_read (void *cookie, void *buffer, size_t size)
 {
   estream_cookie_w32_t w32_cookie = cookie;
-  ssize_t bytes_read;
+  gpgrt_ssize_t bytes_read;
 
   if (w32_cookie->hd == INVALID_HANDLE_VALUE)
     {
@@ -1081,11 +1093,11 @@ es_func_w32_read (void *cookie, void *buffer, size_t size)
 }
 
 /* Write function for W32 handle objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_w32_write (void *cookie, const void *buffer, size_t size)
 {
   estream_cookie_w32_t w32_cookie = cookie;
-  ssize_t bytes_written;
+  gpgrt_ssize_t bytes_written;
 
   if (w32_cookie->hd == INVALID_HANDLE_VALUE)
     {
@@ -1118,7 +1130,7 @@ es_func_w32_write (void *cookie, const void *buffer, size_t size)
 
 /* Seek function for W32 handle objects.  */
 static int
-es_func_w32_seek (void *cookie, off_t *offset, int whence)
+es_func_w32_seek (void *cookie, gpgrt_off_t *offset, int whence)
 {
   estream_cookie_w32_t w32_cookie = cookie;
   DWORD method;
@@ -1165,7 +1177,8 @@ es_func_w32_seek (void *cookie, off_t *offset, int whence)
   if (post_syscall_func)
     post_syscall_func ();
 #endif
-  *offset = (unsigned long long)newoff.QuadPart;
+  /* Note that gpgrt_off_t is always 64 bit.  */
+  *offset = (gpgrt_off_t)newoff.QuadPart;
   return 0;
 }
 
@@ -1253,12 +1266,12 @@ func_fp_create (void **cookie, FILE *fp,
 }
 
 /* Read function for FILE* objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_fp_read (void *cookie, void *buffer, size_t size)
 
 {
   estream_cookie_fp_t file_cookie = cookie;
-  ssize_t bytes_read;
+  gpgrt_ssize_t bytes_read;
 
   if (file_cookie->fp)
     {
@@ -1276,7 +1289,7 @@ es_func_fp_read (void *cookie, void *buffer, size_t size)
 }
 
 /* Write function for FILE* objects.  */
-static ssize_t
+static gpgrt_ssize_t
 es_func_fp_write (void *cookie, const void *buffer, size_t size)
 {
   estream_cookie_fp_t file_cookie = cookie;
@@ -1319,7 +1332,7 @@ es_func_fp_write (void *cookie, const void *buffer, size_t size)
 
 /* Seek function for FILE* objects.  */
 static int
-es_func_fp_seek (void *cookie, off_t *offset, int whence)
+es_func_fp_seek (void *cookie, gpgrt_off_t *offset, int whence)
 {
   estream_cookie_fp_t file_cookie = cookie;
   long int offset_new;
@@ -1592,7 +1605,7 @@ es_fill (estream_t stream)
   else
     {
       gpgrt_cookie_read_function_t func_read = stream->intern->func_read;
-      ssize_t ret;
+      gpgrt_ssize_t ret;
 
       ret = (*func_read) (stream->intern->cookie,
 			  stream->buffer, stream->buffer_size);
@@ -1632,7 +1645,7 @@ es_flush (estream_t stream)
     {
       size_t bytes_written;
       size_t data_flushed;
-      ssize_t ret;
+      gpgrt_ssize_t ret;
 
       if (! func_write)
 	{
@@ -1649,7 +1662,8 @@ es_flush (estream_t stream)
       data_flushed = 0;
       err = 0;
 
-      while ((((ssize_t) (stream->data_offset - data_flushed)) > 0) && (! err))
+      while ((((gpgrt_ssize_t) (stream->data_offset - data_flushed)) > 0)
+             && !err)
 	{
 	  ret = (*func_write) (stream->intern->cookie,
 			       stream->buffer + data_flushed,
@@ -1735,7 +1749,7 @@ init_stream_obj (estream_t stream,
      reading mode.  This is required in case we are working on a
      stream which is not seeekable (like stdout).  Without this
      pre-initialization we would do a seek at the first write call and
-     as this will fail no utput will be delivered. */
+     as this will fail no output will be delivered. */
   if ((modeflags & O_WRONLY) || (modeflags & O_RDWR) )
     stream->flags.writing = 1;
   else
@@ -1819,7 +1833,7 @@ es_create (estream_t *stream, void *cookie, es_syshd_t *syshd,
       if (stream_new)
 	{
 	  es_deinitialize (stream_new);
-          _gpgrt_lock_destroy (&stream_new->intern->lock);
+          destroy_stream_lock (stream_new);
 	  mem_free (stream_new->intern);
 	  mem_free (stream_new);
 	}
@@ -1848,7 +1862,7 @@ do_close (estream_t stream, int with_locked_list)
           stream->intern->onclose = tmp;
         }
       err = es_deinitialize (stream);
-      _gpgrt_lock_destroy (&stream->intern->lock);
+      destroy_stream_lock (stream);
       mem_free (stream->intern);
       mem_free (stream);
     }
@@ -1896,7 +1910,7 @@ es_read_nbf (estream_t _GPGRT__RESTRICT stream,
 {
   gpgrt_cookie_read_function_t func_read = stream->intern->func_read;
   size_t data_read;
-  ssize_t ret;
+  gpgrt_ssize_t ret;
   int err;
 
   data_read = 0;
@@ -2077,12 +2091,12 @@ es_unreadn (estream_t _GPGRT__RESTRICT stream,
 
 /* Seek in STREAM.  */
 static int
-es_seek (estream_t _GPGRT__RESTRICT stream, off_t offset, int whence,
-	 off_t *_GPGRT__RESTRICT offset_new)
+es_seek (estream_t _GPGRT__RESTRICT stream, gpgrt_off_t offset, int whence,
+	 gpgrt_off_t *_GPGRT__RESTRICT offset_new)
 {
   gpgrt_cookie_seek_function_t func_seek = stream->intern->func_seek;
   int err, ret;
-  off_t off;
+  gpgrt_off_t off;
 
   if (! func_seek)
     {
@@ -2142,7 +2156,7 @@ es_write_nbf (estream_t _GPGRT__RESTRICT stream,
 {
   gpgrt_cookie_write_function_t func_write = stream->intern->func_write;
   size_t data_written;
-  ssize_t ret;
+  gpgrt_ssize_t ret;
   int err;
 
   if (bytes_to_write && (! func_write))
@@ -2613,10 +2627,10 @@ es_set_buffering (estream_t _GPGRT__RESTRICT stream,
 }
 
 
-static off_t
+static gpgrt_off_t
 es_offset_calculate (estream_t stream)
 {
-  off_t offset;
+  gpgrt_off_t offset;
 
   offset = stream->intern->offset + stream->data_offset;
   if (offset < stream->unread_data_len)
@@ -3496,7 +3510,7 @@ _gpgrt_fseek (estream_t stream, long int offset, int whence)
 
 
 int
-_gpgrt_fseeko (estream_t stream, off_t offset, int whence)
+_gpgrt_fseeko (estream_t stream, gpgrt_off_t offset, int whence)
 {
   int err;
 
@@ -3521,10 +3535,10 @@ _gpgrt_ftell (estream_t stream)
 }
 
 
-off_t
+gpgrt_off_t
 _gpgrt_ftello (estream_t stream)
 {
-  off_t ret = -1;
+  gpgrt_off_t ret = -1;
 
   lock_stream (stream);
   ret = es_offset_calculate (stream);
@@ -3748,7 +3762,7 @@ _gpgrt_fputs (const char *_GPGRT__RESTRICT s, estream_t _GPGRT__RESTRICT stream)
 }
 
 
-ssize_t
+gpgrt_ssize_t
 _gpgrt_getline (char *_GPGRT__RESTRICT *_GPGRT__RESTRICT lineptr,
                 size_t *_GPGRT__RESTRICT n, estream_t _GPGRT__RESTRICT stream)
 {
@@ -3799,7 +3813,7 @@ _gpgrt_getline (char *_GPGRT__RESTRICT *_GPGRT__RESTRICT lineptr,
 
  out:
 
-  return err ? err : (ssize_t)line_n;
+  return err ? err : (gpgrt_ssize_t)line_n;
 }
 
 
@@ -3832,7 +3846,7 @@ _gpgrt_getline (char *_GPGRT__RESTRICT *_GPGRT__RESTRICT lineptr,
    allow the caller to append a CR,LF,Nul.  The buffer should be
    released using gpgrt_free.
  */
-ssize_t
+gpgrt_ssize_t
 _gpgrt_read_line (estream_t stream,
                   char **addr_of_buffer, size_t *length_of_buffer,
                   size_t *max_length)
