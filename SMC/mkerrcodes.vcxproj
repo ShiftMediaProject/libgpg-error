@@ -84,8 +84,8 @@
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist ..\src\code-from-errno (
-del ..\src\code-from-errno
+if exist ..\src\code-from-errno.h (
+del ..\src\code-from-errno.h
 )
 if exist ..\src\mkerrcodes.h (
 del ..\src\mkerrcodes.h
@@ -123,8 +123,8 @@ src\mkerrcodes.exe | awk -f ..\src\mkerrcodes2.awk &gt; src\code-from-errno.h
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist ..\src\code-from-errno (
-del ..\src\code-from-errno
+if exist ..\src\code-from-errno.h (
+del ..\src\code-from-errno.h
 )
 if exist ..\src\mkerrcodes.h (
 del ..\src\mkerrcodes.h
@@ -162,8 +162,8 @@ src\mkerrcodes.exe | awk -f ..\src\mkerrcodes2.awk &gt; src\code-from-errno.h
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist ..\src\code-from-errno (
-del ..\src\code-from-errno
+if exist ..\src\code-from-errno.h (
+del ..\src\code-from-errno.h
 )
 if exist ..\src\mkerrcodes.h (
 del ..\src\mkerrcodes.h
@@ -201,8 +201,8 @@ src\mkerrcodes.exe | awk -f ..\src\mkerrcodes2.awk &gt; src\code-from-errno.h
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist ..\src\code-from-errno (
-del ..\src\code-from-errno
+if exist ..\src\code-from-errno.h (
+del ..\src\code-from-errno.h
 )
 if exist ..\src\mkerrcodes.h (
 del ..\src\mkerrcodes.h
