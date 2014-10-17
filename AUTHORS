@@ -4,7 +4,7 @@ Bug reports: bug-gnupg@gnupg.org
 Mailing list: gnupg-devel@gnupg.org
 Security related bug reports: security@gnupg.org
 License (library): LGPLv2.1+
-License (tools): GPLv2+ with exception
+License (manual tools): GPLv2+ with exception
 
 
 Aron Xu <happyaron.xu at gmail.com>
@@ -60,6 +60,15 @@ Yasuaki Taniguchi <yasuakit at gmail.com>
 
 Yuri Chornoivan <yurchor at ukr.net>
  - TRANSLATION [uk]
+
+
+Authors with a DCO
+==================
+
+We do not collect DCOs for libgpg-error.  As a supporting library for
+GnuPG, Libgcrypt, and GPGME a DCO for any of these projects is
+sufficient.
+
 
 
  Copyright 2003, 2004, 2005, 2006, 2007, 2013 g10 Code GmbH

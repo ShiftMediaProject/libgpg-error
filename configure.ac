@@ -27,7 +27,7 @@ min_automake_version="1.11"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [16])
+m4_define([mym4_version_minor], [17])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,9 +51,9 @@ AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=12
-LIBGPG_ERROR_LT_AGE=12
-LIBGPG_ERROR_LT_REVISION=2
+LIBGPG_ERROR_LT_CURRENT=13
+LIBGPG_ERROR_LT_AGE=13
+LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -452,6 +452,7 @@ AC_SUBST(GPG_ERROR_CONFIG_HOST)
 #
 # Special defines for certain platforms
 #
+force_use_syscfg=no
 if test "$have_w32_system" = yes; then
     AC_DEFINE(HAVE_W32_SYSTEM,1,[Defined if we run on a W32 API based system])
     if test "$have_w64_system" = yes; then
@@ -461,11 +462,17 @@ if test "$have_w32_system" = yes; then
       AC_DEFINE(HAVE_W32CE_SYSTEM,1,[Defined if we run on WindowsCE])
       GPG_ERROR_CONFIG_ISUBDIRAFTER="gpg-extra"
     fi
+    force_use_syscfg=yes
 fi
+if test x$cross_compiling = xyes; then
+    force_use_syscfg=yes
+fi
+
 AM_CONDITIONAL(HAVE_W32_SYSTEM, test "$have_w32_system" = yes)
 AM_CONDITIONAL(HAVE_W64_SYSTEM, test "$have_w64_system" = yes)
 AM_CONDITIONAL(HAVE_W32CE_SYSTEM, test "$have_w32ce_system" = yes)
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
+AM_CONDITIONAL(FORCE_USE_SYSCFG, test x$force_use_syscfg = xyes)
 
 AC_DEFINE_UNQUOTED(HOST_TRIPLET_STRING, "$host", [The host triplet])
 
@@ -484,7 +491,17 @@ changequote([,])dnl
 BUILD_FILEVERSION="${BUILD_FILEVERSION}0,mym4_revision_dec"
 AC_SUBST(BUILD_FILEVERSION)
 
-BUILD_TIMESTAMP=`date -u +%Y-%m-%dT%H:%M+0000 2>/dev/null || date`
+
+AC_ARG_ENABLE([build-timestamp],
+              AC_HELP_STRING([--enable-build-timestamp],
+                [set an explicit build timestamp for reproducibility.
+                 (default is the current time in ISO-8601 format)]),
+                [if test "$enableval" = "no"; then
+                    BUILD_TIMESTAMP="<none>"
+                 else
+                    BUILD_TIMESTAMP="$enableval"
+                 fi],
+        [BUILD_TIMESTAMP=`date -u +%Y-%m-%dT%H:%M+0000 2>/dev/null || date`])
 AC_SUBST(BUILD_TIMESTAMP)
 AC_DEFINE_UNQUOTED(BUILD_TIMESTAMP, "$BUILD_TIMESTAMP",
                    [The time this package was configured for a build])
@@ -499,7 +516,7 @@ AM_CONDITIONAL([LANGUAGES_SOME], [test "x$enable_languages" != xno])
 # Substitution
 #
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([po/Makefile.in m4/Makefile])
+AC_CONFIG_FILES([doc/Makefile po/Makefile.in m4/Makefile])
 AC_CONFIG_FILES([src/Makefile tests/Makefile])
 AC_CONFIG_FILES([lang/Makefile lang/cl/Makefile lang/cl/gpg-error.asd])
 AC_CONFIG_FILES([src/versioninfo.rc])

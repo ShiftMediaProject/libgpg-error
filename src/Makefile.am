@@ -57,9 +57,11 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.mipsel-unknown-linux-gnu.h      \
         syscfg/lock-obj-pub.powerpc-unknown-linux-gnu.h     \
         syscfg/lock-obj-pub.powerpc64-unknown-linux-gnu.h   \
+	syscfg/lock-obj-pub.powerpc64le-unknown-linux-gnu.h \
         syscfg/lock-obj-pub.s390x-ibm-linux-gnu.h           \
         syscfg/lock-obj-pub.sh4-unknown-linux-gnu.h         \
         syscfg/lock-obj-pub.sparc-unknown-linux-gnu.h       \
+        syscfg/lock-obj-pub.sparc64-unknown-linux-gnu.h     \
         syscfg/lock-obj-pub.x86_64-pc-kfreebsd-gnu.h        \
         syscfg/lock-obj-pub.x86_64-pc-linux-gnu.h           \
         syscfg/lock-obj-pub.x86_64-pc-linux-gnux32.h        \
@@ -260,9 +262,9 @@ parts_of_gpg_error_h = 	 	\
 	w32ce-add.h      	\
 	$(lock_obj_pub)
 
-# If we are cross-compiling we better make sure that no stale native
-# lock include file will be found by mkheader.
-if CROSS_COMPILING
+# If we are cross-compiling or building on Windows we better make sure
+# that no stale native lock include file will be found by mkheader.
+if FORCE_USE_SYSCFG
 pre_mkheader_cmds = -rm lock-obj-pub.native.h 2>/dev/null
 else
 if HAVE_W32_SYSTEM
