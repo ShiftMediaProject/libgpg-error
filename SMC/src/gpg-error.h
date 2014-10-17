@@ -104,6 +104,7 @@ typedef enum
     GPG_ERR_SOURCE_KLEO = 13,
     GPG_ERR_SOURCE_G13 = 14,
     GPG_ERR_SOURCE_ASSUAN = 15,
+    GPG_ERR_SOURCE_TLS = 17,
     GPG_ERR_SOURCE_ANY = 31,
     GPG_ERR_SOURCE_USER_1 = 32,
     GPG_ERR_SOURCE_USER_2 = 33,
@@ -335,6 +336,31 @@ typedef enum
     GPG_ERR_SEXP_BAD_HEX_CHAR = 211,
     GPG_ERR_SEXP_ODD_HEX_NUMBERS = 212,
     GPG_ERR_SEXP_BAD_OCT_CHAR = 213,
+    GPG_ERR_NO_CERT_CHAIN = 226,
+    GPG_ERR_CERT_TOO_LARGE = 227,
+    GPG_ERR_INV_RECORD = 228,
+    GPG_ERR_BAD_MAC = 229,
+    GPG_ERR_UNEXPECTED_MSG = 230,
+    GPG_ERR_COMPR_FAILED = 231,
+    GPG_ERR_WOULD_WRAP = 232,
+    GPG_ERR_FATAL_ALERT = 233,
+    GPG_ERR_NO_CIPHER = 234,
+    GPG_ERR_MISSING_CLIENT_CERT = 235,
+    GPG_ERR_CLOSE_NOTIFY = 236,
+    GPG_ERR_TICKET_EXPIRED = 237,
+    GPG_ERR_BAD_TICKET = 238,
+    GPG_ERR_UNKNOWN_IDENTITY = 239,
+    GPG_ERR_BAD_HS_CERT = 240,
+    GPG_ERR_BAD_HS_CERT_REQ = 241,
+    GPG_ERR_BAD_HS_CERT_VER = 242,
+    GPG_ERR_BAD_HS_CHANGE_CIPHER = 243,
+    GPG_ERR_BAD_HS_CLIENT_HELLO = 244,
+    GPG_ERR_BAD_HS_SERVER_HELLO = 245,
+    GPG_ERR_BAD_HS_SERVER_HELLO_DONE = 246,
+    GPG_ERR_BAD_HS_FINISHED = 247,
+    GPG_ERR_BAD_HS_SERVER_KEX = 248,
+    GPG_ERR_BAD_HS_CLIENT_KEX = 249,
+    GPG_ERR_BOGUS_STRING = 250,
     GPG_ERR_KEY_DISABLED = 252,
     GPG_ERR_KEY_ON_CARD = 253,
     GPG_ERR_INV_LOCK_OBJ = 254,
@@ -705,10 +731,10 @@ const char *gpgrt_check_version (const char *req_version);
 const char *gpg_error_check_version (const char *req_version);
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.16"
+#define GPG_ERROR_VERSION "1.17"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x011000
+#define GPG_ERROR_VERSION_NUMBER 0x011100
 
 /* System specific type definitions.  */
 # include <stdint.h>
@@ -988,6 +1014,17 @@ int gpgrt_ferror_unlocked (gpgrt_stream_t stream);
 void gpgrt_clearerr (gpgrt_stream_t stream);
 void gpgrt_clearerr_unlocked (gpgrt_stream_t stream);
 
+int _gpgrt_pending (gpgrt_stream_t stream);          /* (private) */
+int _gpgrt_pending_unlocked (gpgrt_stream_t stream); /* (private) */
+
+#define gpgrt_pending(stream) _gpgrt_pending (stream)
+
+#define gpgrt_pending_unlocked(stream)				\
+  (((!(stream)->flags.writing)					\
+    && (((stream)->data_offset < (stream)->data_len)		\
+        || ((stream)->unread_data_len)))                        \
+   ? 1 : _gpgrt_pending_unlocked ((stream)))
+
 int gpgrt_fflush (gpgrt_stream_t stream);
 int gpgrt_fseek (gpgrt_stream_t stream, long int offset, int whence);
 int gpgrt_fseeko (gpgrt_stream_t stream, gpgrt_off_t offset, int whence);
@@ -998,8 +1035,8 @@ void gpgrt_rewind (gpgrt_stream_t stream);
 int gpgrt_fgetc (gpgrt_stream_t stream);
 int gpgrt_fputc (int c, gpgrt_stream_t stream);
 
-int _gpgrt_getc_underflow (gpgrt_stream_t stream);
-int _gpgrt_putc_overflow (int c, gpgrt_stream_t stream);
+int _gpgrt_getc_underflow (gpgrt_stream_t stream);       /* (private) */
+int _gpgrt_putc_overflow (int c, gpgrt_stream_t stream); /* (private) */
 
 #define gpgrt_getc_unlocked(stream)				\
   (((!(stream)->flags.writing)					\
@@ -1139,6 +1176,8 @@ int gpgrt_vsnprintf (char *buf,size_t bufsize,
 # define es_ferror_unlocked   gpgrt_ferror_unlocked
 # define es_clearerr          gpgrt_clearerr
 # define es_clearerr_unlocked gpgrt_clearerr_unlocked
+# define es_pending           gpgrt_pending
+# define es_pending_unlocked  gpgrt_pending_unlocked
 # define es_fflush            gpgrt_fflush
 # define es_fseek             gpgrt_fseek
 # define es_fseeko            gpgrt_fseeko

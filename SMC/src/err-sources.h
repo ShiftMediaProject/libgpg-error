@@ -41,6 +41,7 @@ static const char msgstr[] =
   gettext_noop ("Kleopatra") "\0"
   gettext_noop ("G13") "\0"
   gettext_noop ("Assuan") "\0"
+  gettext_noop ("TLS") "\0"
   gettext_noop ("Any source") "\0"
   gettext_noop ("User defined source 1") "\0"
   gettext_noop ("User defined source 2") "\0"
@@ -67,11 +68,12 @@ static const int msgidx[] =
     106,
     110,
     117,
-    128,
-    150,
-    172,
-    194,
-    216
+    121,
+    132,
+    154,
+    176,
+    198,
+    220
   };
 
 static GPG_ERR_INLINE int
@@ -79,6 +81,7 @@ msgidxof (int code)
 {
   return (0 ? 0
   : ((code >= 0) && (code <= 15)) ? (code - 0)
-  : ((code >= 31) && (code <= 35)) ? (code - 15)
-  : 36 - 15);
+  : ((code >= 17) && (code <= 17)) ? (code - 1)
+  : ((code >= 31) && (code <= 35)) ? (code - 14)
+  : 36 - 14);
 }

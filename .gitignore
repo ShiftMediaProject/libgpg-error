@@ -48,3 +48,14 @@ src/err-sources.h
 /doc/gpgrt.info
 /doc/stamp-vti
 /doc/version.texi
+
+*.obj
+*.log
+*.tlog
+*.pdb
+*.ildb
+*.suo
+*.sdf
+[Oo]bj/
+*.exe
+*.opensdf

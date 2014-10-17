@@ -239,6 +239,31 @@ static const char msgstr[] =
   "GPG_ERR_SEXP_BAD_HEX_CHAR" "\0"
   "GPG_ERR_SEXP_ODD_HEX_NUMBERS" "\0"
   "GPG_ERR_SEXP_BAD_OCT_CHAR" "\0"
+  "GPG_ERR_NO_CERT_CHAIN" "\0"
+  "GPG_ERR_CERT_TOO_LARGE" "\0"
+  "GPG_ERR_INV_RECORD" "\0"
+  "GPG_ERR_BAD_MAC" "\0"
+  "GPG_ERR_UNEXPECTED_MSG" "\0"
+  "GPG_ERR_COMPR_FAILED" "\0"
+  "GPG_ERR_WOULD_WRAP" "\0"
+  "GPG_ERR_FATAL_ALERT" "\0"
+  "GPG_ERR_NO_CIPHER" "\0"
+  "GPG_ERR_MISSING_CLIENT_CERT" "\0"
+  "GPG_ERR_CLOSE_NOTIFY" "\0"
+  "GPG_ERR_TICKET_EXPIRED" "\0"
+  "GPG_ERR_BAD_TICKET" "\0"
+  "GPG_ERR_UNKNOWN_IDENTITY" "\0"
+  "GPG_ERR_BAD_HS_CERT" "\0"
+  "GPG_ERR_BAD_HS_CERT_REQ" "\0"
+  "GPG_ERR_BAD_HS_CERT_VER" "\0"
+  "GPG_ERR_BAD_HS_CHANGE_CIPHER" "\0"
+  "GPG_ERR_BAD_HS_CLIENT_HELLO" "\0"
+  "GPG_ERR_BAD_HS_SERVER_HELLO" "\0"
+  "GPG_ERR_BAD_HS_SERVER_HELLO_DONE" "\0"
+  "GPG_ERR_BAD_HS_FINISHED" "\0"
+  "GPG_ERR_BAD_HS_SERVER_KEX" "\0"
+  "GPG_ERR_BAD_HS_CLIENT_KEX" "\0"
+  "GPG_ERR_BOGUS_STRING" "\0"
   "GPG_ERR_KEY_DISABLED" "\0"
   "GPG_ERR_KEY_ON_CARD" "\0"
   "GPG_ERR_INV_LOCK_OBJ" "\0"
@@ -504,52 +529,77 @@ static const int msgidx[] =
     4461,
     4490,
     4516,
-    4537,
-    4557,
-    4578,
-    4598,
-    4624,
-    4651,
-    4676,
-    4698,
-    4726,
-    4752,
-    4780,
-    4803,
-    4829,
-    4854,
-    4879,
-    4904,
-    4927,
-    4951,
-    4977,
-    5004,
-    5028,
-    5047,
-    5068,
-    5089,
-    5111,
-    5133,
-    5161,
-    5176,
-    5191,
-    5206,
-    5221,
-    5236,
-    5251,
-    5266,
-    5281,
-    5296,
-    5312,
-    5328,
-    5344,
+    4538,
+    4561,
+    4580,
+    4596,
+    4619,
+    4640,
+    4659,
+    4679,
+    4697,
+    4725,
+    4746,
+    4769,
+    4788,
+    4813,
+    4833,
+    4857,
+    4881,
+    4910,
+    4938,
+    4966,
+    4999,
+    5023,
+    5049,
+    5075,
+    5096,
+    5117,
+    5137,
+    5158,
+    5178,
+    5204,
+    5231,
+    5256,
+    5278,
+    5306,
+    5332,
     5360,
-    5376,
-    5392,
-    5408,
-    5430,
-    5452,
-    5464
+    5383,
+    5409,
+    5434,
+    5459,
+    5484,
+    5507,
+    5531,
+    5557,
+    5584,
+    5608,
+    5627,
+    5648,
+    5669,
+    5691,
+    5713,
+    5741,
+    5756,
+    5771,
+    5786,
+    5801,
+    5816,
+    5831,
+    5846,
+    5861,
+    5876,
+    5892,
+    5908,
+    5924,
+    5940,
+    5956,
+    5972,
+    5988,
+    6010,
+    6032,
+    6044
   };
 
 static GPG_ERR_INLINE int
@@ -557,10 +607,11 @@ msgidxof (int code)
 {
   return (0 ? 0
   : ((code >= 0) && (code <= 213)) ? (code - 0)
-  : ((code >= 252) && (code <= 254)) ? (code - 38)
-  : ((code >= 257) && (code <= 271)) ? (code - 40)
-  : ((code >= 273) && (code <= 281)) ? (code - 41)
-  : ((code >= 1024) && (code <= 1039)) ? (code - 783)
-  : ((code >= 16381) && (code <= 16383)) ? (code - 16124)
-  : 16384 - 16124);
+  : ((code >= 226) && (code <= 250)) ? (code - 12)
+  : ((code >= 252) && (code <= 254)) ? (code - 13)
+  : ((code >= 257) && (code <= 271)) ? (code - 15)
+  : ((code >= 273) && (code <= 281)) ? (code - 16)
+  : ((code >= 1024) && (code <= 1039)) ? (code - 758)
+  : ((code >= 16381) && (code <= 16383)) ? (code - 16099)
+  : 16384 - 16099);
 }
