@@ -48,6 +48,11 @@ src/err-sources.h
 /doc/gpgrt.info
 /doc/stamp-vti
 /doc/version.texi
+/doc/gcrypt.texi
+/doc/gpg-error-config*
+/doc/Makefile
+/doc/*stamp*
+/po/*.po~
 
 *.obj
 *.log
