@@ -114,24 +114,11 @@
 #define HAVE_W64_SYSTEM 1
 #endif
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#define LT_OBJDIR ".libs/"
-
 /* Name of package */
 #define PACKAGE "libgpg-error"
 
-/* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "http://bugs.gnupg.org"
-
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "libgpg-error"
-
-/* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "libgpg-error"
-
-/* Define to the home page for this package. */
-#define PACKAGE_URL ""
 
 #include "version.h"
 
@@ -183,51 +170,9 @@
    made weak. */
 /* #undef USE_SOLARIS_THREADS_WEAK */
 
-/* Enable extensions on AIX 3, Interix.  */
-#ifndef _ALL_SOURCE
-# define _ALL_SOURCE 1
-#endif
-/* Enable GNU extensions on systems that have them.  */
-#ifndef _GNU_SOURCE
-# define _GNU_SOURCE 1
-#endif
-/* Enable threading extensions on Solaris.  */
-#ifndef _POSIX_PTHREAD_SEMANTICS
-# define _POSIX_PTHREAD_SEMANTICS 1
-#endif
-/* Enable extensions on HP NonStop.  */
-#ifndef _TANDEM_SOURCE
-# define _TANDEM_SOURCE 1
-#endif
-/* Enable general extensions on Solaris.  */
-#ifndef __EXTENSIONS__
-# define __EXTENSIONS__ 1
-#endif
-
 
 /* Define if the native Windows multithreading API can be used. */
 #define USE_WINDOWS_THREADS 1
-
-/* Define to 1 if on MINIX. */
-/* #undef _MINIX */
-
-/* Define to 2 if the system does not provide POSIX.1 features except with
-   this defined. */
-/* #undef _POSIX_1_SOURCE */
-
-/* Define to 1 if you need to in order for `stat' and other things to work. */
-/* #undef _POSIX_SOURCE */
-
-/* Define to empty if `const' does not conform to ANSI C. */
-/* #undef const */
-
-/* Define to the widest signed integer type if <stdint.h> and <inttypes.h> do
-   not define. */
-/* #undef intmax_t */
-
-/* Define to the widest unsigned integer type if <stdint.h> and <inttypes.h>
-   do not define. */
-/* #undef uintmax_t */
 
 
 /* Force using of NLS for W32 even if no libintl has been found.  This is
