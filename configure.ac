@@ -1,5 +1,5 @@
 # configure.ac for libgpg-error
-# Copyright (C) 2003, 2004, 2006, 2010, 2013, 2014 g10 Code GmbH
+# Copyright (C) 2003, 2004, 2006, 2010, 2013, 2014, 2015 g10 Code GmbH
 #
 # This file is part of libgpg-error.
 #
@@ -19,7 +19,7 @@
 # (Process this file with autoconf to produce a configure script.)
 # The following lines are used by ./autogen.sh.
 AC_PREREQ(2.59)
-min_automake_version="1.11"
+min_automake_version="1.14"
 
 # To build a release you need to create a tag with the version number
 # (git tag -s libgpg-error-n.m) and run "./autogen.sh --force".
@@ -27,7 +27,7 @@ min_automake_version="1.11"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [17])
+m4_define([mym4_version_minor], [18])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,8 +51,8 @@ AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=13
-LIBGPG_ERROR_LT_AGE=13
+LIBGPG_ERROR_LT_CURRENT=14
+LIBGPG_ERROR_LT_AGE=14
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -65,7 +65,7 @@ VERSION_NUMBER=m4_esyscmd(printf "0x%02x%02x00" mym4_version_major \
 AC_SUBST(VERSION_NUMBER)
 
 AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([serial-tests dist-bzip2])
 AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([src/err-sources.h.in])
 AC_CONFIG_HEADER([config.h])
@@ -155,7 +155,7 @@ AH_BOTTOM([
 
 
 # Note, that autogen.sh greps for the next line.
-AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT_VERSION([0.19.3])
 AM_GNU_GETTEXT([external])
 
 # Checks for header files.
@@ -508,9 +508,16 @@ AC_DEFINE_UNQUOTED(BUILD_TIMESTAMP, "$BUILD_TIMESTAMP",
 
 
 
-AC_ARG_ENABLE(languages,
-[  --disable-languages     do not build support for other languages than C])
+AC_ARG_ENABLE(languages, AC_HELP_STRING([--disable-languages],
+                        [do not build support for other languages than C]))
 AM_CONDITIONAL([LANGUAGES_SOME], [test "x$enable_languages" != xno])
+
+build_doc=yes
+AC_ARG_ENABLE([doc], AC_HELP_STRING([--disable-doc],
+                                    [do not build the documentation]),
+                     build_doc=$enableval, build_doc=yes)
+AM_CONDITIONAL([BUILD_DOC], [test "x$build_doc" != xno])
+
 
 #
 # Substitution

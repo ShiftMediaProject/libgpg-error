@@ -17,7 +17,7 @@
 # License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 ACLOCAL_AMFLAGS = -I m4
-AUTOMAKE_OPTIONS = dist-bzip2
+DISTCHECK_CONFIGURE_FLAGS = --enable-doc
 
 # (A suitable gitlog-to-changelog script can be found in GnuPG master.)
 GITLOG_TO_CHANGELOG=gitlog-to-changelog
@@ -33,7 +33,13 @@ else
 lang_subdirs =
 endif
 
-SUBDIRS = m4 src doc tests po $(lang_subdirs)
+if BUILD_DOC
+doc = doc
+else
+doc =
+endif
+
+SUBDIRS = m4 src $(doc) tests po $(lang_subdirs)
 
 
 dist-hook: gen-ChangeLog

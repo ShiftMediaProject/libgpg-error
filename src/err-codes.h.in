@@ -247,8 +247,12 @@
 212	GPG_ERR_SEXP_ODD_HEX_NUMBERS	Odd hexadecimal numbers in S-expression
 213	GPG_ERR_SEXP_BAD_OCT_CHAR	Bad octal character in S-expression
 
-# 214 to 225 are free to be used.
+# 214 to 221 are free to be used.
 
+222	GPG_ERR_LEGACY_KEY		Legacy key
+223	GPG_ERR_REQUEST_TOO_SHORT	Request too short
+224	GPG_ERR_REQUEST_TOO_LONG	Request too long
+225	GPG_ERR_OBJ_TERM_STATE		Object is in termination state
 226	GPG_ERR_NO_CERT_CHAIN		No certificate chain
 227	GPG_ERR_CERT_TOO_LARGE		Certificate is too large
 228	GPG_ERR_INV_RECORD		Invalid record
@@ -274,8 +278,7 @@
 248	GPG_ERR_BAD_HS_SERVER_KEX	Bad server key exchange message in handshake
 249	GPG_ERR_BAD_HS_CLIENT_KEX	Bad client key exchange message in handshake
 250	GPG_ERR_BOGUS_STRING		Bogus string
-# 251 is free to be used.
-
+251	GPG_ERR_FORBIDDEN		Forbidden
 252	GPG_ERR_KEY_DISABLED		Key disabled
 253	GPG_ERR_KEY_ON_CARD		Not possible with a card based key
 254	GPG_ERR_INV_LOCK_OBJ		Invalid lock object

@@ -1,22 +1,24 @@
-# Esperanto translation of Libgpg-error
-# Copyright (C) 2013 Free Software Foundation, Inc.
+# Hungarian translations of libgpg-error.
+# Copyright (C) 2015 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
-# Felipe Castro <fefcas@gmail.com>, 2013.
 #
+# Balázs Úr <urbalazs@gmail.com>, 2015.
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.7\n"
+"Project-Id-Version: libgpg-error-1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2013-02-23 20:22+0100\n"
-"Last-Translator: Felipe Castro <fefcas@gmail.com>\n"
-"Language-Team: Esperanto <translation-team-eo@lists.sourceforge.net>\n"
-"Language: eo\n"
+"PO-Revision-Date: 2015-01-09 10:00+0100\n"
+"Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
+"Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
+"Language: hu\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "Unspecified source"
-msgstr "Neindikita fonto"
+msgstr "Meghatározatlan forrás"
 
 msgid "gcrypt"
 msgstr "gcrypt"
@@ -28,7 +30,7 @@ msgid "GpgSM"
 msgstr "GpgSM"
 
 msgid "GPG Agent"
-msgstr "GPG Agento"
+msgstr "GPG ügynök"
 
 msgid "Pinentry"
 msgstr "Pinentry"
@@ -58,590 +60,590 @@ msgid "Kleopatra"
 msgstr "Kleopatra"
 
 msgid "G13"
-msgstr "G13"
+msgstr ""
 
 msgid "Assuan"
-msgstr "Assuan"
+msgstr ""
 
 msgid "TLS"
 msgstr ""
 
 msgid "Any source"
-msgstr "Iu ajn fonto"
+msgstr "Bármilyen forrás"
 
 msgid "User defined source 1"
-msgstr "Uzant-difinita fonto 1"
+msgstr "1. felhasználó által megadott forrás"
 
 msgid "User defined source 2"
-msgstr "Uzant-difinita fonto 2"
+msgstr "2. felhasználó által megadott forrás"
 
 msgid "User defined source 3"
-msgstr "Uzant-difinita fonto 3"
+msgstr "3. felhasználó által megadott forrás"
 
 msgid "User defined source 4"
-msgstr "Uzant-difinita fonto 4"
+msgstr "4. felhasználó által megadott forrás"
 
 msgid "Unknown source"
-msgstr "Nekonata fonto"
+msgstr "Ismeretlen forrás"
 
 msgid "Success"
-msgstr "Sukceso"
+msgstr "Sikeres"
 
 msgid "General error"
-msgstr "Ĝenerala eraro"
+msgstr "Általános hiba"
 
 msgid "Unknown packet"
-msgstr "Nekonata paketo"
+msgstr "Ismeretlen csomag"
 
 msgid "Unknown version in packet"
-msgstr "Nekonata versio en paketo"
+msgstr "Ismeretlen verzió a csomagban"
 
 msgid "Invalid public key algorithm"
-msgstr "Malvalida publika ŝlosila algoritmo"
+msgstr "Érvénytelen nyilvános kulcs algoritmus"
 
 msgid "Invalid digest algorithm"
-msgstr "Malvalida resuma algoritmo"
+msgstr "Érvénytelen kivonat algoritmus"
 
 msgid "Bad public key"
-msgstr "Malĝusta publika ŝlosilo"
+msgstr "Rossz nyilvános kulcs"
 
 msgid "Bad secret key"
-msgstr "Malĝusta sekreta ŝlosilo"
+msgstr "Rossz titkos kulcs"
 
 msgid "Bad signature"
-msgstr "malĝusta subskribo"
+msgstr "Rossz aláírás"
 
 msgid "No public key"
-msgstr "Neniu publika ŝlosilo"
+msgstr "Nincs nyilvános kulcs"
 
 msgid "Checksum error"
-msgstr "Eraro en kontrolsumo"
+msgstr "Ellenőrzőösszeg hiba"
 
 msgid "Bad passphrase"
-msgstr "Malĝusta pasfrazo"
+msgstr "Rossz jelmondat"
 
 msgid "Invalid cipher algorithm"
-msgstr "Malvalida ĉifra algoritmo"
+msgstr "Érvénytelen titkosító algoritmus"
 
 msgid "Keyring open"
-msgstr "Malfermo de ŝlosilringo"
+msgstr "Kulcstartó nyitva"
 
 msgid "Invalid packet"
-msgstr "Malvalida paketo"
+msgstr "Érvénytelen csomag"
 
 msgid "Invalid armor"
-msgstr "Malvalida kiraso"
+msgstr "Érvénytelen páncél"
 
 msgid "No user ID"
-msgstr "Neniu ID de uzanto"
+msgstr "Nincs felhasználóazonosító"
 
 msgid "No secret key"
-msgstr "Neniu sekreta ŝlosilo"
+msgstr "Nincs titkos kulcs"
 
 msgid "Wrong secret key used"
-msgstr "Malĝusta sekreta ŝlosilo uzata"
+msgstr "Hibás titkos kulcs lett használva"
 
 msgid "Bad session key"
-msgstr "Malĝusta seanca ŝlosilo"
+msgstr "Rossz munkamenet kulcs"
 
 msgid "Unknown compression algorithm"
-msgstr "Nekonata densiga algoritmo"
+msgstr "Ismeretlen tömörítő algoritmus"
 
 msgid "Number is not prime"
-msgstr "Numero ne estas primo"
+msgstr "A szám nem prím"
 
 msgid "Invalid encoding method"
-msgstr "Malvalida enkodiga metodo"
+msgstr "Érvénytelen kódolási módszer"
 
 msgid "Invalid encryption scheme"
-msgstr "Malvalida ĉifriga skemo"
+msgstr "Érvénytelen titkosítás séma"
 
 msgid "Invalid signature scheme"
-msgstr "Malvalida subskriba skemo"
+msgstr "Érvénytelen aláírás séma"
 
 msgid "Invalid attribute"
-msgstr "Malvalida atributo"
+msgstr "Érvénytelen attribútum"
 
 msgid "No value"
-msgstr "Neniu valoro"
+msgstr "Nincs érték"
 
 msgid "Not found"
-msgstr "Ne trovita"
+msgstr "Nem található"
 
 msgid "Value not found"
-msgstr "Valoro ne estas trovita"
+msgstr "Nem található érték"
 
 msgid "Syntax error"
-msgstr "Sintaks-eraro"
+msgstr "Szintaktikai hiba"
 
 msgid "Bad MPI value"
-msgstr "Malĝusta valoro MPI"
+msgstr "Rossz MPI érték"
 
 msgid "Invalid passphrase"
-msgstr "Malvalida pasfrazo"
+msgstr "Érvénytelen jelmondat"
 
 msgid "Invalid signature class"
-msgstr "Malvalida subskriba klaso"
+msgstr "Érvénytelen aláírás osztály"
 
 msgid "Resources exhausted"
-msgstr "Rimedoj estas plenuzitaj"
+msgstr "Az erőforrások kimerültek"
 
 msgid "Invalid keyring"
-msgstr "Malvalida ŝlosilringo"
+msgstr "Érvénytelen kulcstartó"
 
 msgid "Trust DB error"
-msgstr "Eraro de fidinda DB"
+msgstr "Megbízhatósági adatbázis hiba"
 
 msgid "Bad certificate"
-msgstr "Malĝusta atestilo"
+msgstr "Rossz tanúsítvány"
 
 msgid "Invalid user ID"
-msgstr "Malvalida ID de uzanto"
+msgstr "Érvénytelen felhasználóazonosító"
 
 msgid "Unexpected error"
-msgstr "Neatendita eraro"
+msgstr "Váratlan hiba"
 
 msgid "Time conflict"
-msgstr "Konflikto de tempo"
+msgstr "Időütközés"
 
 msgid "Keyserver error"
-msgstr "Ŝlosilservila eraro"
+msgstr "Kulcskiszolgáló hiba"
 
 msgid "Wrong public key algorithm"
-msgstr "Malkorekta publika ŝlosila algoritmo"
+msgstr "Hibás nyilvános kulcs algoritmus"
 
 msgid "Tribute to D. A."
-msgstr "Omaĝo al D. A."
+msgstr "Sarc a D. A. részére"
 
 msgid "Weak encryption key"
-msgstr "Malforta ĉifra ŝlosilo"
+msgstr "Gyenge titkosítási kulcs"
 
 msgid "Invalid key length"
-msgstr "Malvalida ŝlosila longo"
+msgstr "Érvénytelen kulcshossz"
 
 msgid "Invalid argument"
-msgstr "Malvalida argumento"
+msgstr "Érvénytelen argumentum"
 
 msgid "Syntax error in URI"
-msgstr "Sintaks-eraro en URI"
+msgstr "Szintaktikai hiba az URI-ban"
 
 msgid "Invalid URI"
-msgstr "Malvalida URI"
+msgstr "Érvénytelen URI"
 
 msgid "Network error"
-msgstr "Ret-eraro"
+msgstr "Hálózati hiba"
 
 msgid "Unknown host"
-msgstr "Nekonata retnodo"
+msgstr "Ismeretlen gép"
 
 msgid "Selftest failed"
-msgstr "Memtesto fiaskis"
+msgstr "Önellenőrzés sikertelen"
 
 msgid "Data not encrypted"
-msgstr "Datumaro ne ĉifrita"
+msgstr "Az adatok nincsenek titkosítva"
 
 msgid "Data not processed"
-msgstr "Datumaro ne procezita"
+msgstr "Az adatok nincsenek feldolgozva"
 
 msgid "Unusable public key"
-msgstr "Neuzebla publika ŝlosilo"
+msgstr "Használhatatlan nyilvános kulcs"
 
 msgid "Unusable secret key"
-msgstr "Neuzebla sekreta ŝlosilo"
+msgstr "Használhatatlan titkos kulcs"
 
 msgid "Invalid value"
-msgstr "Malvalida valoro"
+msgstr "Érvénytelen érték"
 
 msgid "Bad certificate chain"
-msgstr "Malĝusta atestila ĉeno"
+msgstr "Rossz tanúsítványlánc"
 
 msgid "Missing certificate"
-msgstr "Mankas atestilo"
+msgstr "Hiányzó tanúsítvány"
 
 msgid "No data"
-msgstr "Neniu datumaro"
+msgstr "Nincsenek adatok"
 
 msgid "Bug"
-msgstr "Program-miso"
+msgstr "Hiba"
 
 msgid "Not supported"
-msgstr "Ne subtenata"
+msgstr "Nem támogatott"
 
 msgid "Invalid operation code"
-msgstr "Malvalida operacia kodo"
+msgstr "Érvénytelen műveletkód"
 
 msgid "Timeout"
-msgstr "Tempofino"
+msgstr "Időtúllépés"
 
 msgid "Internal error"
-msgstr "Interna eraro"
+msgstr "Belső hiba"
 
 msgid "EOF (gcrypt)"
 msgstr "EOF (gcrypt)"
 
 msgid "Invalid object"
-msgstr "Malvalida objekto"
+msgstr "Érvénytelen objektum"
 
 msgid "Provided object is too short"
-msgstr "Provizita objekto tro mallongas"
+msgstr "A megadott objektum túl kicsi"
 
 msgid "Provided object is too large"
-msgstr "Provizita objekto tro larĝas"
+msgstr "A megadott objektum túl nagy"
 
 msgid "Missing item in object"
-msgstr "Mankas ero en objekto"
+msgstr "Hiányzó elem az objektumban"
 
 msgid "Not implemented"
-msgstr "Ne realigita"
+msgstr "Nincs megvalósítva"
 
 msgid "Conflicting use"
-msgstr "Konflikta uzo"
+msgstr "Ütköző használat"
 
 msgid "Invalid cipher mode"
-msgstr "Malvalida ĉifra reĝimo"
+msgstr "Érvénytelen titkosító mód"
 
 msgid "Invalid flag"
-msgstr "Malvalida flago"
+msgstr "Érvénytelen jelző"
 
 msgid "Invalid handle"
-msgstr "Malvalida traktilo"
+msgstr "Érvénytelen leíró"
 
 msgid "Result truncated"
-msgstr "Rezulto estas tranĉita"
+msgstr "Az eredmény csonkított"
 
 msgid "Incomplete line"
-msgstr "Malkompleta linio"
+msgstr "Befejezetlen sor"
 
 msgid "Invalid response"
-msgstr "Malvalida respondo"
+msgstr "Érvénytelen válasz"
 
 msgid "No agent running"
-msgstr "Neniu agento rulas"
+msgstr "Nincs futó ügynök"
 
 #, fuzzy
 #| msgid "agent error"
 msgid "Agent error"
-msgstr "agent-eraro"
+msgstr "ügynökhiba"
 
 msgid "Invalid data"
-msgstr "Malvalida datumaro"
+msgstr "Érvénytelen adatok"
 
 msgid "Unspecific Assuan server fault"
-msgstr "Nespecifa paneo de servilo Assuan"
+msgstr "Nem specifikus Assuan kiszolgáló hiba"
 
 msgid "General Assuan error"
-msgstr "Ĝenerala eraro de Assuan"
+msgstr "Általános Assuan hiba"
 
 msgid "Invalid session key"
-msgstr "Malvalida seanca ŝlosilo"
+msgstr "Érvénytelen munkamenet kulcs"
 
 msgid "Invalid S-expression"
-msgstr "Malvalida S-esprimo"
+msgstr "Érvénytelen S-kifejezés"
 
 msgid "Unsupported algorithm"
-msgstr "Nesubtenata algoritmo"
+msgstr "Nem támogatott algoritmus "
 
 msgid "No pinentry"
-msgstr "Neniu pinentry"
+msgstr "Nincs pinentry"
 
 msgid "pinentry error"
-msgstr "Eraro de pinentry"
+msgstr "pinentry hiba"
 
 msgid "Bad PIN"
-msgstr "Malĝusta PIN"
+msgstr "Rossz PIN-kód"
 
 msgid "Invalid name"
-msgstr "Malvalida nomo"
+msgstr "Érvénytelen név"
 
 msgid "Bad data"
-msgstr "Malĝusta datumaro"
+msgstr "Rossz adatok"
 
 msgid "Invalid parameter"
-msgstr "Malvalida parametro"
+msgstr "Érvénytelen paraméter"
 
 msgid "Wrong card"
-msgstr "Malkorekta karto"
+msgstr "Hibás kártya"
 
 msgid "No dirmngr"
-msgstr "Neniu dirmngr"
+msgstr "Nincs dirmngr"
 
 msgid "dirmngr error"
-msgstr "eraro de dirmngr"
+msgstr "dirmngr hiba"
 
 msgid "Certificate revoked"
-msgstr "Atestilo estas senvalidita"
+msgstr "Tanúsítvány visszavonva"
 
 msgid "No CRL known"
-msgstr "Neniu konata CRL"
+msgstr "Nincs ismert CRL"
 
 msgid "CRL too old"
-msgstr "CRL tro malnovas"
+msgstr "Túl régi CRL"
 
 msgid "Line too long"
-msgstr "Linio tro longas"
+msgstr "Túl hosszú sor"
 
 msgid "Not trusted"
-msgstr "Ne fidinda"
+msgstr "Nem megbízható"
 
 msgid "Operation cancelled"
-msgstr "Operacio estas nuligita"
+msgstr "A művelet megszakítva"
 
 msgid "Bad CA certificate"
-msgstr "Malĝusta atestilo CA"
+msgstr "Rossz CA tanúsítvány"
 
 msgid "Certificate expired"
-msgstr "Atestilo malvalidiĝis"
+msgstr "A tanúsítvány lejárt"
 
 msgid "Certificate too young"
-msgstr "Atestilo tro novas"
+msgstr "Túl fiatal tanúsítvány"
 
 msgid "Unsupported certificate"
-msgstr "Nesubtenata atestilo"
+msgstr "Nem támogatott tanúsítvány"
 
 msgid "Unknown S-expression"
-msgstr "Nekonata S-esprimo"
+msgstr "Ismeretlen S-kifejezés"
 
 msgid "Unsupported protection"
-msgstr "Nesubtenata protekto"
+msgstr "Nem támogatott védelem"
 
 msgid "Corrupted protection"
-msgstr "Rompita protekto"
+msgstr "Sérült védelem"
 
 msgid "Ambiguous name"
-msgstr "Plursenca nomo"
+msgstr "Nem egyértelmű név"
 
 msgid "Card error"
-msgstr "Kart-eraro"
+msgstr "Kártyahiba"
 
 msgid "Card reset required"
-msgstr "Kart-reekigo estas postulata"
+msgstr "Kártya visszaállítás szükséges"
 
 msgid "Card removed"
-msgstr "Karto estas demetita"
+msgstr "Kártya eltávolítva"
 
 msgid "Invalid card"
-msgstr "Malvalida karto"
+msgstr "Érvénytelen kártya"
 
 msgid "Card not present"
-msgstr "Karto ne ĉeestas"
+msgstr "A kártya nincs jelen"
 
 msgid "No PKCS15 application"
-msgstr "Neniu aplikaĵo PKCS15"
+msgstr "Nincs PKCS15 alkalmazás"
 
 msgid "Not confirmed"
-msgstr "Ne konfirmita"
+msgstr "Nem megerősített"
 
 msgid "Configuration error"
-msgstr "Agord-eraro"
+msgstr "Beállítási hiba"
 
 msgid "No policy match"
-msgstr "Neniu kongruo de politiko"
+msgstr "Nincs egyező házirend"
 
 msgid "Invalid index"
-msgstr "Malvalida indekso"
+msgstr "Érvénytelen index"
 
 msgid "Invalid ID"
-msgstr "Malvalida ID"
+msgstr "Érvénytelen azonosító"
 
 msgid "No SmartCard daemon"
-msgstr "Neniu demono SmartCard"
+msgstr "Nincs SmartCard démon"
 
 msgid "SmartCard daemon error"
-msgstr "Eraro de la demono SmartCard"
+msgstr "SmartCard démon hiba"
 
 msgid "Unsupported protocol"
-msgstr "Nesubtenata protokolo"
+msgstr "Nem támogatott protokoll"
 
 msgid "Bad PIN method"
-msgstr "Malĝusta PIN-metodo"
+msgstr "Rossz PIN-kód módszer"
 
 msgid "Card not initialized"
-msgstr "Karto ne estas ekigita"
+msgstr "A kártya nincs előkészítve"
 
 msgid "Unsupported operation"
-msgstr "Nesubtenata operacio"
+msgstr "Nem támogatott művelet"
 
 msgid "Wrong key usage"
-msgstr "Malkorekta uzmaniero de ŝlosilo"
+msgstr "Hibás kulcshasználat"
 
 msgid "Nothing found"
-msgstr "Nenio trovita"
+msgstr "Semmi sem található"
 
 msgid "Wrong blob type"
-msgstr "Malkorekta tipo de blob"
+msgstr "Hibás blob típus"
 
 msgid "Missing value"
-msgstr "Mankas valoro"
+msgstr "Hiányzó érték"
 
 msgid "Hardware problem"
-msgstr "Problemo de aparataro"
+msgstr "Hardverprobléma"
 
 msgid "PIN blocked"
-msgstr "PIN estas blokita"
+msgstr "PIN-kód blokkolva"
 
 msgid "Conditions of use not satisfied"
-msgstr "Uzkondiĉoj ne estas kontentigitaj"
+msgstr "A használati feltételek nem teljesülnek"
 
 msgid "PINs are not synced"
-msgstr "PIN-oj ne estas sinkronigitaj"
+msgstr "A PIN-kódok nincsenek szinkronizálva"
 
 msgid "Invalid CRL"
-msgstr "Malvalida CRL"
+msgstr "Érvénytelen CRL"
 
 msgid "BER error"
-msgstr "Eraro de BER"
+msgstr "BER hiba"
 
 msgid "Invalid BER"
-msgstr "Malvalida BER"
+msgstr "Érvénytelen BER"
 
 msgid "Element not found"
-msgstr "Elemento ne estas trovita"
+msgstr "Az elem nem található"
 
 msgid "Identifier not found"
-msgstr "Identiganto ne estas trovita"
+msgstr "Az azonosító nem található"
 
 msgid "Invalid tag"
-msgstr "Malvalida marko"
+msgstr "Érvénytelen címke"
 
 msgid "Invalid length"
-msgstr "Malvalida longo"
+msgstr "Érvénytelen hossz"
 
 msgid "Invalid key info"
-msgstr "Malvalida ŝlosil-informo"
+msgstr "Érvénytelen kulcsinformációk"
 
 msgid "Unexpected tag"
-msgstr "Neatentida marko"
+msgstr "Váratlan címke"
 
 msgid "Not DER encoded"
-msgstr "Neniu enkodita DER"
+msgstr "Nem DER kódolású"
 
 msgid "No CMS object"
-msgstr "Neniu objekto CMS"
+msgstr "Nincs CMS objektum"
 
 msgid "Invalid CMS object"
-msgstr "Malvalida objekto CMS"
+msgstr "Érvénytelen CMS objektum"
 
 msgid "Unknown CMS object"
-msgstr "Nekonata objekto CMS"
+msgstr "Ismeretlen CMS objektum"
 
 msgid "Unsupported CMS object"
-msgstr "Nesubtenata objekto CMS"
+msgstr "Nem támogatott CMS objektum"
 
 msgid "Unsupported encoding"
-msgstr "Nesubtenata enkodigo"
+msgstr "Nem támogatott kódolás"
 
 msgid "Unsupported CMS version"
-msgstr "Nesubtenata versio CMS"
+msgstr "Nem támogatott CMS verzió"
 
 msgid "Unknown algorithm"
-msgstr "Nekonata algoritmo"
+msgstr "Ismeretlen algoritmus"
 
 msgid "Invalid crypto engine"
-msgstr "Malvalida ĉifra maŝino"
+msgstr "Érvénytelen titkosítási motor"
 
 msgid "Public key not trusted"
-msgstr "Publika ŝlosilo ne estas fidinda"
+msgstr "A nyilvános kulcs nem megbízható"
 
 msgid "Decryption failed"
-msgstr "Malĉifro fiaskis"
+msgstr "Visszafejtés sikertelen"
 
 msgid "Key expired"
-msgstr "Ŝlosilo malvalidiĝis"
+msgstr "A kulcs lejárt"
 
 msgid "Signature expired"
-msgstr "Subskribo malvalidiĝis"
+msgstr "Az aláírás lejárt"
 
 msgid "Encoding problem"
-msgstr "Ekodiga problemo"
+msgstr "Kódolási probléma"
 
 msgid "Invalid state"
-msgstr "Malvalida stato"
+msgstr "Érvénytelen állapot"
 
 msgid "Duplicated value"
-msgstr "Duobligita valoro"
+msgstr "Kettőzött érték"
 
 msgid "Missing action"
-msgstr "Mankas ago"
+msgstr "Hiányzó művelet"
 
 msgid "ASN.1 module not found"
-msgstr "Modulo ASN.1 ne estas trovita"
+msgstr "Nem található ASN.1 modul"
 
 msgid "Invalid OID string"
-msgstr "Malvalida ĉeno OID"
+msgstr "Érvénytelen OID karakterlánc"
 
 msgid "Invalid time"
-msgstr "Malvalida tempo"
+msgstr "Érvénytelen időpont"
 
 msgid "Invalid CRL object"
-msgstr "Malvalida objekto CRL"
+msgstr "Érvénytelen CRL objektum"
 
 msgid "Unsupported CRL version"
-msgstr "Nesubtenata versio CRL"
+msgstr "Nem támogatott CRL verzió"
 
 msgid "Invalid certificate object"
-msgstr "Malvalida atestila objekto"
+msgstr "Érvénytelen tanúsítványobjektum"
 
 msgid "Unknown name"
-msgstr "Nekonata nomo"
+msgstr "Ismeretlen név"
 
 msgid "A locale function failed"
-msgstr "Lokaĵara funkcio fiaskis"
+msgstr "Egy területi beállítás függvény meghiúsult"
 
 msgid "Not locked"
-msgstr "Ne ŝlosita"
+msgstr "Nincs zárolva"
 
 msgid "Protocol violation"
-msgstr "Perforto de protokolo"
+msgstr "Protokollsértés"
 
 msgid "Invalid MAC"
-msgstr "Malvalida MAC"
+msgstr "Érvénytelen MAC"
 
 msgid "Invalid request"
-msgstr "Malvalida peto"
+msgstr "Érvénytelen kérés"
 
 msgid "Unknown extension"
-msgstr "Nekonata aldono"
+msgstr "Ismeretlen kiterjesztés"
 
 msgid "Unknown critical extension"
-msgstr "Nekonata grava aldono"
+msgstr "Ismeretlen kritikus kiterjesztés"
 
 msgid "Locked"
-msgstr "Ŝlosita"
+msgstr "Zárolva"
 
 msgid "Unknown option"
-msgstr "Nekonata modifilo"
+msgstr "Ismeretlen kapcsoló"
 
 msgid "Unknown command"
-msgstr "Nekonata komando"
+msgstr "Ismeretlen parancs"
 
 msgid "Not operational"
-msgstr "Ne operaciebla"
+msgstr "Nem működik"
 
 msgid "No passphrase given"
-msgstr "Neniu pasfrazo estis donata"
+msgstr "Nincs jelmondat megadva"
 
 msgid "No PIN given"
-msgstr "Neniu PIN estis donata"
+msgstr "Nincs PIN-kód megadva"
 
 #, fuzzy
 #| msgid "Not locked"
 msgid "Not enabled"
-msgstr "Ne ŝlosita"
+msgstr "Nincs zárolva"
 
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "No crypto engine"
-msgstr "Malvalida ĉifra maŝino"
+msgstr "Érvénytelen titkosítási motor"
 
 #, fuzzy
 #| msgid "Missing value"
 msgid "Missing key"
-msgstr "Mankas valoro"
+msgstr "Hiányzó érték"
 
 #, fuzzy
 #| msgid "No CMS object"
 msgid "Too many objects"
-msgstr "Neniu objekto CMS"
+msgstr "Nincs CMS objektum"
 
 msgid "Limit reached"
 msgstr ""
@@ -649,12 +651,12 @@ msgstr ""
 #, fuzzy
 #| msgid "Card not initialized"
 msgid "Not initialized"
-msgstr "Karto ne estas ekigita"
+msgstr "A kártya nincs előkészítve"
 
 #, fuzzy
 #| msgid "Missing certificate"
 msgid "Missing issuer certificate"
-msgstr "Mankas atestilo"
+msgstr "Hiányzó tanúsítvány"
 
 msgid "No keyserver available"
 msgstr ""
@@ -662,37 +664,33 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid time"
 msgid "Invalid elliptic curve"
-msgstr "Malvalida tempo"
+msgstr "Érvénytelen időpont"
 
 #, fuzzy
 #| msgid "Unknown source"
 msgid "Unknown elliptic curve"
-msgstr "Nekonata fonto"
+msgstr "Ismeretlen forrás"
 
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated key"
-msgstr "Duobligita valoro"
+msgstr "Kettőzött érték"
 
 #, fuzzy
 #| msgid "Ambiguous name"
 msgid "Ambiguous result"
-msgstr "Plursenca nomo"
+msgstr "Nem egyértelmű név"
 
-#, fuzzy
-#| msgid "Invalid crypto engine"
 msgid "No crypto context"
-msgstr "Malvalida ĉifra maŝino"
+msgstr ""
 
-#, fuzzy
-#| msgid "Invalid crypto engine"
 msgid "Wrong crypto context"
-msgstr "Malvalida ĉifra maŝino"
+msgstr ""
 
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Bad crypto context"
-msgstr "Malvalida ĉifra maŝino"
+msgstr "Érvénytelen titkosítási motor"
 
 msgid "Conflict in the crypto context"
 msgstr ""
@@ -700,69 +698,69 @@ msgstr ""
 #, fuzzy
 #| msgid "No public key"
 msgid "Broken public key"
-msgstr "Neniu publika ŝlosilo"
+msgstr "Nincs nyilvános kulcs"
 
 #, fuzzy
 #| msgid "No secret key"
 msgid "Broken secret key"
-msgstr "Neniu sekreta ŝlosilo"
+msgstr "Nincs titkos kulcs"
 
 #, fuzzy
 #| msgid "Invalid digest algorithm"
 msgid "Invalid MAC algorithm"
-msgstr "Malvalida resuma algoritmo"
+msgstr "Érvénytelen kivonat algoritmus"
 
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "Operation fully cancelled"
-msgstr "Operacio estas nuligita"
+msgstr "A művelet megszakítva"
 
 msgid "Operation not yet finished"
-msgstr "La operacio ankoraŭ ne finiĝis"
+msgstr "A művelet még nem fejeződött be"
 
 msgid "Buffer too short"
-msgstr "Bufro tro mallongas"
+msgstr "Túl rövid puffer"
 
 msgid "Invalid length specifier in S-expression"
-msgstr "Malvalida long-indikilo en S-esprimo"
+msgstr "Érvénytelen hosszmegadó az S-kifejezésben"
 
 msgid "String too long in S-expression"
-msgstr "Ĉeno tro longa en S-esprimo"
+msgstr "Túl hosszú karakterlánc az S-kifejezésben"
 
 msgid "Unmatched parentheses in S-expression"
-msgstr "Senpara kurbkrampo en S-esprimo"
+msgstr "Lezáratlan zárójelek az S-kifejezésben"
 
 msgid "S-expression not canonical"
-msgstr "S-esprimo ne estas kanona"
+msgstr "Az S-kifejezés nem hitelesnek elismert"
 
 msgid "Bad character in S-expression"
-msgstr "Malĝusta signo en S-esprimo"
+msgstr "Rossz karakter az S-kifejezésben"
 
 msgid "Bad quotation in S-expression"
-msgstr "Malĝusta citigo en S-esprimo"
+msgstr "Rossz idézés az S-kifejezésben"
 
 msgid "Zero prefix in S-expression"
-msgstr "Nul-prefikso en S-esprimo"
+msgstr "Nulla előtag az S-kifejezésben"
 
 msgid "Nested display hints in S-expression"
-msgstr "Nestitaj montraj konsiletoj en S-esprimo"
+msgstr "Beágyazott megjelenítési tippek az S-kifejezésben"
 
 msgid "Unmatched display hints"
-msgstr "Nekongruaj montraj konsiletoj"
+msgstr "Nem egyező megjelenítési tippek"
 
 msgid "Unexpected reserved punctuation in S-expression"
-msgstr "Neatendita rezervita interpunkcio en S-esprimo"
+msgstr "Váratlan fenntartott központozás az S-kifejezésben"
 
 msgid "Bad hexadecimal character in S-expression"
-msgstr "Malĝusta deksesuma signo en S-esprimo"
+msgstr "Rossz hexadecimális karakter az S-kifejezésben"
 
 msgid "Odd hexadecimal numbers in S-expression"
-msgstr "Malparaj deksesumaj numeroj en S-esprimo"
+msgstr "Páratlan hexadecimális számok az S-kifejezésben"
 
 #, fuzzy
 #| msgid "Bad octadecimal character in S-expression"
 msgid "Bad octal character in S-expression"
-msgstr "Malĝusta okuma signo en S-esprimo"
+msgstr "Rossz oktadecimális karakter az S-kifejezésben"
 
 msgid "Legacy key"
 msgstr ""
@@ -770,12 +768,12 @@ msgstr ""
 #, fuzzy
 #| msgid "Buffer too short"
 msgid "Request too short"
-msgstr "Bufro tro mallongas"
+msgstr "Túl rövid puffer"
 
 #, fuzzy
 #| msgid "Line too long"
 msgid "Request too long"
-msgstr "Linio tro longas"
+msgstr "Túl hosszú sor"
 
 msgid "Object is in termination state"
 msgstr ""
@@ -783,17 +781,17 @@ msgstr ""
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "No certificate chain"
-msgstr "Malĝusta atestila ĉeno"
+msgstr "Rossz tanúsítványlánc"
 
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Certificate is too large"
-msgstr "Atestilo tro novas"
+msgstr "Túl fiatal tanúsítvány"
 
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid record"
-msgstr "Malvalida karto"
+msgstr "Érvénytelen kártya"
 
 msgid "The MAC does not verify"
 msgstr ""
@@ -801,7 +799,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unexpected tag"
 msgid "Unexpected message"
-msgstr "Neatentida marko"
+msgstr "Váratlan címke"
 
 msgid "Compression or decompression failed"
 msgstr ""
@@ -815,37 +813,37 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid cipher algorithm"
 msgid "No cipher algorithm"
-msgstr "Malvalida ĉifra algoritmo"
+msgstr "Érvénytelen titkosító algoritmus"
 
 #, fuzzy
 #| msgid "Missing certificate"
 msgid "Missing client certificate"
-msgstr "Mankas atestilo"
+msgstr "Hiányzó tanúsítvány"
 
 #, fuzzy
 #| msgid "Certificate revoked"
 msgid "Close notification received"
-msgstr "Atestilo estas senvalidita"
+msgstr "Tanúsítvány visszavonva"
 
 #, fuzzy
 #| msgid "Key expired"
 msgid "Ticket expired"
-msgstr "Ŝlosilo malvalidiĝis"
+msgstr "A kulcs lejárt"
 
 #, fuzzy
 #| msgid "Bad public key"
 msgid "Bad ticket"
-msgstr "Malĝusta publika ŝlosilo"
+msgstr "Rossz nyilvános kulcs"
 
 #, fuzzy
 #| msgid "Unknown packet"
 msgid "Unknown identity"
-msgstr "Nekonata paketo"
+msgstr "Ismeretlen csomag"
 
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "Bad certificate message in handshake"
-msgstr "Malĝusta atestila ĉeno"
+msgstr "Rossz tanúsítványlánc"
 
 msgid "Bad certificate request message in handshake"
 msgstr ""
@@ -883,7 +881,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Key expired"
 msgid "Key disabled"
-msgstr "Ŝlosilo malvalidiĝis"
+msgstr "A kulcs lejárt"
 
 msgid "Not possible with a card based key"
 msgstr ""
@@ -891,144 +889,144 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid object"
 msgid "Invalid lock object"
-msgstr "Malvalida objekto"
+msgstr "Érvénytelen objektum"
 
 msgid "General IPC error"
-msgstr "Ĝenerala eraro de IPC"
+msgstr "Általános IPC hiba"
 
 msgid "IPC accept call failed"
-msgstr "Akcepta voko de IPC fiaskis"
+msgstr "Az IPC elfogadási hívás meghiúsult"
 
 msgid "IPC connect call failed"
-msgstr "Konekta voko de IPC fiaskis"
+msgstr "Az IPC kapcsolódási hívás meghiúsult"
 
 msgid "Invalid IPC response"
-msgstr "Malvalida respondo de IPC"
+msgstr "Érvénytelen IPC válasz"
 
 msgid "Invalid value passed to IPC"
-msgstr "Malvalida valoro estis pasata al IPC"
+msgstr "Érvénytelen érték került átadásra az IPC-nek"
 
 msgid "Incomplete line passed to IPC"
-msgstr "Nekompleta linio estis pasata al IPC"
+msgstr "Befejezetlen sor került átadásra az IPC-nek"
 
 msgid "Line passed to IPC too long"
-msgstr "Pasita linio al IPC tro longas"
+msgstr "Az IPC-nek átadott sor túl hosszú"
 
 msgid "Nested IPC commands"
-msgstr "Nestitaj komandoj IPC"
+msgstr "Beágyazott IPC parancsok"
 
 msgid "No data callback in IPC"
-msgstr "Neniu datumar funkcivoko en IPC"
+msgstr "Nincs adatvisszahívás az IPC-ben"
 
 msgid "No inquire callback in IPC"
-msgstr "Neniu enketa funkcivoko en IPC"
+msgstr "Nincs érdeklődés visszahívás az IPC-ben"
 
 msgid "Not an IPC server"
-msgstr "Ne estas servilo IPC"
+msgstr "Nem IPC kiszolgáló"
 
 msgid "Not an IPC client"
-msgstr "Ne estas kliento IPC"
+msgstr "Nem IPC kliens"
 
 msgid "Problem starting IPC server"
-msgstr "Problemo dum ekigo de servilo IPC"
+msgstr "Probléma adódott az IPC kiszolgáló indításakor"
 
 msgid "IPC read error"
-msgstr "Leg-eraro de IPC"
+msgstr "IPC olvasási hiba"
 
 msgid "IPC write error"
-msgstr "Skrib-eraro de IPC"
+msgstr "IPC írási hiba"
 
 msgid "Too much data for IPC layer"
-msgstr "Tro multa datumaro por tavolo IPC"
+msgstr "Túl sok adat az IPC réteghez"
 
 msgid "Unexpected IPC command"
-msgstr "Neatendita komando IPC"
+msgstr "Váratlan IPC parancs"
 
 msgid "Unknown IPC command"
-msgstr "Nekonata komando IPC"
+msgstr "Ismeretlen IPC parancs"
 
 msgid "IPC syntax error"
-msgstr "Sintaks-eraro de IPC"
+msgstr "IPC szintaktikai hiba"
 
 msgid "IPC call has been cancelled"
-msgstr "IPC-voko estas nuligita"
+msgstr "Az IPC hívás megszakításra került"
 
 msgid "No input source for IPC"
-msgstr "Neniu enig-fonto por IPC"
+msgstr "Nincs bemeneti forrás az IPC-hez"
 
 msgid "No output source for IPC"
-msgstr "Neniu elig-fonto por IPC"
+msgstr "Nincs kimeneti forrás az IPC-hez"
 
 msgid "IPC parameter error"
-msgstr "Parametra eraro de IPC"
+msgstr "IPC paraméterhiba"
 
 msgid "Unknown IPC inquire"
-msgstr "Nekonata enketo de IPC"
+msgstr "Ismeretlen IPC érdeklődés"
 
 msgid "User defined error code 1"
-msgstr "Uzant-difinita erarkodo 1"
+msgstr "1. felhasználó által megadott hibakód"
 
 msgid "User defined error code 2"
-msgstr "Uzant-difinita erarkodo 2"
+msgstr "2. felhasználó által megadott hibakód"
 
 msgid "User defined error code 3"
-msgstr "Uzant-difinita erarkodo 3"
+msgstr "3. felhasználó által megadott hibakód"
 
 msgid "User defined error code 4"
-msgstr "Uzant-difinita erarkodo 4"
+msgstr "4. felhasználó által megadott hibakód"
 
 msgid "User defined error code 5"
-msgstr "Uzant-difinita erarkodo 5"
+msgstr "5. felhasználó által megadott hibakód"
 
 msgid "User defined error code 6"
-msgstr "Uzant-difinita erarkodo 6"
+msgstr "6. felhasználó által megadott hibakód"
 
 msgid "User defined error code 7"
-msgstr "Uzant-difinita erarkodo 7"
+msgstr "7. felhasználó által megadott hibakód"
 
 msgid "User defined error code 8"
-msgstr "Uzant-difinita erarkodo 8"
+msgstr "8. felhasználó által megadott hibakód"
 
 msgid "User defined error code 9"
-msgstr "Uzant-difinita erarkodo 9"
+msgstr "9. felhasználó által megadott hibakód"
 
 msgid "User defined error code 10"
-msgstr "Uzant-difinita erarkodo 10"
+msgstr "10. felhasználó által megadott hibakód"
 
 msgid "User defined error code 11"
-msgstr "Uzant-difinita erarkodo 11"
+msgstr "11. felhasználó által megadott hibakód"
 
 msgid "User defined error code 12"
-msgstr "Uzant-difinita erarkodo 12"
+msgstr "12. felhasználó által megadott hibakód"
 
 msgid "User defined error code 13"
-msgstr "Uzant-difinita erarkodo 13"
+msgstr "13. felhasználó által megadott hibakód"
 
 msgid "User defined error code 14"
-msgstr "Uzant-difinita erarkodo 14"
+msgstr "14. felhasználó által megadott hibakód"
 
 msgid "User defined error code 15"
-msgstr "Uzant-difinita erarkodo 15"
+msgstr "15. felhasználó által megadott hibakód"
 
 msgid "User defined error code 16"
-msgstr "Uzant-difinita erarkodo 16"
+msgstr "16. felhasználó által megadott hibakód"
 
 msgid "System error w/o errno"
-msgstr "Sistem-eraro sen errno"
+msgstr "Rendszerhiba w/o hibaszám"
 
 msgid "Unknown system error"
-msgstr "Nekonata sistem-eraro"
+msgstr "Ismeretlen rendszerhiba"
 
 msgid "End of file"
-msgstr "Fino de dosiero"
+msgstr "Fájl vége"
 
 msgid "Unknown error code"
-msgstr "Nekonata erar-kodo"
+msgstr "Ismeretlen hibakód"
 
 #, c-format
 msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Uzmaniero: %s GPG-ERARO [...]\n"
+msgstr "Használat: %s GPG-ERROR […]\n"
 
 #, c-format
 msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: averto: ne eblis rekoni %s\n"
+msgstr "%s: figyelmeztetés: nem sikerült felismerni: %s\n"

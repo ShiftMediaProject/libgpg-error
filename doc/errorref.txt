@@ -2,15 +2,14 @@
 #        -name '*.[ch]' -print0 | xargs -0 grep -n GPG_ERR_
 
 
-GPG_ERR_UNKNOWN_PACKET		Unknown packet
+GPG_ERR_UNKNOWN_PACKET (1)	Unknown packet
 
     GNUPG:  - Redefined to G10ERR_UNKNOWN_PACKET in gpg.
 
-GPG_ERR_UNKNOWN_VERSION		Unknown version in packet
+GPG_ERR_UNKNOWN_VERSION (2)	Unknown version in packet
 
-    Not used.  Fixme: We might want to use it in gpg instead of some
-    of the INV_PACKET in gpg.  The error string does not make sense
-    otherwise.
+    Used by GnuPG 2.1 to identify valid OpenPGP packets with an
+    unknown version.
 
 GPG_ERR_PUBKEY_ALGO		Invalid public key algorithm
 
@@ -300,6 +299,9 @@ GPG_ERR_INV_NAME		Invalid name
               an embedded Nul byte when given as escaped string.
             - In SCDAEMON for an unknown attribute name.
 
+    Also used for URLs which have non-acceptable characters for the
+    specific application.
+
     [more to come]
 
 89	GPG_ERR_BAD_DATA		Bad data
@@ -509,11 +511,6 @@ GPG_ERR_TOO_MANY                Too many objects
            maximum Assuan line length would overflow.
     GPGME: - To many patterns in gpgme-tools's KEYLIST command.
 
-GPG_ERR_NO_KEYSERVER		No keyserver available
-
-        No keyserver configured or no keyserver available due to
-        missing support for the requested protocol.  Found in Dirmngr.
-
 GPG_ERR_LIMIT_REACHED           Limit reached
 
         A programmed limit has been reached.
@@ -529,7 +526,11 @@ GPG_ERR_NOT_INITIALIZED		Not initialized
     fulfilled.
 
 185	GPG_ERR_MISSING_ISSUER_CERT	Missing issuer certificate
-186	GPG_ERR_NO_KEYSERVER		No keyserver available
+
+GPG_ERR_NO_KEYSERVER		No keyserver available
+
+        No keyserver configured or no keyserver available due to
+        missing support for the requested protocol.  Found in Dirmngr.
 
 GPG_ERR_INV_CURVE		Invalid elliptic curve
 
@@ -611,7 +612,24 @@ GPG_ERR_MAC_ALGO
 212	GPG_ERR_SEXP_ODD_HEX_NUMBERS	Odd hexadecimal numbers in S-expression
 213	GPG_ERR_SEXP_BAD_OCT_CHAR	Bad octal character in S-expression
 
+GPG_ERR_LEGACY_KEY (222)        Legacy key
 
+    Used by GnuPG to identify version 2 and 3 OpenPGP key packets.
+
+GPG_ERR_REQUEST_TOO_SHORT       Request too short
+
+    A received request is too short to continue processing.
+
+GPG_ERR_REQUEST_TOO_LONG        Request too long
+
+    A received request is too long to continue processing.  This may
+    be due to an internal limitation, a protocol violation, or due to
+    the use of a newer version of a protocol.
+
+GPG_ERR_OBJ_TERM_STATE		Object is in termination state
+
+    For cards this is the ISO status word 0x6285 (file is in
+    termnation state).
 
 GPG_ERR_NO_CERT_CHAIN		No certificate chain
 
@@ -718,6 +736,10 @@ GPG_ERR_BOGUS_STRING            Bogus string
     possible dangerous characters (e.g. control characters in a domain
     name).
 
+GPG_ERR_FORBIDDEN		Forbidden
+
+    The use of a features is not allowed to to insuffcient rights.
+    Use by gpg-agent as aerror codes for restricted commands.
 
 GPG_ERR_KEY_DISABLED            Key disabled
 
