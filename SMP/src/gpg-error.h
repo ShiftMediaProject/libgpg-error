@@ -1,5 +1,5 @@
 /* gpg-error.h - Public interface to libgpg-error.               -*- c -*-
-   Copyright (C) 2003, 2004, 2010, 2013, 2014 g10 Code GmbH
+   Copyright (C) 2003, 2004, 2010, 2013, 2014, 2015 g10 Code GmbH
 
    This file is part of libgpg-error.
 
@@ -336,6 +336,10 @@ typedef enum
     GPG_ERR_SEXP_BAD_HEX_CHAR = 211,
     GPG_ERR_SEXP_ODD_HEX_NUMBERS = 212,
     GPG_ERR_SEXP_BAD_OCT_CHAR = 213,
+    GPG_ERR_LEGACY_KEY = 222,
+    GPG_ERR_REQUEST_TOO_SHORT = 223,
+    GPG_ERR_REQUEST_TOO_LONG = 224,
+    GPG_ERR_OBJ_TERM_STATE = 225,
     GPG_ERR_NO_CERT_CHAIN = 226,
     GPG_ERR_CERT_TOO_LARGE = 227,
     GPG_ERR_INV_RECORD = 228,
@@ -361,6 +365,7 @@ typedef enum
     GPG_ERR_BAD_HS_SERVER_KEX = 248,
     GPG_ERR_BAD_HS_CLIENT_KEX = 249,
     GPG_ERR_BOGUS_STRING = 250,
+    GPG_ERR_FORBIDDEN = 251,
     GPG_ERR_KEY_DISABLED = 252,
     GPG_ERR_KEY_ON_CARD = 253,
     GPG_ERR_INV_LOCK_OBJ = 254,
@@ -731,10 +736,10 @@ const char *gpgrt_check_version (const char *req_version);
 const char *gpg_error_check_version (const char *req_version);
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.17"
+#define GPG_ERROR_VERSION "1.18"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x011100
+#define GPG_ERROR_VERSION_NUMBER 0x011200
 
 /* System specific type definitions.  */
 # include <stdint.h>

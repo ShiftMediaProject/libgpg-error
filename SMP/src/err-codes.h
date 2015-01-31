@@ -239,6 +239,10 @@ static const char msgstr[] =
   gettext_noop ("Bad hexadecimal character in S-expression") "\0"
   gettext_noop ("Odd hexadecimal numbers in S-expression") "\0"
   gettext_noop ("Bad octal character in S-expression") "\0"
+  gettext_noop ("Legacy key") "\0"
+  gettext_noop ("Request too short") "\0"
+  gettext_noop ("Request too long") "\0"
+  gettext_noop ("Object is in termination state") "\0"
   gettext_noop ("No certificate chain") "\0"
   gettext_noop ("Certificate is too large") "\0"
   gettext_noop ("Invalid record") "\0"
@@ -264,6 +268,7 @@ static const char msgstr[] =
   gettext_noop ("Bad server key exchange message in handshake") "\0"
   gettext_noop ("Bad client key exchange message in handshake") "\0"
   gettext_noop ("Bogus string") "\0"
+  gettext_noop ("Forbidden") "\0"
   gettext_noop ("Key disabled") "\0"
   gettext_noop ("Not possible with a card based key") "\0"
   gettext_noop ("Invalid lock object") "\0"
@@ -529,77 +534,82 @@ static const int msgidx[] =
     3896,
     3936,
     3972,
-    3993,
+    3983,
+    4001,
     4018,
-    4033,
-    4057,
-    4076,
-    4112,
-    4133,
-    4162,
-    4182,
-    4209,
-    4237,
-    4252,
-    4263,
-    4280,
-    4317,
-    4362,
-    4406,
-    4446,
-    4484,
-    4522,
-    4564,
-    4598,
-    4643,
-    4688,
-    4701,
-    4714,
-    4749,
-    4769,
-    4787,
-    4810,
-    4834,
-    4855,
-    4883,
-    4913,
-    4941,
-    4961,
-    4985,
-    5012,
-    5030,
+    4049,
+    4070,
+    4095,
+    4110,
+    4134,
+    4153,
+    4189,
+    4210,
+    4239,
+    4259,
+    4286,
+    4314,
+    4329,
+    4340,
+    4357,
+    4394,
+    4439,
+    4483,
+    4523,
+    4561,
+    4599,
+    4641,
+    4675,
+    4720,
+    4765,
+    4778,
+    4788,
+    4801,
+    4836,
+    4856,
+    4874,
+    4897,
+    4921,
+    4942,
+    4970,
+    5000,
+    5028,
     5048,
-    5076,
-    5091,
-    5107,
+    5072,
+    5099,
+    5117,
     5135,
-    5158,
+    5163,
     5178,
-    5195,
-    5223,
-    5247,
-    5272,
-    5292,
-    5312,
-    5338,
-    5364,
-    5390,
-    5416,
-    5442,
-    5468,
-    5494,
-    5520,
-    5546,
-    5573,
-    5600,
-    5627,
-    5654,
-    5681,
-    5708,
-    5735,
-    5758,
-    5779,
-    5791
+    5194,
+    5222,
+    5245,
+    5265,
+    5282,
+    5310,
+    5334,
+    5359,
+    5379,
+    5399,
+    5425,
+    5451,
+    5477,
+    5503,
+    5529,
+    5555,
+    5581,
+    5607,
+    5633,
+    5660,
+    5687,
+    5714,
+    5741,
+    5768,
+    5795,
+    5822,
+    5845,
+    5866,
+    5878
   };
 
 static GPG_ERR_INLINE int
@@ -607,11 +617,10 @@ msgidxof (int code)
 {
   return (0 ? 0
   : ((code >= 0) && (code <= 213)) ? (code - 0)
-  : ((code >= 226) && (code <= 250)) ? (code - 12)
-  : ((code >= 252) && (code <= 254)) ? (code - 13)
-  : ((code >= 257) && (code <= 271)) ? (code - 15)
-  : ((code >= 273) && (code <= 281)) ? (code - 16)
-  : ((code >= 1024) && (code <= 1039)) ? (code - 758)
-  : ((code >= 16381) && (code <= 16383)) ? (code - 16099)
-  : 16384 - 16099);
+  : ((code >= 222) && (code <= 254)) ? (code - 8)
+  : ((code >= 257) && (code <= 271)) ? (code - 10)
+  : ((code >= 273) && (code <= 281)) ? (code - 11)
+  : ((code >= 1024) && (code <= 1039)) ? (code - 753)
+  : ((code >= 16381) && (code <= 16383)) ? (code - 16094)
+  : 16384 - 16094);
 }

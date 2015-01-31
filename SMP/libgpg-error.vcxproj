@@ -57,9 +57,6 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="gpg-error.def" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\src\code-from-errno.c" />
     <ClCompile Include="..\src\code-to-errno.c" />
     <ClCompile Include="..\src\estream-printf.c" />
@@ -88,6 +85,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libgpg-error.def" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A04A762D-A8D7-4F68-9B79-FBE63C6BE105}</ProjectGuid>
@@ -419,7 +419,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>gpg-error.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -499,7 +499,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>gpg-error.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
@@ -957,7 +957,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>gpg-error.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
@@ -1048,7 +1048,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>gpg-error.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
