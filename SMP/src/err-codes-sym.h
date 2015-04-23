@@ -296,6 +296,87 @@ static const char msgstr[] =
   "GPG_ERR_ASS_NO_OUTPUT" "\0"
   "GPG_ERR_ASS_PARAMETER" "\0"
   "GPG_ERR_ASS_UNKNOWN_INQUIRE" "\0"
+  "GPG_ERR_LDAP_GENERAL" "\0"
+  "GPG_ERR_LDAP_ATTR_GENERAL" "\0"
+  "GPG_ERR_LDAP_NAME_GENERAL" "\0"
+  "GPG_ERR_LDAP_SECURITY_GENERAL" "\0"
+  "GPG_ERR_LDAP_SERVICE_GENERAL" "\0"
+  "GPG_ERR_LDAP_UPDATE_GENERAL" "\0"
+  "GPG_ERR_LDAP_E_GENERAL" "\0"
+  "GPG_ERR_LDAP_X_GENERAL" "\0"
+  "GPG_ERR_LDAP_OTHER_GENERAL" "\0"
+  "GPG_ERR_LDAP_X_CONNECTING" "\0"
+  "GPG_ERR_LDAP_REFERRAL_LIMIT" "\0"
+  "GPG_ERR_LDAP_CLIENT_LOOP" "\0"
+  "GPG_ERR_LDAP_NO_RESULTS" "\0"
+  "GPG_ERR_LDAP_CONTROL_NOT_FOUND" "\0"
+  "GPG_ERR_LDAP_NOT_SUPPORTED" "\0"
+  "GPG_ERR_LDAP_CONNECT" "\0"
+  "GPG_ERR_LDAP_NO_MEMORY" "\0"
+  "GPG_ERR_LDAP_PARAM" "\0"
+  "GPG_ERR_LDAP_USER_CANCELLED" "\0"
+  "GPG_ERR_LDAP_FILTER" "\0"
+  "GPG_ERR_LDAP_AUTH_UNKNOWN" "\0"
+  "GPG_ERR_LDAP_TIMEOUT" "\0"
+  "GPG_ERR_LDAP_DECODING" "\0"
+  "GPG_ERR_LDAP_ENCODING" "\0"
+  "GPG_ERR_LDAP_LOCAL" "\0"
+  "GPG_ERR_LDAP_SERVER_DOWN" "\0"
+  "GPG_ERR_LDAP_SUCCESS" "\0"
+  "GPG_ERR_LDAP_OPERATIONS" "\0"
+  "GPG_ERR_LDAP_PROTOCOL" "\0"
+  "GPG_ERR_LDAP_TIMELIMIT" "\0"
+  "GPG_ERR_LDAP_SIZELIMIT" "\0"
+  "GPG_ERR_LDAP_COMPARE_FALSE" "\0"
+  "GPG_ERR_LDAP_COMPARE_TRUE" "\0"
+  "GPG_ERR_LDAP_UNSUPPORTED_AUTH" "\0"
+  "GPG_ERR_LDAP_STRONG_AUTH_RQRD" "\0"
+  "GPG_ERR_LDAP_PARTIAL_RESULTS" "\0"
+  "GPG_ERR_LDAP_REFERRAL" "\0"
+  "GPG_ERR_LDAP_ADMINLIMIT" "\0"
+  "GPG_ERR_LDAP_UNAVAIL_CRIT_EXTN" "\0"
+  "GPG_ERR_LDAP_CONFIDENT_RQRD" "\0"
+  "GPG_ERR_LDAP_SASL_BIND_INPROG" "\0"
+  "GPG_ERR_LDAP_NO_SUCH_ATTRIBUTE" "\0"
+  "GPG_ERR_LDAP_UNDEFINED_TYPE" "\0"
+  "GPG_ERR_LDAP_BAD_MATCHING" "\0"
+  "GPG_ERR_LDAP_CONST_VIOLATION" "\0"
+  "GPG_ERR_LDAP_TYPE_VALUE_EXISTS" "\0"
+  "GPG_ERR_LDAP_INV_SYNTAX" "\0"
+  "GPG_ERR_LDAP_NO_SUCH_OBJ" "\0"
+  "GPG_ERR_LDAP_ALIAS_PROBLEM" "\0"
+  "GPG_ERR_LDAP_INV_DN_SYNTAX" "\0"
+  "GPG_ERR_LDAP_IS_LEAF" "\0"
+  "GPG_ERR_LDAP_ALIAS_DEREF" "\0"
+  "GPG_ERR_LDAP_X_PROXY_AUTH_FAIL" "\0"
+  "GPG_ERR_LDAP_BAD_AUTH" "\0"
+  "GPG_ERR_LDAP_INV_CREDENTIALS" "\0"
+  "GPG_ERR_LDAP_INSUFFICIENT_ACC" "\0"
+  "GPG_ERR_LDAP_BUSY" "\0"
+  "GPG_ERR_LDAP_UNAVAILABLE" "\0"
+  "GPG_ERR_LDAP_UNWILL_TO_PERFORM" "\0"
+  "GPG_ERR_LDAP_LOOP_DETECT" "\0"
+  "GPG_ERR_LDAP_NAMING_VIOLATION" "\0"
+  "GPG_ERR_LDAP_OBJ_CLS_VIOLATION" "\0"
+  "GPG_ERR_LDAP_NOT_ALLOW_NONLEAF" "\0"
+  "GPG_ERR_LDAP_NOT_ALLOW_ON_RDN" "\0"
+  "GPG_ERR_LDAP_ALREADY_EXISTS" "\0"
+  "GPG_ERR_LDAP_NO_OBJ_CLASS_MODS" "\0"
+  "GPG_ERR_LDAP_RESULTS_TOO_LARGE" "\0"
+  "GPG_ERR_LDAP_AFFECTS_MULT_DSAS" "\0"
+  "GPG_ERR_LDAP_VLV" "\0"
+  "GPG_ERR_LDAP_OTHER" "\0"
+  "GPG_ERR_LDAP_CUP_RESOURCE_LIMIT" "\0"
+  "GPG_ERR_LDAP_CUP_SEC_VIOLATION" "\0"
+  "GPG_ERR_LDAP_CUP_INV_DATA" "\0"
+  "GPG_ERR_LDAP_CUP_UNSUP_SCHEME" "\0"
+  "GPG_ERR_LDAP_CUP_RELOAD" "\0"
+  "GPG_ERR_LDAP_CANCELLED" "\0"
+  "GPG_ERR_LDAP_NO_SUCH_OPERATION" "\0"
+  "GPG_ERR_LDAP_TOO_LATE" "\0"
+  "GPG_ERR_LDAP_CANNOT_CANCEL" "\0"
+  "GPG_ERR_LDAP_ASSERTION_FAILED" "\0"
+  "GPG_ERR_LDAP_PROX_AUTH_DENIED" "\0"
   "GPG_ERR_USER_1" "\0"
   "GPG_ERR_USER_2" "\0"
   "GPG_ERR_USER_3" "\0"
@@ -591,25 +672,106 @@ static const int msgidx[] =
     5802,
     5824,
     5852,
-    5867,
-    5882,
-    5897,
-    5912,
-    5927,
-    5942,
-    5957,
-    5972,
-    5987,
-    6003,
-    6019,
+    5873,
+    5899,
+    5925,
+    5955,
+    5984,
+    6012,
     6035,
-    6051,
-    6067,
-    6083,
-    6099,
-    6121,
-    6143,
-    6155
+    6058,
+    6085,
+    6111,
+    6139,
+    6164,
+    6188,
+    6219,
+    6246,
+    6267,
+    6290,
+    6309,
+    6337,
+    6357,
+    6383,
+    6404,
+    6426,
+    6448,
+    6467,
+    6492,
+    6513,
+    6537,
+    6559,
+    6582,
+    6605,
+    6632,
+    6658,
+    6688,
+    6718,
+    6747,
+    6769,
+    6793,
+    6824,
+    6852,
+    6882,
+    6913,
+    6941,
+    6967,
+    6996,
+    7027,
+    7051,
+    7076,
+    7103,
+    7130,
+    7151,
+    7176,
+    7207,
+    7229,
+    7258,
+    7288,
+    7306,
+    7331,
+    7362,
+    7387,
+    7417,
+    7448,
+    7479,
+    7509,
+    7537,
+    7568,
+    7599,
+    7630,
+    7647,
+    7666,
+    7698,
+    7729,
+    7755,
+    7785,
+    7809,
+    7832,
+    7863,
+    7885,
+    7912,
+    7942,
+    7972,
+    7987,
+    8002,
+    8017,
+    8032,
+    8047,
+    8062,
+    8077,
+    8092,
+    8107,
+    8123,
+    8139,
+    8155,
+    8171,
+    8187,
+    8203,
+    8219,
+    8241,
+    8263,
+    8275
   };
 
 static GPG_ERR_INLINE int
@@ -620,7 +782,17 @@ msgidxof (int code)
   : ((code >= 222) && (code <= 254)) ? (code - 8)
   : ((code >= 257) && (code <= 271)) ? (code - 10)
   : ((code >= 273) && (code <= 281)) ? (code - 11)
-  : ((code >= 1024) && (code <= 1039)) ? (code - 753)
-  : ((code >= 16381) && (code <= 16383)) ? (code - 16094)
-  : 16384 - 16094);
+  : ((code >= 721) && (code <= 729)) ? (code - 450)
+  : ((code >= 750) && (code <= 752)) ? (code - 470)
+  : ((code >= 754) && (code <= 782)) ? (code - 471)
+  : ((code >= 784) && (code <= 789)) ? (code - 472)
+  : ((code >= 800) && (code <= 804)) ? (code - 482)
+  : ((code >= 815) && (code <= 822)) ? (code - 492)
+  : ((code >= 832) && (code <= 839)) ? (code - 501)
+  : ((code >= 844) && (code <= 844)) ? (code - 505)
+  : ((code >= 848) && (code <= 848)) ? (code - 508)
+  : ((code >= 881) && (code <= 891)) ? (code - 540)
+  : ((code >= 1024) && (code <= 1039)) ? (code - 672)
+  : ((code >= 16381) && (code <= 16383)) ? (code - 16013)
+  : 16384 - 16013);
 }

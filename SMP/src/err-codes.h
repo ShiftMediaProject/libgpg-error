@@ -296,6 +296,87 @@ static const char msgstr[] =
   gettext_noop ("No output source for IPC") "\0"
   gettext_noop ("IPC parameter error") "\0"
   gettext_noop ("Unknown IPC inquire") "\0"
+  gettext_noop ("General LDAP error") "\0"
+  gettext_noop ("General LDAP attribute error") "\0"
+  gettext_noop ("General LDAP name error") "\0"
+  gettext_noop ("General LDAP security error") "\0"
+  gettext_noop ("General LDAP service error") "\0"
+  gettext_noop ("General LDAP update error") "\0"
+  gettext_noop ("Experimental LDAP error code") "\0"
+  gettext_noop ("Private LDAP error code") "\0"
+  gettext_noop ("Other general LDAP error") "\0"
+  gettext_noop ("LDAP connecting failed (X)") "\0"
+  gettext_noop ("LDAP referral limit exceeded") "\0"
+  gettext_noop ("LDAP client loop") "\0"
+  gettext_noop ("No LDAP results returned") "\0"
+  gettext_noop ("LDAP control not found") "\0"
+  gettext_noop ("Not supported by LDAP") "\0"
+  gettext_noop ("LDAP connect error") "\0"
+  gettext_noop ("Out of memory in LDAP") "\0"
+  gettext_noop ("Bad parameter to an LDAP routine") "\0"
+  gettext_noop ("User cancelled LDAP operation") "\0"
+  gettext_noop ("Bad LDAP search filter") "\0"
+  gettext_noop ("Unknown LDAP authentication method") "\0"
+  gettext_noop ("Timeout in LDAP") "\0"
+  gettext_noop ("LDAP decoding error") "\0"
+  gettext_noop ("LDAP encoding error") "\0"
+  gettext_noop ("LDAP local error") "\0"
+  gettext_noop ("Cannot contact LDAP server") "\0"
+  gettext_noop ("LDAP success") "\0"
+  gettext_noop ("LDAP operations error") "\0"
+  gettext_noop ("LDAP protocol error") "\0"
+  gettext_noop ("Time limit exceeded in LDAP") "\0"
+  gettext_noop ("Size limit exceeded in LDAP") "\0"
+  gettext_noop ("LDAP compare false") "\0"
+  gettext_noop ("LDAP compare true") "\0"
+  gettext_noop ("LDAP authentication method not supported") "\0"
+  gettext_noop ("Strong(er) LDAP authentication required") "\0"
+  gettext_noop ("Partial LDAP results+referral received") "\0"
+  gettext_noop ("LDAP referral") "\0"
+  gettext_noop ("Administrative LDAP limit exceeded") "\0"
+  gettext_noop ("Critical LDAP extension is unavailable") "\0"
+  gettext_noop ("Confidentiality required by LDAP") "\0"
+  gettext_noop ("LDAP SASL bind in progress") "\0"
+  gettext_noop ("No such LDAP attribute") "\0"
+  gettext_noop ("Undefined LDAP attribute type") "\0"
+  gettext_noop ("Inappropriate matching in LDAP") "\0"
+  gettext_noop ("Constraint violation in LDAP") "\0"
+  gettext_noop ("LDAP type or value exists") "\0"
+  gettext_noop ("Invalid syntax in LDAP") "\0"
+  gettext_noop ("No such LDAP object") "\0"
+  gettext_noop ("LDAP alias problem") "\0"
+  gettext_noop ("Invalid DN syntax in LDAP") "\0"
+  gettext_noop ("LDAP entry is a leaf") "\0"
+  gettext_noop ("LDAP alias dereferencing problem") "\0"
+  gettext_noop ("LDAP proxy authorization failure (X)") "\0"
+  gettext_noop ("Inappropriate LDAP authentication") "\0"
+  gettext_noop ("Invalid LDAP credentials") "\0"
+  gettext_noop ("Insufficient access for LDAP") "\0"
+  gettext_noop ("LDAP server is busy") "\0"
+  gettext_noop ("LDAP server is unavailable") "\0"
+  gettext_noop ("LDAP server is unwilling to perform") "\0"
+  gettext_noop ("Loop detected by LDAP") "\0"
+  gettext_noop ("LDAP naming violation") "\0"
+  gettext_noop ("LDAP object class violation") "\0"
+  gettext_noop ("LDAP operation not allowed on non-leaf") "\0"
+  gettext_noop ("LDAP operation not allowed on RDN") "\0"
+  gettext_noop ("Already exists (LDAP)") "\0"
+  gettext_noop ("Cannot modify LDAP object class") "\0"
+  gettext_noop ("LDAP results too large") "\0"
+  gettext_noop ("LDAP operation affects multiple DSAs") "\0"
+  gettext_noop ("Virtual LDAP list view error") "\0"
+  gettext_noop ("Other LDAP error") "\0"
+  gettext_noop ("Resources exhausted in LCUP") "\0"
+  gettext_noop ("Security violation in LCUP") "\0"
+  gettext_noop ("Invalid data in LCUP") "\0"
+  gettext_noop ("Unsupported scheme in LCUP") "\0"
+  gettext_noop ("Reload required in LCUP") "\0"
+  gettext_noop ("LDAP cancelled") "\0"
+  gettext_noop ("No LDAP operation to cancel") "\0"
+  gettext_noop ("Too late to cancel LDAP") "\0"
+  gettext_noop ("Cannot cancel LDAP") "\0"
+  gettext_noop ("LDAP assertion failed") "\0"
+  gettext_noop ("Proxied authorization denied by LDAP") "\0"
   gettext_noop ("User defined error code 1") "\0"
   gettext_noop ("User defined error code 2") "\0"
   gettext_noop ("User defined error code 3") "\0"
@@ -591,25 +672,106 @@ static const int msgidx[] =
     5359,
     5379,
     5399,
-    5425,
-    5451,
-    5477,
-    5503,
-    5529,
-    5555,
+    5418,
+    5447,
+    5471,
+    5499,
+    5526,
+    5552,
     5581,
-    5607,
-    5633,
-    5660,
-    5687,
-    5714,
-    5741,
-    5768,
-    5795,
-    5822,
-    5845,
-    5866,
-    5878
+    5605,
+    5630,
+    5657,
+    5686,
+    5703,
+    5728,
+    5751,
+    5773,
+    5792,
+    5814,
+    5847,
+    5877,
+    5900,
+    5935,
+    5951,
+    5971,
+    5991,
+    6008,
+    6035,
+    6048,
+    6070,
+    6090,
+    6118,
+    6146,
+    6165,
+    6183,
+    6224,
+    6264,
+    6303,
+    6317,
+    6352,
+    6391,
+    6424,
+    6451,
+    6474,
+    6504,
+    6535,
+    6564,
+    6590,
+    6613,
+    6633,
+    6652,
+    6678,
+    6699,
+    6732,
+    6769,
+    6803,
+    6828,
+    6857,
+    6877,
+    6904,
+    6940,
+    6962,
+    6984,
+    7012,
+    7051,
+    7085,
+    7107,
+    7139,
+    7162,
+    7199,
+    7228,
+    7245,
+    7273,
+    7300,
+    7321,
+    7348,
+    7372,
+    7387,
+    7415,
+    7439,
+    7458,
+    7480,
+    7517,
+    7543,
+    7569,
+    7595,
+    7621,
+    7647,
+    7673,
+    7699,
+    7725,
+    7751,
+    7778,
+    7805,
+    7832,
+    7859,
+    7886,
+    7913,
+    7940,
+    7963,
+    7984,
+    7996
   };
 
 static GPG_ERR_INLINE int
@@ -620,7 +782,17 @@ msgidxof (int code)
   : ((code >= 222) && (code <= 254)) ? (code - 8)
   : ((code >= 257) && (code <= 271)) ? (code - 10)
   : ((code >= 273) && (code <= 281)) ? (code - 11)
-  : ((code >= 1024) && (code <= 1039)) ? (code - 753)
-  : ((code >= 16381) && (code <= 16383)) ? (code - 16094)
-  : 16384 - 16094);
+  : ((code >= 721) && (code <= 729)) ? (code - 450)
+  : ((code >= 750) && (code <= 752)) ? (code - 470)
+  : ((code >= 754) && (code <= 782)) ? (code - 471)
+  : ((code >= 784) && (code <= 789)) ? (code - 472)
+  : ((code >= 800) && (code <= 804)) ? (code - 482)
+  : ((code >= 815) && (code <= 822)) ? (code - 492)
+  : ((code >= 832) && (code <= 839)) ? (code - 501)
+  : ((code >= 844) && (code <= 844)) ? (code - 505)
+  : ((code >= 848) && (code <= 848)) ? (code - 508)
+  : ((code >= 881) && (code <= 891)) ? (code - 540)
+  : ((code >= 1024) && (code <= 1039)) ? (code - 672)
+  : ((code >= 16381) && (code <= 16383)) ? (code - 16013)
+  : 16384 - 16013);
 }
