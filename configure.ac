@@ -27,7 +27,7 @@ min_automake_version="1.14"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [18])
+m4_define([mym4_version_minor], [19])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,8 +51,8 @@ AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=14
-LIBGPG_ERROR_LT_AGE=14
+LIBGPG_ERROR_LT_CURRENT=15
+LIBGPG_ERROR_LT_AGE=15
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -486,11 +486,12 @@ AC_DEFINE_UNQUOTED(BUILD_REVISION, "$BUILD_REVISION",
                    [GIT commit id revision used to build this package])
 
 changequote(,)dnl
-BUILD_FILEVERSION=`echo "$PACKAGE_VERSION"|sed 's/\([0-9.]*\).*/\1./;s/\./,/g'`
+BUILD_VERSION=`echo "$PACKAGE_VERSION"|sed 's/\([0-9.]*\).*/\1./'`
 changequote([,])dnl
-BUILD_FILEVERSION="${BUILD_FILEVERSION}0,mym4_revision_dec"
+BUILD_VERSION="${BUILD_VERSION}0.mym4_revision_dec"
+BUILD_FILEVERSION=`echo "${BUILD_VERSION}" | tr . ,`
+AC_SUBST(BUILD_VERSION)
 AC_SUBST(BUILD_FILEVERSION)
-
 
 AC_ARG_ENABLE([build-timestamp],
               AC_HELP_STRING([--enable-build-timestamp],
@@ -526,7 +527,7 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([doc/Makefile po/Makefile.in m4/Makefile])
 AC_CONFIG_FILES([src/Makefile tests/Makefile])
 AC_CONFIG_FILES([lang/Makefile lang/cl/Makefile lang/cl/gpg-error.asd])
-AC_CONFIG_FILES([src/versioninfo.rc])
+AC_CONFIG_FILES([src/versioninfo.rc src/gpg-error.w32-manifest])
 AC_CONFIG_FILES([src/gpg-error-config], [chmod +x src/gpg-error-config])
 
 AC_OUTPUT

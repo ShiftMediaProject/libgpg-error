@@ -51,8 +51,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.hppa-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.i486-pc-gnu.h                   \
         syscfg/lock-obj-pub.i486-pc-kfreebsd-gnu.h          \
-        syscfg/lock-obj-pub.i486-pc-linux-gnu.h             \
-        syscfg/lock-obj-pub.i586-pc-linux-gnu.h             \
+        syscfg/lock-obj-pub.i686-pc-linux-gnu.h             \
         syscfg/lock-obj-pub.m68k-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.mips-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.mips64el-unknown-linux-gnuabi64.h \
@@ -82,7 +81,8 @@ EXTRA_DIST = mkstrtable.awk err-sources.h.in err-codes.h.in \
 	mkerrcodes.awk mkerrcodes1.awk mkerrcodes2.awk mkerrcodes.c \
 	mkheader.c gpg-error.h.in mkw32errmap.c w32-add.h w32ce-add.h \
 	err-sources.h err-codes.h gpg-error-config.in gpg-error.m4 \
-	gpg-error.vers gpg-error.def.in versioninfo.rc.in \
+	gpg-error.vers gpg-error.def.in \
+        versioninfo.rc.in gpg-error.w32-manifest.in \
 	$(lock_obj_pub)
 
 BUILT_SOURCES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
@@ -114,6 +114,13 @@ SUFFIXES = .rc .lo
 gpg_error_res = versioninfo.lo
 no_undefined = -no-undefined
 export_symbols = -export-symbols gpg-error.def
+# i686-w64-mingw32.gcc version 4.9.1 takes the long long helper
+# functions from libgcc_s_sjlj-1.dll and not from a static libgcc.  As
+# a plain C program we do not use exception handler and thus there is
+# no need to use this DLL.  Thus we force gcc to link that statically.
+extra_ltoptions = -XCClinker -static-libgcc
+
+versioninfo.lo : gpg-error.w32-manifest
 
 install-def-file: gpg-error.def
 	-$(INSTALL) -d $(DESTDIR)$(libdir)
@@ -136,6 +143,8 @@ arch_sources = posix-lock.c posix-lock-obj.h posix-thread.c
 gpg_error_res =
 no_undefined =
 export_symbols =
+extra_ltoptions =
+
 install-def-file:
 uninstall-def-file:
 
@@ -154,7 +163,7 @@ endif
 
 libgpg_error_la_LDFLAGS = \
   $(no_undefined) $(export_symbols) $(libgpg_error_vers_opt) \
-  -version-info \
+  $(extra_ltoptions) -version-info \
   @LIBGPG_ERROR_LT_CURRENT@:@LIBGPG_ERROR_LT_REVISION@:@LIBGPG_ERROR_LT_AGE@
 
 libgpg_error_la_SOURCES = gettext.h $(arch_sources) \
@@ -204,7 +213,7 @@ code-to-errno.h: Makefile mkerrnos.awk errnos.in
 # It is correct to use $(CPP).  We want the host's idea of the error codes.
 mkerrcodes.h: Makefile mkerrcodes.awk $(gpg_extra_headers)
 	$(AWK) -f $(srcdir)/mkerrcodes1.awk $(srcdir)/errnos.in >_$@
-	$(CPP) $(CPPFLAGS) $(extra_cppflags) _$@ | grep GPG_ERR_ | \
+	$(CPP) $(CPPFLAGS) $(extra_cppflags) -P _$@ | grep GPG_ERR_ | \
                $(AWK) -f $(srcdir)/mkerrcodes.awk >$@
 	-rm _$@
 
@@ -267,7 +276,8 @@ parts_of_gpg_error_h = 	 	\
 # If we are cross-compiling or building on Windows we better make sure
 # that no stale native lock include file will be found by mkheader.
 if FORCE_USE_SYSCFG
-pre_mkheader_cmds = -rm lock-obj-pub.native.h 2>/dev/null
+pre_mkheader_cmds = if test -f lock-obj-pub.native.h; \
+                    then rm lock-obj-pub.native.h; fi
 else
 if HAVE_W32_SYSTEM
 pre_mkheader_cmds = -rm lock-obj-pub.native.h 2>/dev/null
