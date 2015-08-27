@@ -27,7 +27,7 @@ min_automake_version="1.14"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [19])
+m4_define([mym4_version_minor], [20])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,8 +51,8 @@ AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=15
-LIBGPG_ERROR_LT_AGE=15
+LIBGPG_ERROR_LT_CURRENT=16
+LIBGPG_ERROR_LT_AGE=16
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -494,15 +494,15 @@ AC_SUBST(BUILD_VERSION)
 AC_SUBST(BUILD_FILEVERSION)
 
 AC_ARG_ENABLE([build-timestamp],
-              AC_HELP_STRING([--enable-build-timestamp],
-                [set an explicit build timestamp for reproducibility.
-                 (default is the current time in ISO-8601 format)]),
-                [if test "$enableval" = "no"; then
-                    BUILD_TIMESTAMP="<none>"
-                 else
-                    BUILD_TIMESTAMP="$enableval"
-                 fi],
-        [BUILD_TIMESTAMP=`date -u +%Y-%m-%dT%H:%M+0000 2>/dev/null || date`])
+  AC_HELP_STRING([--enable-build-timestamp],
+                 [set an explicit build timestamp for reproducibility.
+                  (default is the current time in ISO-8601 format)]),
+     [if test "$enableval" = "yes"; then
+        BUILD_TIMESTAMP=`date -u +%Y-%m-%dT%H:%M+0000 2>/dev/null || date`
+      else
+        BUILD_TIMESTAMP="$enableval"
+      fi],
+     [BUILD_TIMESTAMP="<none>"])
 AC_SUBST(BUILD_TIMESTAMP)
 AC_DEFINE_UNQUOTED(BUILD_TIMESTAMP, "$BUILD_TIMESTAMP",
                    [The time this package was configured for a build])
@@ -532,11 +532,17 @@ AC_CONFIG_FILES([src/gpg-error-config], [chmod +x src/gpg-error-config])
 
 AC_OUTPUT
 
+tmp=
+if test "$have_w32_system" != yes; then
+   if test x"$gl_use_threads" = xno; then
+     tmp=" NO-THREADS"
+   fi
+fi
 echo "
         $PACKAGE_NAME-$PACKAGE_VERSION prepared for make
 
         Revision: mym4_revision  (mym4_revision_dec)
-        Platform: $host
+        Platform: $host$tmp
 "
 if test "$gcry_cv_gcc_attribute_aligned" != "yes" ; then
 cat <<G10EOF
