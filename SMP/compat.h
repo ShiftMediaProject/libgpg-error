@@ -1,5 +1,6 @@
 /*
- * MSVC sys/file.h compatability header.
+ * Correctly setup required msvc compatibility options based on which native
+ * Windows compiler is in use.
  * Copyright (c) 2015 Matthew Oliver
  *
  * This file is part of Shift Media Project.
@@ -19,28 +20,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef _SMP_SYS_FILE_H
-#define _SMP_SYS_FILE_H
+#ifndef SMP_COMPAT_H
+#define SMP_COMPAT_H
 
-#ifndef _MSC_VER
-#   include_next <sys/file.h>
-#else
+#ifdef _MSC_VER
+#   define inline __inline
+#   define strcasecmp _stricmp
+#   define strncasecmp _strnicmp
+#   include <crtversion.h>
+#   if _VC_CRT_MAJOR_VERSION >= 14
+#       pragma comment(lib, "legacy_stdio_definitions.lib")
+#   else
+#       define snprintf _snprintf
+#       define strtoll _strtoi64
+#   endif
+#endif
 
-// include everywhere
-#include <sys/types.h>
-
-#include <fcntl.h>
-
-#define L_SET  0
-#define L_CURR 1
-#define L_INCR 1
-#define L_XTND 2
-
-#define	F_OK		0	/* does file exist */
-#define	X_OK		1	/* is it executable by caller */
-#define	W_OK		2	/* is it writable by caller */
-#define	R_OK		4	/* is it readable by caller */
-
-#endif /* _MSC_VER */
-
-#endif /* _SMP_SYS_FILE_H */
+#endif /* SMP_COMPAT_H */
