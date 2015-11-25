@@ -308,7 +308,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -386,7 +388,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -467,7 +471,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -546,7 +552,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -637,7 +645,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -728,7 +738,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -819,7 +831,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -910,7 +924,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -1001,7 +1017,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
@@ -1091,7 +1109,9 @@ del ..\src\lock-obj-pub.native.h
 if exist ..\src\gpg-error.h (
 del ..\src\gpg-error.h
 )
-
+if exist $(OutDir)\include\gpg-error.h (
+del $(OutDir)\include\gpg-error.h
+)
 if not exist .\src\err-sources.h (
 awk -f ..\src\mkstrtable.awk -v textidx=3 ..\src\err-sources.h.in &gt; .\src\err-sources.h
 )
