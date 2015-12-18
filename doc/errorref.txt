@@ -624,6 +624,16 @@ GPG_ERR_MAC_ALGO
 212	GPG_ERR_SEXP_ODD_HEX_NUMBERS	Odd hexadecimal numbers in S-expression
 213	GPG_ERR_SEXP_BAD_OCT_CHAR	Bad octal character in S-expression
 
+GPG_ERR_SERVER_FAILED (219)		Server indicated a failure
+
+GPG_ERR_NO_NAME	(220)		No name
+
+    EAI_NONAME may be mapped to this code.
+
+GPG_ERR_NO_KEY (221)		No key
+
+    Some kind of key was not found.
+
 GPG_ERR_LEGACY_KEY (222)        Legacy key
 
     Used by GnuPG to identify version 2 and 3 OpenPGP key packets.
@@ -670,6 +680,7 @@ GPG_ERR_COMPR_FAILED           Compression or decompression failed
 GPG_ERR_WOULD_WRAP             A counter would wrap
 
     NTBTLS: - Too many messages exchanged
+    Other:  - A counter would wrap.
 
 GPG_ERR_FATAL_ALERT            Fatal alert message received
 
@@ -750,7 +761,7 @@ GPG_ERR_BOGUS_STRING            Bogus string
 
 GPG_ERR_FORBIDDEN		Forbidden
 
-    The use of a features is not allowed due to insuffcient rights.
+    The use of a features is not allowed due to insufficient rights.
     Use by gpg-agent as an error codes for restricted commands.
 
 GPG_ERR_KEY_DISABLED            Key disabled
@@ -768,8 +779,14 @@ GPG_ERR_INV_LOCK_OBJ		Invalid lock object
              internal problem in libgpg-error or more likely a
              programming error.
 
+GPG_ERR_TRUE			True
 
+    Used to retrun the boolena value True.  Note that GPG_ERR_NO_ERROR
+    (with the value 0) is also often used to indicate the value true.
 
+GPG_ERR_FALSE			False
+
+    Used to return the boolean value False.
 
 GPG_ERR_LDAP_GENERAL		LDAP General error
 

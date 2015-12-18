@@ -247,8 +247,11 @@
 212	GPG_ERR_SEXP_ODD_HEX_NUMBERS	Odd hexadecimal numbers in S-expression
 213	GPG_ERR_SEXP_BAD_OCT_CHAR	Bad octal character in S-expression
 
-# 214 to 221 are free to be used.
+# 214 to 218 are free to be used.
 
+219	GPG_ERR_SERVER_FAILED		Server indicated a failure
+220	GPG_ERR_NO_NAME			No name
+221	GPG_ERR_NO_KEY			No key
 222	GPG_ERR_LEGACY_KEY		Legacy key
 223	GPG_ERR_REQUEST_TOO_SHORT	Request too short
 224	GPG_ERR_REQUEST_TOO_LONG	Request too long
@@ -283,7 +286,8 @@
 253	GPG_ERR_KEY_ON_CARD		Not possible with a card based key
 254	GPG_ERR_INV_LOCK_OBJ		Invalid lock object
 
-# 255 and 256 are RFU.
+255	GPG_ERR_TRUE			True
+256	GPG_ERR_FALSE			False
 
 # Error codes pertaining to the Assuan IPC interface
 257	GPG_ERR_ASS_GENERAL		General IPC error

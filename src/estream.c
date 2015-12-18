@@ -1,6 +1,6 @@
 /* estream.c - Extended Stream I/O Library
  * Copyright (C) 2004, 2005, 2006, 2007, 2009, 2010, 2011,
- *               2014 g10 Code GmbH
+ *               2014, 2015 g10 Code GmbH
  *
  * This file is part of Libestream.
  *
@@ -67,6 +67,12 @@
 # endif
 #endif
 
+#ifdef HAVE_SYS_SELECT_H
+# include <sys/select.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
@@ -108,6 +114,11 @@
 # define S_IWOTH S_IWUSR
 # define S_IXGRP S_IXUSR
 # define S_IXOTH S_IXUSR
+# define O_NONBLOCK  0  /* FIXME: Not yet supported.  */
+#endif
+
+#ifndef EAGAIN
+# define EAGAIN  EWOULDBLOCK
 #endif
 
 
@@ -157,6 +168,7 @@ typedef int (*cookie_ioctl_function_t) (void *cookie, int cmd,
 					void *ptr, size_t *len);
 /* IOCTL commands for the private cookie function.  */
 #define COOKIE_IOCTL_SNATCH_BUFFER 1
+#define COOKIE_IOCTL_NONBLOCK      2
 
 
 /* The internal stream object.  */
@@ -178,11 +190,12 @@ struct _gpgrt_stream_internal
   gpgrt_cookie_close_function_t func_close;
   cookie_ioctl_function_t func_ioctl;
   int strategy;
-  es_syshd_t syshd;              /* A copy of the sytem handle.  */
+  es_syshd_t syshd;              /* A copy of the system handle.  */
   struct
   {
     unsigned int err: 1;
     unsigned int eof: 1;
+    unsigned int hup: 1;
   } indicators;
   unsigned int deallocate_buffer: 1;
   unsigned int is_stdstream:1;   /* This is a standard stream.  */
@@ -574,7 +587,7 @@ typedef struct estream_cookie_mem
    supplied buffer with the initial conetnt of the memory buffer.  If
    DATA is NULL, DATA_N and DATA_LEN need to be 0 as well.  If DATA is
    not NULL, DATA_N gives the allocated size of DATA and DATA_LEN the
-   used length in DATA.  If this fucntion succeeds DATA is now owned
+   used length in DATA.  If this function succeeds DATA is now owned
    by this function.  If GROW is false FUNC_REALLOC is not
    required. */
 static int
@@ -869,6 +882,7 @@ typedef struct estream_cookie_fd
 {
   int fd;        /* The file descriptor we are using for actual output.  */
   int no_close;  /* If set we won't close the file descriptor.  */
+  int nonblock;  /* Non-blocking mode is enabled.  */
 } *estream_cookie_fd_t;
 
 /* Create function for objects indentified by a libc file descriptor.  */
@@ -887,11 +901,10 @@ func_fd_create (void **cookie, int fd, unsigned int modeflags, int no_close)
       /* Make sure it is in binary mode if requested.  */
       if ( (modeflags & O_BINARY) )
         setmode (fd, O_BINARY);
-#else
-      (void)modeflags;
 #endif
       fd_cookie->fd = fd;
       fd_cookie->no_close = no_close;
+      fd_cookie->nonblock = !!(modeflags & O_NONBLOCK);
       *cookie = fd_cookie;
       err = 0;
     }
@@ -942,7 +955,7 @@ es_func_fd_write (void *cookie, const void *buffer, size_t size)
       _gpgrt_yield ();
       bytes_written = size; /* Yeah:  Success writing to the bit bucket.  */
     }
-  else
+  else if (buffer)
     {
       if (pre_syscall_func)
         pre_syscall_func ();
@@ -954,6 +967,8 @@ es_func_fd_write (void *cookie, const void *buffer, size_t size)
       if (post_syscall_func)
         post_syscall_func ();
     }
+  else
+    bytes_written = size; /* Note that for a flush SIZE should be 0.  */
 
   return bytes_written;
 }
@@ -988,6 +1003,47 @@ es_func_fd_seek (void *cookie, gpgrt_off_t *offset, int whence)
     }
 
   return err;
+}
+
+/* An IOCTL function for fd objects.  */
+static int
+es_func_fd_ioctl (void *cookie, int cmd, void *ptr, size_t *len)
+{
+  estream_cookie_fd_t fd_cookie = cookie;
+  int ret;
+
+  if (cmd == COOKIE_IOCTL_NONBLOCK && !len)
+    {
+      fd_cookie->nonblock = !!ptr;
+      if (IS_INVALID_FD (fd_cookie->fd))
+        {
+          _set_errno (EINVAL);
+          ret = -1;
+        }
+      else
+        {
+#ifdef _WIN32
+          _set_errno (EOPNOTSUPP); /* FIXME: Implement for Windows.  */
+          ret = -1;
+#else
+          _set_errno (0);
+          ret = fcntl (fd_cookie->fd, F_GETFL, 0);
+          if (ret == -1 && errno)
+            ;
+          else if (fd_cookie->nonblock)
+            ret = fcntl (fd_cookie->fd, F_SETFL, (ret | O_NONBLOCK));
+          else
+            ret = fcntl (fd_cookie->fd, F_SETFL, (ret & ~O_NONBLOCK));
+#endif
+        }
+    }
+  else
+    {
+      _set_errno (EINVAL);
+      ret = -1;
+    }
+
+  return ret;
 }
 
 /* Destroy function for fd objects.  */
@@ -1117,7 +1173,7 @@ es_func_w32_write (void *cookie, const void *buffer, size_t size)
       _gpgrt_yield ();
       bytes_written = size; /* Yeah:  Success writing to the bit bucket.  */
     }
-  else
+  else if (buffer)
     {
       if (pre_syscall_func)
         pre_syscall_func ();
@@ -1137,6 +1193,8 @@ es_func_w32_write (void *cookie, const void *buffer, size_t size)
       if (post_syscall_func)
         post_syscall_func ();
     }
+  else
+    bytes_written = size; /* Note that for a flush SIZE should be 0.  */
 
   return bytes_written;
 }
@@ -1315,32 +1373,39 @@ es_func_fp_write (void *cookie, const void *buffer, size_t size)
     {
       if (pre_syscall_func)
         pre_syscall_func ();
-#ifdef HAVE_W32_SYSTEM
-      /* Using an fwrite to stdout connected to the console fails with
-	 the error "Not enough space" for an fwrite size of >= 52KB
-	 (tested on Windows XP SP2).  To solve this we always chunk
-	 the writes up into smaller blocks.  */
-      bytes_written = 0;
-      while (bytes_written < size)
+      if (buffer)
         {
-          size_t cnt = size - bytes_written;
+#ifdef HAVE_W32_SYSTEM
+          /* Using an fwrite to stdout connected to the console fails
+             with the error "Not enough space" for an fwrite size of
+             >= 52KB (tested on Windows XP SP2).  To solve this we
+             always chunk the writes up into smaller blocks.  */
+          bytes_written = 0;
+          while (bytes_written < size)
+            {
+              size_t cnt = size - bytes_written;
 
-          if (cnt > 32*1024)
-            cnt = 32*1024;
-          if (fwrite ((const char*)buffer + bytes_written,
-                      cnt, 1, file_cookie->fp) != 1)
-            break; /* Write error.  */
-          bytes_written += cnt;
-        }
+              if (cnt > 32*1024)
+                cnt = 32*1024;
+              if (fwrite ((const char*)buffer + bytes_written,
+                          cnt, 1, file_cookie->fp) != 1)
+                break; /* Write error.  */
+              bytes_written += cnt;
+            }
 #else
-      bytes_written = fwrite (buffer, 1, size, file_cookie->fp);
+          bytes_written = fwrite (buffer, 1, size, file_cookie->fp);
 #endif
+        }
+      else /* Only flush requested.  */
+        bytes_written = size;
+
       fflush (file_cookie->fp);
       if (post_syscall_func)
         post_syscall_func ();
     }
   else
     bytes_written = size; /* Successfully written to the bit bucket.  */
+
   if (bytes_written != size)
     return -1;
   return bytes_written;
@@ -1496,6 +1561,10 @@ func_file_create (void **cookie, int *filedes,
       disables any internal locking.  This keyword is also found on
       IBM systems.
 
+   nonblock
+
+      The object is opened in non-blocking mode.  This is the same as
+      calling gpgrt_set_nonblock on the file.
 
    Note: R_CMODE is optional because is only required by functions
    which are able to creat a file.  */
@@ -1591,6 +1660,16 @@ parse_mode (const char *modestr,
             }
           *samethread = 1;
         }
+      else if (!strncmp (modestr, "nonblock", 8))
+        {
+          modestr += 8;
+          if (*modestr && !strchr (" \t,", *modestr))
+            {
+              _set_errno (EINVAL);
+              return -1;
+            }
+          oflags |= O_NONBLOCK;
+        }
     }
   if (!got_cmode)
     cmode = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
@@ -1631,6 +1710,10 @@ es_fill (estream_t stream)
 	{
 	  bytes_read = 0;
 	  err = -1;
+#if EWOULDBLOCK != EAGAIN
+          if (errno == EWOULDBLOCK)
+            _set_errno (EAGAIN);
+#endif
 	}
       else
 	{
@@ -1640,7 +1723,14 @@ es_fill (estream_t stream)
     }
 
   if (err)
-    stream->intern->indicators.err = 1;
+    {
+      if (errno != EAGAIN)
+        {
+          if (errno == EPIPE)
+            stream->intern->indicators.hup = 1;
+          stream->intern->indicators.err = 1;
+        }
+    }
   else if (!bytes_read)
     stream->intern->indicators.eof = 1;
 
@@ -1690,6 +1780,10 @@ es_flush (estream_t stream)
 	    {
 	      bytes_written = 0;
 	      err = -1;
+#if EWOULDBLOCK != EAGAIN
+              if (errno == EWOULDBLOCK)
+                _set_errno (EAGAIN);
+#endif
 	    }
 	  else
 	    bytes_written = ret;
@@ -1715,8 +1809,12 @@ es_flush (estream_t stream)
 
  out:
 
-  if (err)
-    stream->intern->indicators.err = 1;
+  if (err && errno != EAGAIN)
+    {
+      if (errno == EPIPE)
+        stream->intern->indicators.hup = 1;
+      stream->intern->indicators.err = 1;
+    }
 
   return err;
 }
@@ -1751,6 +1849,7 @@ init_stream_obj (estream_t stream,
   stream->intern->print_ntotal = 0;
   stream->intern->indicators.err = 0;
   stream->intern->indicators.eof = 0;
+  stream->intern->indicators.hup = 0;
   stream->intern->is_stdstream = 0;
   stream->intern->stdstream_fd = 0;
   stream->intern->deallocate_buffer = 0;
@@ -1941,6 +2040,10 @@ es_read_nbf (estream_t _GPGRT__RESTRICT stream,
       if (ret == -1)
 	{
 	  err = -1;
+#if EWOULDBLOCK != EAGAIN
+          if (errno == EWOULDBLOCK)
+            _set_errno (EAGAIN);
+#endif
 	  break;
 	}
       else if (ret)
@@ -2026,7 +2129,7 @@ check_pending_fbf (estream_t _GPGRT__RESTRICT stream)
 
   if (stream->data_offset == stream->data_len)
     {
-      /* Nothing more to read in current container, check whetehr it
+      /* Nothing more to read in current container, check whether it
          would be possible to fill the container with new data.  */
       if (!(*func_read) (stream->intern->cookie, buffer, 0))
         return 1; /* Pending bytes.  */
@@ -2209,6 +2312,10 @@ es_seek (estream_t _GPGRT__RESTRICT stream, gpgrt_off_t offset, int whence,
   if (ret == -1)
     {
       err = -1;
+#if EWOULDBLOCK != EAGAIN
+      if (errno == EWOULDBLOCK)
+        _set_errno (EAGAIN);
+#endif
       goto out;
     }
 
@@ -2224,7 +2331,11 @@ es_seek (estream_t _GPGRT__RESTRICT stream, gpgrt_off_t offset, int whence,
  out:
 
   if (err)
-    stream->intern->indicators.err = 1;
+    {
+      if (errno == EPIPE)
+        stream->intern->indicators.hup = 1;
+      stream->intern->indicators.err = 1;
+    }
 
   return err;
 }
@@ -2259,6 +2370,10 @@ es_write_nbf (estream_t _GPGRT__RESTRICT stream,
       if (ret == -1)
 	{
 	  err = -1;
+#if EWOULDBLOCK != EAGAIN
+          if (errno == EWOULDBLOCK)
+            _set_errno (EAGAIN);
+#endif
 	  break;
 	}
       else
@@ -2411,7 +2526,8 @@ es_writen (estream_t _GPGRT__RESTRICT stream,
 
 
 static int
-es_peek (estream_t _GPGRT__RESTRICT stream, unsigned char **_GPGRT__RESTRICT data,
+es_peek (estream_t _GPGRT__RESTRICT stream,
+         unsigned char **_GPGRT__RESTRICT data,
 	 size_t *_GPGRT__RESTRICT data_len)
 {
   int err;
@@ -2596,7 +2712,7 @@ doreadline (estream_t _GPGRT__RESTRICT stream, size_t max_length,
 }
 
 
-/* Output fucntion used for estream_format.  */
+/* Output function used by estream_format.  */
 static int
 print_writer (void *outfncarg, const char *buf, size_t buflen)
 {
@@ -2626,30 +2742,6 @@ es_print (estream_t _GPGRT__RESTRICT stream,
 }
 
 
-static void
-es_set_indicators (estream_t stream, int ind_err, int ind_eof)
-{
-  if (ind_err != -1)
-    stream->intern->indicators.err = ind_err ? 1 : 0;
-  if (ind_eof != -1)
-    stream->intern->indicators.eof = ind_eof ? 1 : 0;
-}
-
-
-static int
-es_get_indicator (estream_t stream, int ind_err, int ind_eof)
-{
-  int ret = 0;
-
-  if (ind_err)
-    ret = stream->intern->indicators.err;
-  else if (ind_eof)
-    ret = stream->intern->indicators.eof;
-
-  return ret;
-}
-
-
 static int
 es_set_buffering (estream_t _GPGRT__RESTRICT stream,
 		  char *_GPGRT__RESTRICT buffer, int mode, size_t size)
@@ -2666,7 +2758,7 @@ es_set_buffering (estream_t _GPGRT__RESTRICT stream,
   else
     es_empty (stream);
 
-  es_set_indicators (stream, -1, 0);
+  stream->intern->indicators.eof = 0;
 
   /* Free old buffer in case that was allocated by this function.  */
   if (stream->intern->deallocate_buffer)
@@ -2727,7 +2819,8 @@ es_offset_calculate (estream_t stream)
 
 
 static void
-es_opaque_ctrl (estream_t _GPGRT__RESTRICT stream, void *_GPGRT__RESTRICT opaque_new,
+es_opaque_ctrl (estream_t _GPGRT__RESTRICT stream,
+                void *_GPGRT__RESTRICT opaque_new,
 		void **_GPGRT__RESTRICT opaque_old)
 {
   if (opaque_old)
@@ -2872,7 +2965,7 @@ _gpgrt_fopenmem (size_t memlimit, const char *_GPGRT__RESTRICT mode)
 
 
 /* This is the same as es_fopenmem but intializes the memory with a
-   copy of (DATA,DATALEN).  The stream is initally set to the
+   copy of (DATA,DATALEN).  The stream is initially set to the
    beginning.  If MEMLIMIT is not 0 but shorter than DATALEN it
    DATALEN will be used as the value for MEMLIMIT.  */
 estream_t
@@ -2897,7 +2990,8 @@ _gpgrt_fopenmem_init (size_t memlimit, const char *_GPGRT__RESTRICT mode,
       else
         {
           es_seek (stream, 0L, SEEK_SET, NULL);
-          es_set_indicators (stream, 0, 0);
+          stream->intern->indicators.eof = 0;
+          stream->intern->indicators.err = 0;
         }
     }
   return stream;
@@ -2962,6 +3056,13 @@ do_fdopen (int filedes, const char *mode, int no_close, int with_locked_list)
   create_called = 1;
   err = es_create (&stream, cookie, &syshd, estream_functions_fd,
                    modeflags, samethread, with_locked_list);
+
+  if (!err && stream)
+    {
+      stream->intern->func_ioctl = es_func_fd_ioctl;
+      if ((modeflags & O_NONBLOCK))
+        err = es_func_fd_ioctl (cookie, COOKIE_IOCTL_NONBLOCK, "", NULL);
+    }
 
  out:
   if (err && create_called)
@@ -3507,7 +3608,7 @@ _gpgrt__pending (estream_t stream)
 int
 _gpgrt_feof_unlocked (estream_t stream)
 {
-  return es_get_indicator (stream, 0, 1);
+  return stream->intern->indicators.eof;
 }
 
 
@@ -3527,7 +3628,7 @@ _gpgrt_feof (estream_t stream)
 int
 _gpgrt_ferror_unlocked (estream_t stream)
 {
-  return es_get_indicator (stream, 1, 0);
+  return stream->intern->indicators.err;
 }
 
 
@@ -3547,7 +3648,10 @@ _gpgrt_ferror (estream_t stream)
 void
 _gpgrt_clearerr_unlocked (estream_t stream)
 {
-  es_set_indicators (stream, 0, 0);
+  stream->intern->indicators.eof = 0;
+  stream->intern->indicators.err = 0;
+  /* We do not reset the HUP indicator because there is no way to
+     get out of this state.  */
 }
 
 
@@ -3664,7 +3768,8 @@ _gpgrt_rewind (estream_t stream)
 {
   lock_stream (stream);
   es_seek (stream, 0L, SEEK_SET, NULL);
-  es_set_indicators (stream, 0, -1);
+  /* Note that es_seek already cleared the EOF flag.  */
+  stream->intern->indicators.err = 0;
   unlock_stream (stream);
 }
 
@@ -4313,6 +4418,254 @@ _gpgrt_set_binary (estream_t stream)
 }
 
 
+/* Set non-blocking mode for STREAM.  Use true for ONOFF to enable and
+   false to disable non-blocking mode.  Returns 0 on success or -1 on
+   error and sets ERRNO.  Note that not all backends support
+   non-blocking mode.
+
+   In non-blocking mode a system call will not block but return an
+   error and set errno to EAGAIN.  The estream API always uses EAGAIN
+   and not EWOULDBLOCK.  If a buffered function like es_fgetc() or
+   es_fgets() returns an error and both, feof() and ferror() return
+   false the caller may assume that the error condition was EAGAIN.
+
+   Switching back from non-blocking to blocking may raise problems
+   with buffering, thus care should be taken.  Although read+write
+   sockets are supported in theory, switching from write to read may
+   result into problems because estream may first flush the write
+   buffers and there is no way to handle that non-blocking (EAGAIN)
+   case.  Explicit flushing should thus be done before before
+   switching to read.  */
+int
+_gpgrt_set_nonblock (estream_t stream, int onoff)
+{
+  cookie_ioctl_function_t func_ioctl;
+  int ret;
+
+  lock_stream (stream);
+  func_ioctl = stream->intern->func_ioctl;
+  if (!func_ioctl)
+    {
+      _set_errno (EOPNOTSUPP);
+      ret = -1;
+    }
+  else
+    {
+      unsigned int save_flags = stream->intern->modeflags;
+
+      if (onoff)
+        stream->intern->modeflags |= O_NONBLOCK;
+      else
+        stream->intern->modeflags &= ~O_NONBLOCK;
+
+      ret = func_ioctl (stream->intern->cookie, COOKIE_IOCTL_NONBLOCK,
+                        onoff?"":NULL, NULL);
+      if (ret)
+        stream->intern->modeflags = save_flags;
+    }
+  unlock_stream (stream);
+  return ret;
+}
+
+
+/* Return true if STREAM is in non-blocking mode.  */
+int
+_gpgrt_get_nonblock (estream_t stream)
+{
+  int ret;
+
+  lock_stream (stream);
+  ret = !!(stream->intern->modeflags & O_NONBLOCK);
+  unlock_stream (stream);
+  return ret;
+}
+
+
+/* A version of poll(2) working on estream handles.  Note that not all
+   estream types work with this function.  In contrast to the standard
+   poll function the gpgrt_poll_t object uses a set of names bit flags
+   instead of the EVENTS and REVENTS members.  An item with the IGNORE
+   flag set is entirely ignored.  The TIMEOUT values is given in
+   milliseconds, a value of -1 waits indefinitely, and a value of 0
+   returns immediately.
+
+   A positive return value gives the number of fds with new
+   information.  A return value of 0 indicates a timeout and -1
+   indicates an error in which case ERRNO is set.  */
+int
+_gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
+{
+  gpgrt_poll_t *item;
+  int count = 0;
+  fd_set readfds, writefds, exceptfds;
+  int any_readfd, any_writefd, any_exceptfd;
+  int idx;
+  int max_fd;
+  int fd, ret, any;
+
+  if (!fds)
+    {
+      _set_errno (EINVAL);
+      return -1;
+    }
+
+  /* Clear all response fields (even for ignored items).  */
+  for (item = fds, idx = 0; idx < nfds; item++, idx++)
+    {
+      item->got_read = 0;
+      item->got_write = 0;
+      item->got_oob = 0;
+      item->got_rdhup = 0;
+      item->got_err = 0;
+      item->got_hup = 0;
+      item->got_nval = 0;
+    }
+
+  /* Check for pending reads.  */
+  for (item = fds, idx = 0; idx < nfds; item++, idx++)
+    {
+      if (item->ignore)
+        continue;
+      if (!item->want_read)
+        continue;
+      if (_gpgrt__pending (item->stream))
+        {
+          item->got_read = 1;
+          count++;
+        }
+    }
+
+  /* Check for space in the write buffers.  */
+  for (item = fds, idx = 0; idx < nfds; item++, idx++)
+    {
+      if (item->ignore)
+        continue;
+      if (!item->want_write)
+        continue;
+      /* FIXME */
+    }
+
+  if (count)
+    return count;  /* Early return without waiting.  */
+
+  /* Now do the real select.  */
+  any_readfd = any_writefd = any_exceptfd = 0;
+  max_fd = 0;
+  for (item = fds, idx = 0; idx < nfds; item++, idx++)
+    {
+      if (item->ignore)
+        continue;
+      fd = _gpgrt_fileno (item->stream);
+      if (fd == -1)
+        continue;  /* Stream does not support polling.  */
+
+      if (item->want_read)
+        {
+          if (!any_readfd)
+            {
+              FD_ZERO (&readfds);
+              any_readfd = 1;
+            }
+          FD_SET (fd, &readfds);
+          if (fd > max_fd)
+            max_fd = fd;
+        }
+      if (item->want_write)
+        {
+          if (!any_writefd)
+            {
+              FD_ZERO (&writefds);
+              any_writefd = 1;
+            }
+          FD_SET (fd, &writefds);
+          if (fd > max_fd)
+            max_fd = fd;
+        }
+      if (item->want_oob)
+        {
+          if (!any_exceptfd)
+            {
+              FD_ZERO (&exceptfds);
+              any_exceptfd = 1;
+            }
+          FD_SET (fd, &exceptfds);
+          if (fd > max_fd)
+            max_fd = fd;
+        }
+    }
+
+#ifdef _WIN32
+  (void)timeout;
+  ret = -1;
+  _set_errno (EOPNOTSUPP);
+#else
+  if (pre_syscall_func)
+    pre_syscall_func ();
+  do
+    {
+      struct timeval timeout_val;
+
+      timeout_val.tv_sec = timeout / 1000;
+      timeout_val.tv_usec = (timeout % 1000) * 1000;
+      ret = select (max_fd+1,
+                    any_readfd?   &readfds   : NULL,
+                    any_writefd?  &writefds  : NULL,
+                    any_exceptfd? &exceptfds : NULL,
+                    timeout == -1 ? NULL : &timeout_val);
+    }
+  while (ret == -1 && errno == EINTR);
+  if (post_syscall_func)
+    post_syscall_func ();
+#endif
+
+  if (ret == -1)
+    return -1;
+  if (!ret)
+    return 0; /* Timeout.  Note that in this case we can't return
+                 got_err for an invalid stream.  */
+
+  for (item = fds, idx = 0; idx < nfds; item++, idx++)
+    {
+      if (item->ignore)
+        continue;
+      fd = _gpgrt_fileno (item->stream);
+      if (fd == -1)
+        {
+          item->got_err = 1;  /* Stream does not support polling.  */
+          count++;
+          continue;
+        }
+
+      any = 0;
+      if (item->stream->intern->indicators.hup)
+        {
+          item->got_hup = 1;
+          any = 1;
+        }
+      if (item->want_read && FD_ISSET (fd, &readfds))
+        {
+          item->got_read = 1;
+          any = 1;
+        }
+      if (item->want_write && FD_ISSET (fd, &writefds))
+        {
+          item->got_write = 1;
+          any = 1;
+        }
+      if (item->want_oob && FD_ISSET (fd, &exceptfds))
+        {
+          item->got_oob = 1;
+          any = 1;
+        }
+
+      if (any)
+        count++;
+    }
+
+  return count;
+}
+
+
 void
 _gpgrt_opaque_set (estream_t stream, void *opaque)
 {
@@ -4393,6 +4746,7 @@ _gpgrt_fname_get (estream_t stream)
 }
 
 
+
 /* Print a BUFFER to STREAM while replacing all control characters and
    the characters in DELIMITERS by standard C escape sequences.
    Returns 0 on success or -1 on error.  If BYTES_WRITTEN is not NULL

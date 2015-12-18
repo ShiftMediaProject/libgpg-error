@@ -27,7 +27,7 @@ min_automake_version="1.14"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [20])
+m4_define([mym4_version_minor], [21])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,8 +51,8 @@ AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=16
-LIBGPG_ERROR_LT_AGE=16
+LIBGPG_ERROR_LT_CURRENT=17
+LIBGPG_ERROR_LT_AGE=17
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -160,7 +160,7 @@ AM_GNU_GETTEXT([external])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h locale.h stdint.h])
+AC_CHECK_HEADERS([stdlib.h locale.h stdint.h sys/select.h sys/time.h])
 AC_FUNC_STRERROR_R
 case "${host_os}" in
      solaris*)
