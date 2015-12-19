@@ -24,7 +24,7 @@
 /* The purpose of this complex string table is to produce
    optimal code with a minimum of relocations.  */
 
-static const char msgstr[] = 
+static const char msgstr[] =
   "GPG_ERR_SOURCE_UNKNOWN" "\0"
   "GPG_ERR_SOURCE_GCRYPT" "\0"
   "GPG_ERR_SOURCE_GPG" "\0"
