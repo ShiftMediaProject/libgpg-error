@@ -120,6 +120,9 @@
 #define HAVE_W64_SYSTEM 1
 #endif
 
+/* Define to 1 if you have the <winsock2.h> header file. */
+#define HAVE_WINSOCK2_H 1;
+
 /* Name of package */
 #define PACKAGE "libgpg-error"
 

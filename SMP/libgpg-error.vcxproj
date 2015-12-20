@@ -270,6 +270,7 @@
       <OutputFile>$(OutDir)\lib\x86\$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -350,6 +351,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <OutputFile>$(OutDir)\lib\x64\$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -433,6 +435,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -514,6 +517,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -607,6 +611,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <OutputFile>$(OutDir)\lib\x86\$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -700,6 +705,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <OutputFile>$(OutDir)\lib\x86\$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -793,6 +799,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <OutputFile>$(OutDir)\lib\x64\$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -886,6 +893,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <OutputFile>$(OutDir)\lib\x64\$(TargetName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -979,6 +987,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -1071,6 +1080,7 @@ awk -f ..\src\mkstrtable.awk -v textidx=2 -v nogettext=1 -v prefix=GPG_ERR_ -v n
       <ImportLibrary>$(OutDir)\lib\x64\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
