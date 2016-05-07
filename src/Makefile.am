@@ -14,7 +14,7 @@
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public
-# License along with this program; if not, see <http://www.gnu.org/licenses/>.
+# License along with this program; if not, see <https://www.gnu.org/licenses/>.
 
 # We distribute the generated sources err-sources.h and err-codes.h,
 # because they are needed to build the po directory, and they don't
@@ -48,6 +48,8 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.arm-unknown-linux-gnueabi.h     \
         syscfg/lock-obj-pub.arm-unknown-linux-gnueabihf.h   \
 	syscfg/lock-obj-pub.arm-apple-darwin.h              \
+        syscfg/lock-obj-pub.armv5-unknown-linux-musleabi.h  \
+        syscfg/lock-obj-pub.armv6-unknown-linux-musleabihf.h \
         syscfg/lock-obj-pub.hppa-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.i686-pc-gnu.h                   \
         syscfg/lock-obj-pub.i686-pc-kfreebsd-gnu.h          \
@@ -56,6 +58,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.mips-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.mips64el-unknown-linux-gnuabi64.h \
         syscfg/lock-obj-pub.mipsel-unknown-linux-gnu.h      \
+	syscfg/lock-obj-pub.nios2-unknown-linux-gnu.h       \
         syscfg/lock-obj-pub.or1k-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.powerpc-unknown-linux-gnu.h     \
         syscfg/lock-obj-pub.powerpc64-unknown-linux-gnu.h   \
@@ -67,6 +70,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.x86_64-pc-kfreebsd-gnu.h        \
         syscfg/lock-obj-pub.x86_64-pc-linux-gnu.h           \
         syscfg/lock-obj-pub.x86_64-pc-linux-gnux32.h        \
+        syscfg/lock-obj-pub.x86_64-pc-linux-musl.h          \
 	syscfg/lock-obj-pub.mingw32.h
 
 
@@ -101,7 +105,7 @@ CLEANFILES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
 # {{{ Begin Windows part
 #
 if HAVE_W32_SYSTEM
-arch_sources = w32-gettext.c w32-lock.c w32-lock-obj.h w32-thread.c
+arch_sources = w32-gettext.c w32-lock.c w32-lock-obj.h w32-thread.c w32-iconv.c
 RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
             -DLOCALEDIR=\"$(localedir)\" $(AM_CPPFLAGS) $(CPPFLAGS)
 LTRCCOMPILE = $(LIBTOOL) --mode=compile --tag=RC $(RCCOMPILE)

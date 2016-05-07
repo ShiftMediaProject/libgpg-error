@@ -263,6 +263,8 @@ GPG_ERR_CONFLICT		Conflicting use
 
     NTBTLS: - Function has already been called and may not be called
               again at this protocol state.
+    GNUPG:  - Returned by g13 when creating a new container on a device
+              which seems to be in use.
 
 
 71	GPG_ERR_INV_CIPHER_MODE		Invalid cipher mode
@@ -623,6 +625,8 @@ GPG_ERR_MAC_ALGO
 211	GPG_ERR_SEXP_BAD_HEX_CHAR	Bad hexadecimal character in S-expression
 212	GPG_ERR_SEXP_ODD_HEX_NUMBERS	Odd hexadecimal numbers in S-expression
 213	GPG_ERR_SEXP_BAD_OCT_CHAR	Bad octal character in S-expression
+
+GPG_ERR_DB_CORRUPTED (218)		Database is corrupted
 
 GPG_ERR_SERVER_FAILED (219)		Server indicated a failure
 

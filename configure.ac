@@ -1,5 +1,5 @@
 # configure.ac for libgpg-error
-# Copyright (C) 2003, 2004, 2006, 2010, 2013, 2014, 2015 g10 Code GmbH
+# Copyright (C) 2003, 2004, 2006, 2010, 2013, 2014, 2015, 2016 g10 Code GmbH
 #
 # This file is part of libgpg-error.
 #
@@ -14,7 +14,7 @@
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
 
 # (Process this file with autoconf to produce a configure script.)
 # The following lines are used by ./autogen.sh.
@@ -27,7 +27,7 @@ min_automake_version="1.14"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [21])
+m4_define([mym4_version_minor], [22])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -44,15 +44,15 @@ m4_define([mym4_betastring],
 m4_define([mym4_isgit],m4_if(mym4_betastring,[],[no],[yes]))
 m4_define([mym4_full_version],[mym4_version[]mym4_betastring])
 
-AC_INIT([libgpg-error],[mym4_full_version],[http://bugs.gnupg.org])
+AC_INIT([libgpg-error],[mym4_full_version],[https://bugs.gnupg.org])
 # LT Version numbers, remember to change them just *before* a release.
 #   (Code changed:			REVISION++)
 #   (Interfaces added/removed/changed:	CURRENT++, REVISION=0)
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=17
-LIBGPG_ERROR_LT_AGE=17
+LIBGPG_ERROR_LT_CURRENT=18
+LIBGPG_ERROR_LT_AGE=18
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -416,6 +416,20 @@ else
   fi
 fi
 
+# Default value for GPG_ERROR_CONFIG_LIBS
+config_libs="-lgpg-error"
+
+#
+# Check for other libraries (now only for -lrt).
+#
+LIB_SCHED_YIELD=
+AC_SUBST([LIB_SCHED_YIELD])
+AC_SEARCH_LIBS([sched_yield], [rt posix4],
+               [if test "$ac_cv_search_sched_yield" != "none required"; then
+                  LIB_SCHED_YIELD=$ac_cv_search_sched_yield
+                  config_libs="$config_libs $LIB_SCHED_YIELD"
+                fi])
+
 #
 # Prepare building of estream
 #
@@ -424,7 +438,7 @@ estream_INIT
 #
 # Substitution used for gpg-error-config
 #
-GPG_ERROR_CONFIG_LIBS="-lgpg-error"
+GPG_ERROR_CONFIG_LIBS="$config_libs"
 if test "x$LIBTHREAD" != x; then
   GPG_ERROR_CONFIG_LIBS="${GPG_ERROR_CONFIG_LIBS} ${LIBTHREAD}"
 fi

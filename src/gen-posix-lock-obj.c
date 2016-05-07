@@ -14,7 +14,7 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with this program; if not, see <http://www.gnu.org/licenses/>.
+   License along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
@@ -43,12 +43,18 @@
 #endif
 
 /* Special requirements for certain platforms.  */
-#if defined(__hppa__) && defined(__linux__)
+# define USE_LONG_DOUBLE_FOR_ALIGNMENT 0
+#if defined(__sun) && !defined (__LP64__) && !defined(_LP64)
+/* Solaris on 32-bit architecture.  */
+# define USE_DOUBLE_FOR_ALIGNMENT 1
+#else
+# define USE_DOUBLE_FOR_ALIGNMENT 0
+#endif
+#if defined(__hppa__)
 # define USE_16BYTE_ALIGNMENT 1
 #else
 # define USE_16BYTE_ALIGNMENT 0
 #endif
-
 
 #if USE_16BYTE_ALIGNMENT && !HAVE_GCC_ATTRIBUTE_ALIGNED
 # error compiler is not able to enforce a 16 byte alignment
@@ -118,6 +124,10 @@ main (void)
           SIZEOF_PTHREAD_MUTEX_T,
 # if USE_16BYTE_ALIGNMENT
           "    int _x16_align __attribute__ ((aligned (16)));\n",
+# elif USE_DOUBLE_FOR_ALIGNMENT
+          "    double _xd_align;\n",
+# elif USE_LONG_DOUBLE_FOR_ALIGNMENT
+          "    long double _xld_align;\n",
 # else
           "",
 # endif
