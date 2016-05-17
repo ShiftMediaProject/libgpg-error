@@ -72,6 +72,7 @@
     <ClCompile Include="..\src\version.c" />
     <ClCompile Include="..\src\visibility.c" />
     <ClCompile Include="..\src\w32-gettext.c" />
+    <ClCompile Include="..\src\w32-iconv.c" />
     <ClCompile Include="..\src\w32-lock.c" />
     <ClCompile Include="..\src\w32-thread.c" />
   </ItemGroup>
