@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET = gcrypt
+TARGET = gpg-error
 CONFIG += qt warn_off
 
 DESTDIR = $$PWD/lib
