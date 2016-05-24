@@ -199,3 +199,6 @@
 #define GPG_ERR_ENABLE_ERRNO_MACROS 1
 #define GPGRT_ENABLE_ES_MACROS 1
 
+#if defined(_MSC_VER)
+#include "compat.h"
+#endif
