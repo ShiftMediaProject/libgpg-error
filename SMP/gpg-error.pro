@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = gpg-error
 CONFIG += qt warn_off
 
-DESTDIR = $$PWD/lib
+DESTDIR = $$PWD/../../bin
 
 INCLUDEPATH += . ./src
 DEFINES += HAVE_CONFIG_H
