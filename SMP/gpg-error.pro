@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = gpg-error
-CONFIG += qt warn_off
+CONFIG += warn_off
 
 DESTDIR = $$PWD/../../bin
 
@@ -9,7 +9,9 @@ DEFINES += HAVE_CONFIG_H
 
 win32 {
     DEF_FILE = libgpg-error.def
-    CONFIG += shared dll  #CONFIG += staticlib
+    CONFIG += shared dll
+} else {
+    CONFIG += staticlib
 }
 
 HEADERS = \
@@ -51,6 +53,13 @@ win32 {
         ../src/w32-iconv.c \
         ../src/w32-lock.c \
         ../src/w32-thread.c
+} else {
+    HEADERS += \
+        ../src/posix-lock-obj.h
+
+    SOURCES += \
+        ../src/posix-lock.c \
+        ../src/posix-thread.c
 }
 
 #
