@@ -1047,7 +1047,7 @@ typedef struct
 #pragma pack(push, 8)
 typedef struct
 {
-  volatile char priv[36];
+  volatile char priv[128];
 } gpgrt_lock_t;
 #pragma pack(pop)
 
