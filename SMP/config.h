@@ -169,12 +169,16 @@
 /* Define to 1 if strerror_r returns char *. */
 /* #undef STRERROR_R_CHAR_P */
 
+#if !defined(WIN32)
 /* Define if the POSIX multithreading library can be used. */
-/* #undef USE_POSIX_THREADS */
+#define USE_POSIX_THREADS 1
+#endif
 
+#if !defined(WIN32)
 /* Define if references to the POSIX multithreading library should be made
    weak. */
-/* #undef USE_POSIX_THREADS_WEAK */
+#define USE_POSIX_THREADS_WEAK 1
+#endif
 
 /* Define if the old Solaris multithreading library can be used. */
 /* #undef USE_SOLARIS_THREADS */
