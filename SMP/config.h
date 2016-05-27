@@ -58,8 +58,10 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
+#if defined(ANDROID)
 /* Define to 1 if you have the `memrchr' function. */
-/* #undef HAVE_MEMRCHR */
+#define HAVE_MEMRCHR  1
+#endif
 
 /* Define if the <pthread.h> defines PTHREAD_MUTEX_RECURSIVE. */
 /* #undef HAVE_PTHREAD_MUTEX_RECURSIVE */
@@ -112,8 +114,10 @@
 /* Defined if we run on WindowsCE */
 /* #undef HAVE_W32CE_SYSTEM */
 
+#if defined(WIN32)
 /* Defined if we run on a W32 API based system */
 #define HAVE_W32_SYSTEM 1
+#endif
 
 /* Defined if we run on 64 bit W32 API system */
 #if defined(__x86_64) || defined(_M_X64)
@@ -165,12 +169,16 @@
 /* Define to 1 if strerror_r returns char *. */
 /* #undef STRERROR_R_CHAR_P */
 
+#if !defined(WIN32)
 /* Define if the POSIX multithreading library can be used. */
-/* #undef USE_POSIX_THREADS */
+#define USE_POSIX_THREADS 1
+#endif
 
+#if !defined(WIN32)
 /* Define if references to the POSIX multithreading library should be made
    weak. */
-/* #undef USE_POSIX_THREADS_WEAK */
+#define USE_POSIX_THREADS_WEAK 1
+#endif
 
 /* Define if the old Solaris multithreading library can be used. */
 /* #undef USE_SOLARIS_THREADS */
@@ -199,3 +207,6 @@
 #define GPG_ERR_ENABLE_ERRNO_MACROS 1
 #define GPGRT_ENABLE_ES_MACROS 1
 
+#if defined(_MSC_VER)
+#include "compat.h"
+#endif
