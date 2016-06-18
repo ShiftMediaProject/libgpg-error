@@ -28,12 +28,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.22"
-#define GPGRT_VERSION     "1.22"
+#define GPG_ERROR_VERSION "1.23"
+#define GPGRT_VERSION     "1.23"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x011600
-#define GPGRT_VERSION_NUMBER     0x011600
+#define GPG_ERROR_VERSION_NUMBER 0x011700
+#define GPGRT_VERSION_NUMBER     0x011700
 
 
 #ifdef __GNUC__
@@ -343,6 +343,7 @@ typedef enum
     GPG_ERR_SEXP_BAD_HEX_CHAR = 211,
     GPG_ERR_SEXP_ODD_HEX_NUMBERS = 212,
     GPG_ERR_SEXP_BAD_OCT_CHAR = 213,
+    GPG_ERR_SUBKEYS_EXP_OR_REV = 217,
     GPG_ERR_DB_CORRUPTED = 218,
     GPG_ERR_SERVER_FAILED = 219,
     GPG_ERR_NO_NAME = 220,
