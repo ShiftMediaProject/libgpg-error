@@ -1095,6 +1095,7 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
       <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -1200,6 +1201,7 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libgpg-error.def</ModuleDefinitionFile>
       <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
