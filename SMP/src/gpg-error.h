@@ -28,12 +28,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.23"
-#define GPGRT_VERSION     "1.23"
+#define GPG_ERROR_VERSION "1.24"
+#define GPGRT_VERSION     "1.24"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x011700
-#define GPGRT_VERSION_NUMBER     0x011700
+#define GPG_ERROR_VERSION_NUMBER 0x011800
+#define GPGRT_VERSION_NUMBER     0x011800
 
 
 #ifdef __GNUC__

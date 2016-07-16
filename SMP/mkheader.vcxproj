@@ -119,7 +119,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.23" "0x011700" &gt; gpg-error.h
+mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.24" "0x011800" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -165,7 +165,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.23" "0x011700" &gt; gpg-error.h
+mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.24" "0x011800" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -211,7 +211,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.23" "0x011700" &gt; gpg-error.h
+mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.24" "0x011800" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -258,7 +258,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.23" "0x011700" &gt; gpg-error.h
+mkheader.exe "mingw32" "win32-msvc" "gpg-error.h.in" ../config.h "1.24" "0x011800" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -271,4 +271,4 @@ cd ../</Command>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project>
+</Project>
