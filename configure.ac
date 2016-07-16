@@ -27,7 +27,7 @@ min_automake_version="1.14"
 # another commit, and a push so that the git magic is able to work.
 # See below for the LT versions.
 m4_define([mym4_version_major], [1])
-m4_define([mym4_version_minor], [23])
+m4_define([mym4_version_minor], [24])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -53,7 +53,7 @@ AC_INIT([libgpg-error],[mym4_full_version],[https://bugs.gnupg.org])
 # Note that added error codes don't constitute an interface change.
 LIBGPG_ERROR_LT_CURRENT=19
 LIBGPG_ERROR_LT_AGE=19
-LIBGPG_ERROR_LT_REVISION=0
+LIBGPG_ERROR_LT_REVISION=1
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -533,6 +533,11 @@ AC_ARG_ENABLE([doc], AC_HELP_STRING([--disable-doc],
                      build_doc=$enableval, build_doc=yes)
 AM_CONDITIONAL([BUILD_DOC], [test "x$build_doc" != xno])
 
+build_tests=yes
+AC_ARG_ENABLE([tests], AC_HELP_STRING([--disable-tests],
+                                    [do not build the tests]),
+                     build_tests=$enableval, build_tests=yes)
+AM_CONDITIONAL([BUILD_TESTS], [test "x$build_tests" != xno])
 
 #
 # Substitution
