@@ -101,6 +101,9 @@
     <ClCompile Include="..\src\w32-iconv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\w32-estream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="versioninfo.rc">

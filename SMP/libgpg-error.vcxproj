@@ -71,6 +71,7 @@
     <ClCompile Include="..\src\strsource.c" />
     <ClCompile Include="..\src\version.c" />
     <ClCompile Include="..\src\visibility.c" />
+    <ClCompile Include="..\src\w32-estream.c" />
     <ClCompile Include="..\src\w32-gettext.c" />
     <ClCompile Include="..\src\w32-iconv.c" />
     <ClCompile Include="..\src\w32-lock.c" />

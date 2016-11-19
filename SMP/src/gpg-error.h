@@ -21,19 +21,19 @@
  */
 
 #ifndef GPG_ERROR_H
-#define GPG_ERROR_H	1
+#define GPG_ERROR_H 1
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.24"
-#define GPGRT_VERSION     "1.24"
+#define GPG_ERROR_VERSION "1.25"
+#define GPGRT_VERSION     "1.25"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x011800
-#define GPGRT_VERSION_NUMBER     0x011800
+#define GPG_ERROR_VERSION_NUMBER 0x011900
+#define GPGRT_VERSION_NUMBER     0x011900
 
 
 #ifdef __GNUC__
@@ -407,6 +407,15 @@ typedef enum
     GPG_ERR_ASS_NO_OUTPUT = 279,
     GPG_ERR_ASS_PARAMETER = 280,
     GPG_ERR_ASS_UNKNOWN_INQUIRE = 281,
+    GPG_ERR_ENGINE_TOO_OLD = 300,
+    GPG_ERR_WINDOW_TOO_SMALL = 301,
+    GPG_ERR_WINDOW_TOO_LARGE = 302,
+    GPG_ERR_MISSING_ENVVAR = 303,
+    GPG_ERR_USER_ID_EXISTS = 304,
+    GPG_ERR_NAME_EXISTS = 305,
+    GPG_ERR_DUP_NAME = 306,
+    GPG_ERR_TOO_YOUNG = 307,
+    GPG_ERR_TOO_OLD = 308,
     GPG_ERR_LDAP_GENERAL = 721,
     GPG_ERR_LDAP_ATTR_GENERAL = 722,
     GPG_ERR_LDAP_NAME_GENERAL = 723,
@@ -845,6 +854,9 @@ void gpg_err_deinit (int mode);
 /* Register blocking system I/O clamping functions.  */
 void gpgrt_set_syscall_clamp (void (*pre)(void), void (*post)(void));
 
+/* Get current I/O clamping functions.  */
+void gpgrt_get_syscall_clamp (void (**r_pre)(void), void (**r_post)(void));
+
 /* Register a custom malloc/realloc/free function.  */
 void gpgrt_set_alloc_func  (void *(*f)(void *a, size_t n));
 
@@ -1034,7 +1046,7 @@ gpg_error_from_syserror (void)
 #pragma pack(push, 8)
 typedef struct
 {
-  volatile char priv[56];
+  volatile unsigned char priv[56];
 } gpgrt_lock_t;
 #pragma pack(pop)
 
@@ -1048,7 +1060,7 @@ typedef struct
 #pragma pack(push, 8)
 typedef struct
 {
-  volatile char priv[36];
+  volatile unsigned char priv[36];
 } gpgrt_lock_t;
 #pragma pack(pop)
 
