@@ -123,7 +123,7 @@ msgstr "Malĝusta pasfrazo"
 msgid "Invalid cipher algorithm"
 msgstr "Malvalida ĉifra algoritmo"
 
-msgid "Keyring open"
+msgid "Cannot open keyring"
 msgstr "Malfermo de ŝlosilringo"
 
 msgid "Invalid packet"
@@ -991,6 +991,41 @@ msgstr "Parametra eraro de IPC"
 
 msgid "Unknown IPC inquire"
 msgstr "Nekonata enketo de IPC"
+
+#, fuzzy
+#| msgid "Invalid crypto engine"
+msgid "Crypto engine too old"
+msgstr "Malvalida ĉifra maŝino"
+
+msgid "Screen or window too small"
+msgstr ""
+
+msgid "Screen or window too large"
+msgstr ""
+
+msgid "Required environment variable not set"
+msgstr ""
+
+msgid "User ID already exists"
+msgstr ""
+
+msgid "Name already exists"
+msgstr ""
+
+#, fuzzy
+#| msgid "Duplicated value"
+msgid "Duplicated name"
+msgstr "Duobligita valoro"
+
+#, fuzzy
+#| msgid "Certificate too young"
+msgid "Object is too young"
+msgstr "Atestilo tro novas"
+
+#, fuzzy
+#| msgid "Provided object is too short"
+msgid "Object is too old"
+msgstr "Provizita objekto tro mallongas"
 
 #, fuzzy
 #| msgid "General IPC error"

@@ -125,7 +125,7 @@ msgstr "Senha errada"
 msgid "Invalid cipher algorithm"
 msgstr "Algoritmo de cifra inválido"
 
-msgid "Keyring open"
+msgid "Cannot open keyring"
 msgstr "Chaveiro aberto"
 
 msgid "Invalid packet"
@@ -929,6 +929,41 @@ msgstr "Erro de parâmetro IPC"
 
 msgid "Unknown IPC inquire"
 msgstr "Inquirição IPC desconhecida"
+
+#, fuzzy
+#| msgid "No crypto engine"
+msgid "Crypto engine too old"
+msgstr "Sem motor de encriptação"
+
+msgid "Screen or window too small"
+msgstr ""
+
+msgid "Screen or window too large"
+msgstr ""
+
+msgid "Required environment variable not set"
+msgstr ""
+
+msgid "User ID already exists"
+msgstr ""
+
+msgid "Name already exists"
+msgstr ""
+
+#, fuzzy
+#| msgid "Duplicated value"
+msgid "Duplicated name"
+msgstr "Valor duplicado"
+
+#, fuzzy
+#| msgid "Certificate too young"
+msgid "Object is too young"
+msgstr "Certificado demasiado novo"
+
+#, fuzzy
+#| msgid "Provided object is too short"
+msgid "Object is too old"
+msgstr "O objecto fornecido é demasiado curto"
 
 #, fuzzy
 #| msgid "General IPC error"

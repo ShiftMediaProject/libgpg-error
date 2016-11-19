@@ -51,6 +51,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.armv5-unknown-linux-musleabi.h  \
         syscfg/lock-obj-pub.armv6-unknown-linux-musleabihf.h \
         syscfg/lock-obj-pub.hppa-unknown-linux-gnu.h        \
+	syscfg/lock-obj-pub.i386-apple-darwin.h             \
         syscfg/lock-obj-pub.i686-pc-gnu.h                   \
         syscfg/lock-obj-pub.i686-pc-kfreebsd-gnu.h          \
         syscfg/lock-obj-pub.i686-pc-linux-gnu.h             \
@@ -68,6 +69,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.sh4-unknown-linux-gnu.h         \
         syscfg/lock-obj-pub.sparc-unknown-linux-gnu.h       \
         syscfg/lock-obj-pub.sparc64-unknown-linux-gnu.h     \
+	syscfg/lock-obj-pub.x86_64-apple-darwin.h           \
         syscfg/lock-obj-pub.x86_64-pc-kfreebsd-gnu.h        \
         syscfg/lock-obj-pub.x86_64-pc-linux-gnu.h           \
         syscfg/lock-obj-pub.x86_64-pc-linux-gnux32.h        \
@@ -107,7 +109,8 @@ CLEANFILES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
 # {{{ Begin Windows part
 #
 if HAVE_W32_SYSTEM
-arch_sources = w32-gettext.c w32-lock.c w32-lock-obj.h w32-thread.c w32-iconv.c
+arch_sources = w32-gettext.c w32-lock.c w32-lock-obj.h w32-thread.c \
+	       w32-iconv.c w32-estream.c
 RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
             -DLOCALEDIR=\"$(localedir)\" $(AM_CPPFLAGS) $(CPPFLAGS)
 LTRCCOMPILE = $(LIBTOOL) --mode=compile --tag=RC $(RCCOMPILE)
