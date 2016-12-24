@@ -265,10 +265,10 @@ static const char msgstr[] =
   gettext_noop ("Bad certificate message in handshake") "\0"
   gettext_noop ("Bad certificate request message in handshake") "\0"
   gettext_noop ("Bad certificate verify message in handshake") "\0"
-  gettext_noop ("Bad change cipher messsage in handshake") "\0"
+  gettext_noop ("Bad change cipher message in handshake") "\0"
   gettext_noop ("Bad client hello message in handshake") "\0"
   gettext_noop ("Bad server hello message in handshake") "\0"
-  gettext_noop ("Bad server hello done message in hanshake") "\0"
+  gettext_noop ("Bad server hello done message in handshake") "\0"
   gettext_noop ("Bad finished message in handshake") "\0"
   gettext_noop ("Bad server key exchange message in handshake") "\0"
   gettext_noop ("Bad client key exchange message in handshake") "\0"
@@ -312,6 +312,19 @@ static const char msgstr[] =
   gettext_noop ("Duplicated name") "\0"
   gettext_noop ("Object is too young") "\0"
   gettext_noop ("Object is too old") "\0"
+  gettext_noop ("Unknown flag") "\0"
+  gettext_noop ("Invalid execution order") "\0"
+  gettext_noop ("Already fetched") "\0"
+  gettext_noop ("Try again later") "\0"
+  gettext_noop ("System bug detected") "\0"
+  gettext_noop ("Unknown DNS error") "\0"
+  gettext_noop ("Invalid DNS section") "\0"
+  gettext_noop ("Invalid textual address form") "\0"
+  gettext_noop ("Missing DNS query packet") "\0"
+  gettext_noop ("Missing DNS answer packet") "\0"
+  gettext_noop ("Connection closed in DNS") "\0"
+  gettext_noop ("Verification failed in DNS") "\0"
+  gettext_noop ("DNS Timeout") "\0"
   gettext_noop ("General LDAP error") "\0"
   gettext_noop ("General LDAP attribute error") "\0"
   gettext_noop ("General LDAP name error") "\0"
@@ -657,9 +670,9 @@ static const int msgidx[] =
     4500,
     4545,
     4589,
-    4629,
-    4667,
-    4705,
+    4628,
+    4666,
+    4704,
     4747,
     4781,
     4826,
@@ -704,106 +717,119 @@ static const int msgidx[] =
     5689,
     5709,
     5727,
-    5746,
-    5775,
-    5799,
-    5827,
+    5740,
+    5764,
+    5780,
+    5796,
+    5816,
+    5834,
     5854,
-    5880,
-    5909,
-    5933,
-    5958,
-    5985,
-    6014,
-    6031,
-    6056,
-    6079,
-    6101,
-    6120,
-    6142,
-    6175,
-    6205,
-    6228,
-    6263,
-    6279,
-    6299,
-    6319,
-    6336,
-    6363,
-    6376,
-    6398,
-    6418,
+    5883,
+    5908,
+    5934,
+    5959,
+    5986,
+    5998,
+    6017,
+    6046,
+    6070,
+    6098,
+    6125,
+    6151,
+    6180,
+    6204,
+    6229,
+    6256,
+    6285,
+    6302,
+    6327,
+    6350,
+    6372,
+    6391,
+    6413,
     6446,
-    6474,
-    6493,
-    6511,
-    6552,
-    6592,
-    6631,
-    6645,
-    6680,
-    6719,
-    6752,
-    6779,
-    6802,
-    6832,
+    6476,
+    6499,
+    6534,
+    6550,
+    6570,
+    6590,
+    6607,
+    6634,
+    6647,
+    6669,
+    6689,
+    6717,
+    6745,
+    6764,
+    6782,
+    6823,
     6863,
-    6892,
-    6918,
-    6941,
-    6961,
-    6980,
-    7006,
-    7027,
-    7060,
-    7097,
-    7131,
-    7156,
-    7185,
-    7205,
+    6902,
+    6916,
+    6951,
+    6990,
+    7023,
+    7050,
+    7073,
+    7103,
+    7134,
+    7163,
+    7189,
+    7212,
     7232,
-    7268,
-    7290,
-    7312,
-    7340,
-    7379,
-    7413,
-    7435,
-    7467,
-    7490,
-    7527,
-    7556,
-    7573,
-    7601,
-    7628,
-    7649,
-    7676,
-    7700,
-    7715,
-    7743,
-    7767,
-    7786,
-    7808,
-    7845,
-    7871,
-    7897,
-    7923,
-    7949,
-    7975,
-    8001,
-    8027,
-    8053,
+    7251,
+    7277,
+    7298,
+    7331,
+    7368,
+    7402,
+    7427,
+    7456,
+    7476,
+    7503,
+    7539,
+    7561,
+    7583,
+    7611,
+    7650,
+    7684,
+    7706,
+    7738,
+    7761,
+    7798,
+    7827,
+    7844,
+    7872,
+    7899,
+    7920,
+    7947,
+    7971,
+    7986,
+    8014,
+    8038,
+    8057,
     8079,
-    8106,
-    8133,
-    8160,
-    8187,
-    8214,
-    8241,
-    8268,
-    8291,
-    8312,
-    8324
+    8116,
+    8142,
+    8168,
+    8194,
+    8220,
+    8246,
+    8272,
+    8298,
+    8324,
+    8350,
+    8377,
+    8404,
+    8431,
+    8458,
+    8485,
+    8512,
+    8539,
+    8562,
+    8583,
+    8595
   };
 
 static GPG_ERR_INLINE int
@@ -813,18 +839,20 @@ msgidxof (int code)
   : ((code >= 0) && (code <= 213)) ? (code - 0)
   : ((code >= 217) && (code <= 271)) ? (code - 3)
   : ((code >= 273) && (code <= 281)) ? (code - 4)
-  : ((code >= 300) && (code <= 308)) ? (code - 22)
-  : ((code >= 721) && (code <= 729)) ? (code - 434)
-  : ((code >= 750) && (code <= 752)) ? (code - 454)
-  : ((code >= 754) && (code <= 782)) ? (code - 455)
-  : ((code >= 784) && (code <= 789)) ? (code - 456)
-  : ((code >= 800) && (code <= 804)) ? (code - 466)
-  : ((code >= 815) && (code <= 822)) ? (code - 476)
-  : ((code >= 832) && (code <= 839)) ? (code - 485)
-  : ((code >= 844) && (code <= 844)) ? (code - 489)
-  : ((code >= 848) && (code <= 848)) ? (code - 492)
-  : ((code >= 881) && (code <= 891)) ? (code - 524)
-  : ((code >= 1024) && (code <= 1039)) ? (code - 656)
-  : ((code >= 16381) && (code <= 16383)) ? (code - 15997)
-  : 16384 - 15997);
+  : ((code >= 300) && (code <= 312)) ? (code - 22)
+  : ((code >= 666) && (code <= 666)) ? (code - 375)
+  : ((code >= 711) && (code <= 718)) ? (code - 419)
+  : ((code >= 721) && (code <= 729)) ? (code - 421)
+  : ((code >= 750) && (code <= 752)) ? (code - 441)
+  : ((code >= 754) && (code <= 782)) ? (code - 442)
+  : ((code >= 784) && (code <= 789)) ? (code - 443)
+  : ((code >= 800) && (code <= 804)) ? (code - 453)
+  : ((code >= 815) && (code <= 822)) ? (code - 463)
+  : ((code >= 832) && (code <= 839)) ? (code - 472)
+  : ((code >= 844) && (code <= 844)) ? (code - 476)
+  : ((code >= 848) && (code <= 848)) ? (code - 479)
+  : ((code >= 881) && (code <= 891)) ? (code - 511)
+  : ((code >= 1024) && (code <= 1039)) ? (code - 643)
+  : ((code >= 16381) && (code <= 16383)) ? (code - 15984)
+  : 16384 - 15984);
 }
