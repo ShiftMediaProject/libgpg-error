@@ -817,8 +817,7 @@ msgstr "Mauvais message de demande de certificat dans l’initialisation"
 msgid "Bad certificate verify message in handshake"
 msgstr "Mauvais message de vérification de certificat dans l’initialisation"
 
-# NOTE: s/messsage/message/
-msgid "Bad change cipher messsage in handshake"
+msgid "Bad change cipher message in handshake"
 msgstr "Mauvais message de modification d’algorithme dans l’initialisation"
 
 msgid "Bad client hello message in handshake"
@@ -827,8 +826,7 @@ msgstr "Mauvais message de salut du client dans l’initialisation"
 msgid "Bad server hello message in handshake"
 msgstr "Mauvais message de salut du serveur dans l’initialisation"
 
-# NOTE: s/hanshake/handshake/
-msgid "Bad server hello done message in hanshake"
+msgid "Bad server hello done message in handshake"
 msgstr "Mauvais message de fin de salut du serveur dans l’initialisation"
 
 msgid "Bad finished message in handshake"
@@ -967,6 +965,61 @@ msgstr "Certificat trop récent"
 #| msgid "Provided object is too short"
 msgid "Object is too old"
 msgstr "L'objet fourni est trop petit"
+
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Unknown flag"
+msgstr "Nom inconnu"
+
+#, fuzzy
+#| msgid "Invalid operation code"
+msgid "Invalid execution order"
+msgstr "Code d'opération incorrect"
+
+msgid "Already fetched"
+msgstr ""
+
+msgid "Try again later"
+msgstr ""
+
+msgid "System bug detected"
+msgstr ""
+
+#, fuzzy
+#| msgid "Unknown system error"
+msgid "Unknown DNS error"
+msgstr "Erreur système inconnue"
+
+#, fuzzy
+#| msgid "Invalid OID string"
+msgid "Invalid DNS section"
+msgstr "Chaîne OID incorrecte"
+
+#, fuzzy
+#| msgid "Invalid S-expression"
+msgid "Invalid textual address form"
+msgstr "Expression symbolique incorrecte"
+
+#, fuzzy
+#| msgid "Missing issuer certificate"
+msgid "Missing DNS query packet"
+msgstr "Certificat de l'émetteur manquant"
+
+msgid "Missing DNS answer packet"
+msgstr ""
+
+msgid "Connection closed in DNS"
+msgstr ""
+
+#, fuzzy
+#| msgid "Decryption failed"
+msgid "Verification failed in DNS"
+msgstr "Échec de déchiffrement"
+
+#, fuzzy
+#| msgid "Timeout"
+msgid "DNS Timeout"
+msgstr "Délai d'attente dépassé"
 
 #, fuzzy
 #| msgid "General IPC error"
@@ -1402,11 +1455,6 @@ msgstr "%s : attention : impossible de reconnaître %s\n"
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
 #~ msgstr "Données incorrectes"
-
-#, fuzzy
-#~| msgid "Decryption failed"
-#~ msgid "Assertion failed in lDAP"
-#~ msgstr "Échec de déchiffrement"
 
 #, fuzzy
 #~| msgid "General error"

@@ -815,7 +815,7 @@ msgstr ""
 "Помилкове повідомлення щодо перевірки сертифікації під час підтвердження "
 "зв’язку"
 
-msgid "Bad change cipher messsage in handshake"
+msgid "Bad change cipher message in handshake"
 msgstr "Помилкове повідомлення щодо зміни шифру під час підтвердження зв’язку"
 
 msgid "Bad client hello message in handshake"
@@ -824,7 +824,7 @@ msgstr "Помилкове вітальне повідомлення клієн�
 msgid "Bad server hello message in handshake"
 msgstr "Помилкове вітальне повідомлення сервера під час підтвердження зв’язку"
 
-msgid "Bad server hello done message in hanshake"
+msgid "Bad server hello done message in handshake"
 msgstr ""
 "Помилкове повідомлення про завершення вітання від сервера під час "
 "підтвердження зв’язку"
@@ -973,6 +973,61 @@ msgstr "Сертифікат є надто новим"
 #| msgid "Provided object is too short"
 msgid "Object is too old"
 msgstr "Наданий об’єкт є надто коротким"
+
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Unknown flag"
+msgstr "Невідома назва"
+
+#, fuzzy
+#| msgid "Invalid operation code"
+msgid "Invalid execution order"
+msgstr "Некоректний код дії"
+
+msgid "Already fetched"
+msgstr ""
+
+msgid "Try again later"
+msgstr ""
+
+msgid "System bug detected"
+msgstr ""
+
+#, fuzzy
+#| msgid "Unknown system error"
+msgid "Unknown DNS error"
+msgstr "Невідома системна помилка"
+
+#, fuzzy
+#| msgid "Invalid OID string"
+msgid "Invalid DNS section"
+msgstr "Некоректний рядок OID"
+
+#, fuzzy
+#| msgid "Invalid S-expression"
+msgid "Invalid textual address form"
+msgstr "Некоректний S-вираз"
+
+#, fuzzy
+#| msgid "Missing issuer certificate"
+msgid "Missing DNS query packet"
+msgstr "Не вистачає сертифіката видавця"
+
+msgid "Missing DNS answer packet"
+msgstr ""
+
+msgid "Connection closed in DNS"
+msgstr ""
+
+#, fuzzy
+#| msgid "Decryption failed"
+msgid "Verification failed in DNS"
+msgstr "Спроба розшифрування зазнала невдачі"
+
+#, fuzzy
+#| msgid "Timeout"
+msgid "DNS Timeout"
+msgstr "Час очікування"
 
 msgid "General LDAP error"
 msgstr "Загальна помилка LDAP"
@@ -1294,11 +1349,6 @@ msgstr "%s: попередження: не вдалося розпізнати %
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
 #~ msgstr "Некоректні дані"
-
-#, fuzzy
-#~| msgid "Decryption failed"
-#~ msgid "Assertion failed in lDAP"
-#~ msgstr "Спроба розшифрування зазнала невдачі"
 
 #, fuzzy
 #~| msgid "General error"

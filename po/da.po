@@ -819,7 +819,7 @@ msgstr "Besked om ødelagt certifikatforespørgsel i håndtrykket"
 msgid "Bad certificate verify message in handshake"
 msgstr "Besked om ødelagt certifikatforespørgsel i håndtrykket"
 
-msgid "Bad change cipher messsage in handshake"
+msgid "Bad change cipher message in handshake"
 msgstr "Ødelagt »ændr chiffer«-besked i håndtrykket"
 
 msgid "Bad client hello message in handshake"
@@ -829,7 +829,7 @@ msgid "Bad server hello message in handshake"
 msgstr "Besked om ødelagt serverhilsen i håndtrykket"
 
 # engelsk fejl
-msgid "Bad server hello done message in hanshake"
+msgid "Bad server hello done message in handshake"
 msgstr "Ødelagt »afsluttet serverhilsen«-besked i håndtrykket"
 
 msgid "Bad finished message in handshake"
@@ -968,6 +968,61 @@ msgstr "Certifikat for ungt"
 #| msgid "Provided object is too short"
 msgid "Object is too old"
 msgstr "Angivet objekt er for kort"
+
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Unknown flag"
+msgstr "Ukendt navn"
+
+#, fuzzy
+#| msgid "Invalid operation code"
+msgid "Invalid execution order"
+msgstr "Ugyldig handlingskode"
+
+msgid "Already fetched"
+msgstr ""
+
+msgid "Try again later"
+msgstr ""
+
+msgid "System bug detected"
+msgstr ""
+
+#, fuzzy
+#| msgid "Unknown system error"
+msgid "Unknown DNS error"
+msgstr "Ukendt systemfejl"
+
+#, fuzzy
+#| msgid "Invalid OID string"
+msgid "Invalid DNS section"
+msgstr "Ugyldig OID-streng"
+
+#, fuzzy
+#| msgid "Invalid S-expression"
+msgid "Invalid textual address form"
+msgstr "Ugyldigt S-udtryk"
+
+#, fuzzy
+#| msgid "Missing issuer certificate"
+msgid "Missing DNS query packet"
+msgstr "Manglende udstedercertfikat"
+
+msgid "Missing DNS answer packet"
+msgstr ""
+
+msgid "Connection closed in DNS"
+msgstr ""
+
+#, fuzzy
+#| msgid "Decryption failed"
+msgid "Verification failed in DNS"
+msgstr "Afkryptering mislykkedes"
+
+#, fuzzy
+#| msgid "Timeout"
+msgid "DNS Timeout"
+msgstr "Tidsudløb"
 
 #, fuzzy
 #| msgid "General IPC error"
@@ -1403,11 +1458,6 @@ msgstr "%s: advarsel: kunne ikke genkende %s\n"
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
 #~ msgstr "Ugyldige data"
-
-#, fuzzy
-#~| msgid "Decryption failed"
-#~ msgid "Assertion failed in lDAP"
-#~ msgstr "Afkryptering mislykkedes"
 
 #, fuzzy
 #~| msgid "General error"
