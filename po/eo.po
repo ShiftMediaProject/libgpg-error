@@ -1043,6 +1043,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Wrong name"
+msgstr "Nekonata nomo"
+
 msgid "System bug detected"
 msgstr ""
 

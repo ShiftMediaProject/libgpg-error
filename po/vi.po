@@ -1031,6 +1031,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Wrong name"
+msgstr "Tên không rõ"
+
 msgid "System bug detected"
 msgstr ""
 

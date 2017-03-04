@@ -49,6 +49,61 @@ gpg_err_code_t _gpgrt_lock_unlock (gpgrt_lock_t *lockhd);
 gpg_err_code_t _gpgrt_lock_destroy (gpgrt_lock_t *lockhd);
 gpg_err_code_t _gpgrt_yield (void);
 
+/* Trace support.  */
+
+/* The trace macro is used this way:
+ *   trace (("enter - foo=%d bar=%s", foo, bar));
+ * Note the double parenthesis, they are important.
+ * To append the current errno to the output, use
+ *   trace_errno (EXTPR,("leave - baz=%d", faz));
+ * If EXPR evaluates to true the output of strerror (errno)
+ * is appended to the output.  Note that the trace function does
+ * not modify ERRNO.  To enable tracing you need to have this
+ *  #define ENABLE_TRACING "modulename"
+ * before you include gpgrt-int.h.
+ */
+#ifdef ENABLE_TRACING
+# define trace(X) do { \
+                       _gpgrt_internal_trace_begin \
+                         (ENABLE_TRACING, __func__, __LINE__, 0); \
+                       _gpgrt_internal_trace X; \
+                       _gpgrt_internal_trace_end (); \
+                     } while (0)
+# define trace_errno(C,X) do {                     \
+                       _gpgrt_internal_trace_begin \
+                         (ENABLE_TRACING, __func__, __LINE__, (C)); \
+                       _gpgrt_internal_trace X;      \
+                       _gpgrt_internal_trace_end (); \
+                     } while (0)
+# define trace_start(X) do { \
+                       _gpgrt_internal_trace_begin \
+                         (ENABLE_TRACING, __func__, __LINE__, 0); \
+                       _gpgrt_internal_trace_printf X; \
+                     } while (0)
+# define trace_append(X) do { \
+                       _gpgrt_internal_trace_printf X; \
+                     } while (0)
+# define trace_finish(X) do { \
+                       _gpgrt_internal_trace_printf X; \
+                       _gpgrt_internal_trace_end (); \
+                     } while (0)
+#else
+# define trace(X) do { } while (0)
+# define trace_errno(C,X) do { } while (0)
+# define trace_start(X) do { } while (0)
+# define trace_append(X) do { } while (0)
+# define trace_finish(X) do { } while (0)
+#endif /*!ENABLE_TRACING*/
+
+void _gpgrt_internal_trace_begin (const char *mod, const char *file, int line,
+                                  int with_errno);
+void _gpgrt_internal_trace (const char *format,
+                            ...) GPGRT_ATTR_PRINTF(1,2);
+void _gpgrt_internal_trace_printf (const char *format,
+                                   ...) GPGRT_ATTR_PRINTF(1,2);
+void _gpgrt_internal_trace_end (void);
+
+
 
 /* Local definitions for estream.  */
 
@@ -147,7 +202,7 @@ typedef struct _gpgrt_stream_internal *estream_internal_t;
 
 
 /* Local prototypes for estream.  */
-int _gpgrt_es_init (void);
+int _gpgrt_estream_init (void);
 void _gpgrt_set_syscall_clamp (void (*pre)(void), void (*post)(void));
 void _gpgrt_get_syscall_clamp (void (**r_pre)(void), void (**r_post)(void));
 
@@ -311,5 +366,11 @@ int _gpgrt_w32_pollable_create (void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
                                 void *next_cookie);
 int _gpgrt_w32_poll (gpgrt_poll_t *fds, size_t nfds, int timeout);
 #endif
+
+gpgrt_b64state_t _gpgrt_b64dec_start (const char *title);
+gpg_error_t _gpgrt_b64dec_proc (gpgrt_b64state_t state, void *buffer,
+                                size_t length, size_t *r_nbytes);
+gpg_error_t _gpgrt_b64dec_finish (gpgrt_b64state_t state);
+
 
 #endif /*_GPGRT_GPGRT_INT_H*/

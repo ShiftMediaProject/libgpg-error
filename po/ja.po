@@ -1,14 +1,14 @@
 # Japanese messages for GnuPG libgpg-error
-# Copyright (C) 2010, 2012, 2014, 2015 Free Software Foundation, Inc.
+# Copyright (C) 2010, 2012, 2014, 2015, 2016 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
 # Yasuaki Taniguchi <yasuakit@gmail.com>, 2010.
 # Takeshi Hamasaki <hmatrjp@users.sourceforge.jp>, 2012.
 # NIIBE Yutaka <gniibe@fsij.org>, 2014, 2015, 2016.
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.19\n"
+"Project-Id-Version: libgpg-error 1.26\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2016-02-26 09:42+0900\n"
+"PO-Revision-Date: 2016-12-22 08:12+0900\n"
 "Last-Translator: NIIBE Yutaka <gniibe@fsij.org>\n"
 "Language-Team: none\n"
 "Language: ja\n"
@@ -126,7 +126,7 @@ msgid "Invalid cipher algorithm"
 msgstr "無効な暗号アルゴリズムです"
 
 msgid "Cannot open keyring"
-msgstr "鍵リングオープン"
+msgstr ""
 
 msgid "Invalid packet"
 msgstr "無効なパケットです"
@@ -975,6 +975,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "No name"
+msgid "Wrong name"
+msgstr "名前がありません"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1324,3 +1329,6 @@ msgstr "使用法: %s GPG-ERROR [...]\n"
 #, c-format
 msgid "%s: warning: could not recognize %s\n"
 msgstr "%s: 警告: %s を認識できませんでした\n"
+
+#~ msgid "Keyring open"
+#~ msgstr "鍵リングオープン"

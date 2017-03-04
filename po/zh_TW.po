@@ -983,6 +983,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Wrong name"
+msgstr "無效的名稱"
+
 msgid "System bug detected"
 msgstr ""
 

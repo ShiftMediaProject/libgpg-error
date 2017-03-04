@@ -1,4 +1,4 @@
-## lock-obj-pub.armv6-unknown-linux-musleabihf.h
+## lock-obj-pub.sh3-unknown-linux-gnu.h
 ## File created by gen-posix-lock-obj - DO NOT EDIT
 ## To be included by mkheader into gpg-error.h
 

@@ -1028,6 +1028,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Wrong name"
+msgstr "未知名称"
+
 msgid "System bug detected"
 msgstr ""
 

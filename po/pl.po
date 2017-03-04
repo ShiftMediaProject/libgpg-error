@@ -973,6 +973,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "No name"
+msgid "Wrong name"
+msgstr "Brak nazwy"
+
 msgid "System bug detected"
 msgstr ""
 

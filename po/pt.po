@@ -981,6 +981,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Wrong name"
+msgstr "Nome desconhecido"
+
 msgid "System bug detected"
 msgstr ""
 

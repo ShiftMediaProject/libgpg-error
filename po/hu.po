@@ -1041,6 +1041,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Wrong name"
+msgstr "Ismeretlen név"
+
 msgid "System bug detected"
 msgstr ""
 

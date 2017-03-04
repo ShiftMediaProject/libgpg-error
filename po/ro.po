@@ -1054,6 +1054,11 @@ msgstr ""
 msgid "Try again later"
 msgstr ""
 
+#, fuzzy
+#| msgid "Unknown name"
+msgid "Wrong name"
+msgstr "Nume necunoscut"
+
 msgid "System bug detected"
 msgstr ""
 

@@ -46,10 +46,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.alpha-unknown-linux-gnu.h       \
         syscfg/lock-obj-pub.arm-unknown-linux-androideabi.h \
         syscfg/lock-obj-pub.arm-unknown-linux-gnueabi.h     \
-        syscfg/lock-obj-pub.arm-unknown-linux-gnueabihf.h   \
 	syscfg/lock-obj-pub.arm-apple-darwin.h              \
-        syscfg/lock-obj-pub.armv5-unknown-linux-musleabi.h  \
-        syscfg/lock-obj-pub.armv6-unknown-linux-musleabihf.h \
         syscfg/lock-obj-pub.hppa-unknown-linux-gnu.h        \
 	syscfg/lock-obj-pub.i386-apple-darwin.h             \
         syscfg/lock-obj-pub.i686-pc-gnu.h                   \
@@ -66,6 +63,7 @@ lock_obj_pub = \
 	syscfg/lock-obj-pub.powerpc64le-unknown-linux-gnu.h \
 	syscfg/lock-obj-pub.powerpc-unknown-linux-gnuspe.h  \
         syscfg/lock-obj-pub.s390x-ibm-linux-gnu.h           \
+        syscfg/lock-obj-pub.sh3-unknown-linux-gnu.h         \
         syscfg/lock-obj-pub.sh4-unknown-linux-gnu.h         \
         syscfg/lock-obj-pub.sparc-unknown-linux-gnu.h       \
         syscfg/lock-obj-pub.sparc64-unknown-linux-gnu.h     \
@@ -79,7 +77,7 @@ lock_obj_pub = \
 
 
 lib_LTLIBRARIES = libgpg-error.la
-nodist_include_HEADERS = gpg-error.h
+nodist_include_HEADERS = gpg-error.h gpgrt.h
 bin_SCRIPTS = gpg-error-config
 m4datadir = $(datadir)/aclocal
 m4data_DATA = gpg-error.m4
@@ -94,13 +92,14 @@ EXTRA_DIST = mkstrtable.awk err-sources.h.in err-codes.h.in \
 	$(lock_obj_pub)
 
 BUILT_SOURCES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
-	err-sources-sym.h err-codes-sym.h errnos-sym.h gpg-error.h \
+	err-sources-sym.h err-codes-sym.h errnos-sym.h gpg-error.h gpgrt.h \
 	gpg-error.def mkw32errmap.map.c
 
 tmp_files = _mkerrcodes.h _gpg-error.def.h mkw32errmap.tab.h mkw32errmap.map.c
 
 CLEANFILES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
-	gpg-error.h mkerrcodes mkerrcodes.h gpg-error.def mkw32errmap.tab.h \
+	gpg-error.h gpgrt.h \
+        mkerrcodes mkerrcodes.h gpg-error.def mkw32errmap.tab.h \
 	mkw32errmap.map.c err-sources-sym.h err-codes-sym.h errnos-sym.h \
 	gpg-extra/errno.h mkheader $(tmp_files) lock-obj-pub.native.h
 
@@ -179,7 +178,7 @@ libgpg_error_la_SOURCES = gettext.h $(arch_sources) \
 	gpgrt-int.h init.c init.h version.c lock.h thread.h \
 	estream.c estream-printf.c estream-printf.h \
 	strsource.c strerror.c code-to-errno.c code-from-errno.c \
-	visibility.c visibility.h
+	visibility.c visibility.h b64dec.c
 nodist_libgpg_error_la_SOURCES = gpg-error.h
 
 # libgpg_error_la_DEPENDENCIES = \
@@ -308,6 +307,8 @@ gpg-error.h: Makefile mkheader $(parts_of_gpg_error_h) \
 	./mkheader $(host_os) $(host_triplet)  $(srcdir)/gpg-error.h.in \
                    ../config.h $(PACKAGE_VERSION) $(VERSION_NUMBER) >$@
 
+gpgrt.h: gpg-error.h
+	cp gpg-error.h gpgrt.h
 
 install-data-local:
 if HAVE_W32CE_SYSTEM
