@@ -57,6 +57,7 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\b64dec.c" />
     <ClCompile Include="..\src\code-from-errno.c" />
     <ClCompile Include="..\src\code-to-errno.c" />
     <ClCompile Include="..\src\estream-printf.c" />
