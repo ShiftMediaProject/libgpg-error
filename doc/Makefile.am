@@ -35,7 +35,8 @@ myman_pages   = gpg-error-config.1
 man_MANS = $(myman_pages)
 
 yat2m: yat2m.c
-	$(CC_FOR_BUILD) -o $@ $(srcdir)/yat2m.c
+	$(CC_FOR_BUILD) -DPACKAGE_VERSION="\"$(PACKAGE_VERSION)\"" \
+                -o $@ $(srcdir)/yat2m.c
 
 
 yat2m-stamp: $(myman_sources)
@@ -71,9 +72,22 @@ errorref.txt.x : errorref.txt
 	sed '/^##/ d' $< >$@
 	echo "# Installed by $(PACKAGE_NAME) $(PACKAGE_VERSION)" >>$@
 
+install-exec-hook:
+if CROSS_COMPILING
+	@echo "not install yat2m while cross-compiling"
+else
+	@echo "installing yat2m on the build system"; \
+         $(MKDIR_P) "$(DESTDIR)$(bindir)"; \
+	 $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) \
+	         yat2m "$(DESTDIR)$(bindir)/yat2m"
+endif
+
 install-data-local: errorref.txt.x
 	$(mkinstalldirs) $(DESTDIR)$(pkgdatadir)
 	$(INSTALL_DATA) errorref.txt.x $(DESTDIR)$(pkgdatadir)/errorref.txt
 
 uninstall-local:
 	-@rm $(DESTDIR)$(pkgdatadir)/errorref.txt
+if !CROSS_COMPILING
+	-@rm $(DESTDIR)$(bindir)/yat2m
+endif

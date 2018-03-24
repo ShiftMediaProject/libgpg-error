@@ -1,5 +1,5 @@
 /* yat2m.c - Yet Another Texi 2 Man converter
- *	Copyright (C) 2005, 2013, 2015, 2016 g10 Code GmbH
+ *	Copyright (C) 2005, 2013, 2015, 2016, 2017 g10 Code GmbH
  *      Copyright (C) 2006, 2008, 2011 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -128,7 +128,11 @@
 
 
 #define PGM "yat2m"
-#define VERSION "1.0"
+#ifdef PACKAGE_VERSION
+# define VERSION PACKAGE_VERSION
+#else
+# define VERSION "1.0"
+#endif
 
 /* The maximum length of a line including the linefeed and one extra
    character. */
@@ -729,7 +733,8 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
     { "asis",    7 },
     { "anchor",  7 },
     { "cartouche", 1 },
-    { "xref",    0, "see: [", "]" },
+    { "ref",     0, "[", "]" },
+    { "xref",    0, "See: [", "]" },
     { "pxref",   0, "see: [", "]" },
     { "uref",    0, "(\\fB", "\\fR)" },
     { "footnote",0, " ([", "])" },
@@ -1477,6 +1482,7 @@ int
 main (int argc, char **argv)
 {
   int last_argc = -1;
+  const char *s;
 
   opt_source = "GNU";
   opt_release = "";
@@ -1515,13 +1521,13 @@ main (int argc, char **argv)
                 "  -I DIR           also search in include DIR\n"
                 "  -D gpgone        the only usable define\n\n"
                 "With no FILE, or when FILE is -, read standard input.\n\n"
-                "Report bugs to <bugs@g10code.com>.");
+                "Report bugs to <https://bugs.gnupg.org>.");
           exit (0);
         }
       else if (!strcmp (*argv, "--version"))
         {
           puts (PGM " " VERSION "\n"
-               "Copyright (C) 2005 g10 Code GmbH\n"
+               "Copyright (C) 2005, 2017 g10 Code GmbH\n"
                "This program comes with ABSOLUTELY NO WARRANTY.\n"
                "This is free software, and you are welcome to redistribute it\n"
                 "under certain conditions. See the file COPYING for details.");
@@ -1609,6 +1615,11 @@ main (int argc, char **argv)
 
   if (argc > 1)
     die ("usage: " PGM " [OPTION] [FILE] (try --help for more information)\n");
+
+  /* Take care of supplied timestamp for reproducible builds.  See
+   * https://reproducible-builds.org/specs/source-date-epoch/  */
+  if (!opt_date && (s = getenv ("SOURCE_DATE_EPOCH")) && *s)
+    opt_date = s;
 
   /* Start processing. */
   if (argc && strcmp (*argv, "-"))

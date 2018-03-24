@@ -15,6 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, see <https://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: LGPL-2.1+
  */
 
 #ifndef _GPGRT_VISIBILITY_H
@@ -117,7 +118,6 @@ MARK_VISIBLE (gpgrt_fputs)
 MARK_VISIBLE (gpgrt_fputs_unlocked)
 MARK_VISIBLE (gpgrt_getline)
 MARK_VISIBLE (gpgrt_read_line)
-MARK_VISIBLE (gpgrt_free)
 MARK_VISIBLE (gpgrt_fprintf)
 MARK_VISIBLE (gpgrt_fprintf_unlocked)
 MARK_VISIBLE (gpgrt_printf)
@@ -141,13 +141,63 @@ MARK_VISIBLE (gpgrt_bsprintf)
 MARK_VISIBLE (gpgrt_vbsprintf)
 MARK_VISIBLE (gpgrt_snprintf)
 MARK_VISIBLE (gpgrt_vsnprintf)
+
 MARK_VISIBLE (gpgrt_set_syscall_clamp)
 MARK_VISIBLE (gpgrt_get_syscall_clamp)
 MARK_VISIBLE (gpgrt_set_alloc_func)
 
+MARK_VISIBLE (gpgrt_realloc)
+MARK_VISIBLE (gpgrt_malloc)
+MARK_VISIBLE (gpgrt_calloc)
+MARK_VISIBLE (gpgrt_strdup)
+MARK_VISIBLE (gpgrt_strconcat)
+MARK_VISIBLE (gpgrt_free)
+MARK_VISIBLE (gpgrt_getenv)
+MARK_VISIBLE (gpgrt_setenv)
+MARK_VISIBLE (gpgrt_mkdir)
+MARK_VISIBLE (gpgrt_chdir)
+MARK_VISIBLE (gpgrt_getcwd)
+
 MARK_VISIBLE (gpgrt_b64dec_start)
 MARK_VISIBLE (gpgrt_b64dec_proc)
 MARK_VISIBLE (gpgrt_b64dec_finish)
+
+MARK_VISIBLE (gpgrt_get_errorcount)
+MARK_VISIBLE (gpgrt_inc_errorcount)
+MARK_VISIBLE (gpgrt_log_set_sink)
+MARK_VISIBLE (gpgrt_log_set_socket_dir_cb)
+MARK_VISIBLE (gpgrt_log_set_pid_suffix_cb)
+MARK_VISIBLE (gpgrt_log_set_prefix)
+MARK_VISIBLE (gpgrt_log_get_prefix)
+MARK_VISIBLE (gpgrt_log_test_fd)
+MARK_VISIBLE (gpgrt_log_get_fd)
+MARK_VISIBLE (gpgrt_log_get_stream)
+MARK_VISIBLE (gpgrt_log)
+MARK_VISIBLE (gpgrt_logv)
+MARK_VISIBLE (gpgrt_logv_prefix)
+MARK_VISIBLE (gpgrt_log_string)
+MARK_VISIBLE (gpgrt_log_bug)
+MARK_VISIBLE (gpgrt_log_fatal)
+MARK_VISIBLE (gpgrt_log_error)
+MARK_VISIBLE (gpgrt_log_info)
+MARK_VISIBLE (gpgrt_log_debug)
+MARK_VISIBLE (gpgrt_log_debug_string)
+MARK_VISIBLE (gpgrt_log_printf)
+MARK_VISIBLE (gpgrt_log_printhex)
+MARK_VISIBLE (gpgrt_log_clock)
+MARK_VISIBLE (gpgrt_log_flush)
+MARK_VISIBLE (_gpgrt_log_assert)
+
+#if 0
+MARK_VISIBLE (gpgrt_make_pipe)
+MARK_VISIBLE (gpgrt_spawn_process)
+MARK_VISIBLE (gpgrt_spawn_process_fd)
+MARK_VISIBLE (gpgrt_spawn_process_detached)
+MARK_VISIBLE (gpgrt_wait_process)
+MARK_VISIBLE (gpgrt_wait_processes)
+MARK_VISIBLE (gpgrt_kill_process)
+MARK_VISIBLE (gpgrt_release_process)
+#endif
 
 #undef MARK_VISIBLE
 
@@ -230,7 +280,6 @@ MARK_VISIBLE (gpgrt_b64dec_finish)
 #define gpgrt_fputs_unlocked        _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_getline               _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_read_line             _gpgrt_USE_UNDERSCORED_FUNCTION
-#define gpgrt_free                  _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fprintf               _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fprintf_unlocked      _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_printf                _gpgrt_USE_UNDERSCORED_FUNCTION
@@ -255,6 +304,18 @@ MARK_VISIBLE (gpgrt_b64dec_finish)
 #define gpgrt_snprintf              _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_vsnprintf             _gpgrt_USE_UNDERSCORED_FUNCTION
 
+#define gpgrt_realloc               _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_malloc                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_calloc                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_strdup                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_strconcat             _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_free                  _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_getenv                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_setenv                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_mkdir                 _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_chdir                 _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_getcwd                _gpgrt_USE_UNDERSCORED_FUNCTION
+
 #define gpgrt_set_syscall_clamp     _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_get_syscall_clamp     _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_set_alloc_func        _gpgrt_USE_UNDERSCORED_FUNCTION
@@ -262,6 +323,46 @@ MARK_VISIBLE (gpgrt_b64dec_finish)
 #define gpgrt_b64dec_start          _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_b64dec_proc           _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_b64dec_finish         _gpgrt_USE_UNDERSCORED_FUNCTION
+
+#define gpgrt_get_errorcount        _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_inc_errorcount        _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_set_sink          _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_set_socket_dir_cb _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_set_pid_suffix_cb _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_set_prefix        _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_get_prefix        _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_test_fd           _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_get_fd            _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_get_stream        _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log                   _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_logv                  _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_logv_prefix           _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_string            _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_bug               _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_fatal             _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_error             _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_info              _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_debug             _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_debug_string      _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_printf            _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_printhex          _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_clock             _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_log_flush             _gpgrt_USE_UNDERSCORED_FUNCTION
+#define _gpgrt_log_assert           _gpgrt_USE_UNDERSCORED_FUNCTION
+
+#define gpgrt_make_pipe              _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_spawn_process          _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_spawn_process_fd       _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_spawn_process_detached _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_wait_process           _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_wait_processes         _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_kill_process           _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_release_process        _gpgrt_USE_UNDERSCORED_FUNCTION
+
+
+/* Windows specific functions.  */
+#define gpgrt_w32_reg_query_string  _gpgrt_USE_UNDERSCORED_FUNCTION
+
 
 #endif /*!_GPGRT_INCL_BY_VISIBILITY_C*/
 

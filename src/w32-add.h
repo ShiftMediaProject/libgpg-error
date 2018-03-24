@@ -3,6 +3,10 @@
 ## peculiarity of the script the first used line must not
 ## start with a hash mark.
 
+/* Fixme: This is a quick hack.  We need to check whether the compiler
+ * actually in use already knows that type.  */
+typedef int pid_t;
+
 /* Decide whether to use the format_arg attribute.  */
 #if _GPG_ERR_GCC_VERSION > 20800
 # define _GPG_ERR_ATTR_FORMAT_ARG(a)  __attribute__ ((__format_arg__ (a)))
@@ -56,3 +60,8 @@ size_t  gpgrt_w32_iconv (gpgrt_w32_iconv_t cd,
 # define iconv_close(a)   gpgrt_w32_iconv_close ((a))
 # define iconv(a,b,c,d,e) gpgrt_w32_iconv ((a),(b),(c),(d),(e))
 #endif /*GPGRT_ENABLE_W32_ICONV_MACROS*/
+
+/* Query a string in the registry.  */
+char *gpgrt_w32_reg_query_string (const char *root,
+                                  const char *dir,
+                                  const char *name);

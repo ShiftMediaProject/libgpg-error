@@ -27,11 +27,18 @@ EXTRA_DIST = autogen.sh autogen.rc libgpg-error.spec.in 		\
 	     po/ChangeLog-2011 m4/ChangeLog-2011 contrib/ChangeLog-2011 \
              build-aux/git-log-footer  build-aux/git-log-fix
 
+
 if LANGUAGES_SOME
 lang_subdirs = lang
 else
 lang_subdirs =
 endif
+
+#if BUILD_GPGSCM
+#doc = gpgscm
+#else
+#doc =
+#endif
 
 if BUILD_DOC
 doc = doc

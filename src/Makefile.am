@@ -15,11 +15,14 @@
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this program; if not, see <https://www.gnu.org/licenses/>.
+# SPDX-License-Identifier: LGPL-2.1+
 
+
+#
 # We distribute the generated sources err-sources.h and err-codes.h,
 # because they are needed to build the po directory, and they don't
 # depend on the configuration anyway.
-
+#
 
 if HAVE_W32CE_SYSTEM
 gpg_extra_headers = gpg-extra/errno.h
@@ -62,6 +65,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.powerpc64-unknown-linux-gnu.h   \
 	syscfg/lock-obj-pub.powerpc64le-unknown-linux-gnu.h \
 	syscfg/lock-obj-pub.powerpc-unknown-linux-gnuspe.h  \
+	syscfg/lock-obj-pub.riscv64-unknown-linux-gnu.h     \
         syscfg/lock-obj-pub.s390x-ibm-linux-gnu.h           \
         syscfg/lock-obj-pub.sh3-unknown-linux-gnu.h         \
         syscfg/lock-obj-pub.sh4-unknown-linux-gnu.h         \
@@ -73,32 +77,34 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.x86_64-pc-linux-gnux32.h        \
         syscfg/lock-obj-pub.x86_64-pc-linux-musl.h          \
 	syscfg/lock-obj-pub.tilegx-unknown-linux-gnu.h      \
+	syscfg/lock-obj-pub.ia64-unknown-linux-gnu.h        \
 	syscfg/lock-obj-pub.mingw32.h
 
 
 lib_LTLIBRARIES = libgpg-error.la
 nodist_include_HEADERS = gpg-error.h gpgrt.h
 bin_SCRIPTS = gpg-error-config
+nodist_bin_SCRIPTS = gpgrt-config
 m4datadir = $(datadir)/aclocal
-m4data_DATA = gpg-error.m4
+m4data_DATA = gpg-error.m4 gpgrt.m4
 
 EXTRA_DIST = mkstrtable.awk err-sources.h.in err-codes.h.in \
 	mkerrnos.awk errnos.in README \
 	mkerrcodes.awk mkerrcodes1.awk mkerrcodes2.awk mkerrcodes.c \
 	mkheader.c gpg-error.h.in mkw32errmap.c w32-add.h w32ce-add.h \
-	err-sources.h err-codes.h gpg-error-config.in gpg-error.m4 \
+	err-sources.h err-codes.h gpg-error-config.in gpg-error.m4 gpgrt.m4 \
 	gpg-error.vers gpg-error.def.in \
         versioninfo.rc.in gpg-error.w32-manifest.in \
 	$(lock_obj_pub)
 
 BUILT_SOURCES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
 	err-sources-sym.h err-codes-sym.h errnos-sym.h gpg-error.h gpgrt.h \
-	gpg-error.def mkw32errmap.map.c
+	gpgrt-config gpg-error.def mkw32errmap.map.c
 
 tmp_files = _mkerrcodes.h _gpg-error.def.h mkw32errmap.tab.h mkw32errmap.map.c
 
 CLEANFILES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
-	gpg-error.h gpgrt.h \
+	gpg-error.h gpgrt.h gpgrt-config \
         mkerrcodes mkerrcodes.h gpg-error.def mkw32errmap.tab.h \
 	mkw32errmap.map.c err-sources-sym.h err-codes-sym.h errnos-sym.h \
 	gpg-extra/errno.h mkheader $(tmp_files) lock-obj-pub.native.h
@@ -109,7 +115,7 @@ CLEANFILES = err-sources.h err-codes.h code-to-errno.h code-from-errno.h \
 #
 if HAVE_W32_SYSTEM
 arch_sources = w32-gettext.c w32-lock.c w32-lock-obj.h w32-thread.c \
-	       w32-iconv.c w32-estream.c
+	       w32-iconv.c w32-estream.c w32-reg.c spawn-w32.c
 RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
             -DLOCALEDIR=\"$(localedir)\" $(AM_CPPFLAGS) $(CPPFLAGS)
 LTRCCOMPILE = $(LIBTOOL) --mode=compile --tag=RC $(RCCOMPILE)
@@ -139,6 +145,7 @@ uninstall-def-file:
 
 libgpg_error_la_DEPENDENCIES = $(gpg_error_res) gpg-error.def
 intllibs =
+socklibs = -lws2_32
 
 #
 # }}} End Windows part
@@ -147,7 +154,7 @@ else
 #
 # {{{ Begin Unix part
 #
-arch_sources = posix-lock.c posix-lock-obj.h posix-thread.c
+arch_sources = posix-lock.c posix-lock-obj.h posix-thread.c spawn-posix.c
 gpg_error_res =
 no_undefined =
 export_symbols =
@@ -157,6 +164,7 @@ install-def-file:
 uninstall-def-file:
 
 intllibs = @LTLIBINTL@
+socklibs =
 
 endif
 #
@@ -178,7 +186,13 @@ libgpg_error_la_SOURCES = gettext.h $(arch_sources) \
 	gpgrt-int.h init.c init.h version.c lock.h thread.h \
 	estream.c estream-printf.c estream-printf.h \
 	strsource.c strerror.c code-to-errno.c code-from-errno.c \
-	visibility.c visibility.h b64dec.c
+	visibility.c visibility.h \
+	sysutils.c \
+	syscall-clamp.c \
+	logging.c \
+	b64dec.c
+
+
 nodist_libgpg_error_la_SOURCES = gpg-error.h
 
 # libgpg_error_la_DEPENDENCIES = \
@@ -188,7 +202,7 @@ nodist_libgpg_error_la_SOURCES = gpg-error.h
 # without the extra_cppflags because they may include am -idirafter
 # which is not supported by the RC compiler.
 libgpg_error_la_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\" $(extra_cppflags)
-libgpg_error_la_LIBADD = $(gpg_error_res) $(intllibs) $(LIBTHREAD)
+libgpg_error_la_LIBADD = $(gpg_error_res) $(intllibs) $(socklibs) $(LIBTHREAD)
 
 gpg_error_SOURCES = strsource-sym.c strerror-sym.c gpg-error.c
 gpg_error_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
@@ -309,6 +323,9 @@ gpg-error.h: Makefile mkheader $(parts_of_gpg_error_h) \
 
 gpgrt.h: gpg-error.h
 	cp gpg-error.h gpgrt.h
+
+gpgrt-config: gpg-error-config
+	cp gpg-error-config gpgrt-config
 
 install-data-local:
 if HAVE_W32CE_SYSTEM

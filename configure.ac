@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <https://www.gnu.org/licenses/>.
+# SPDX-License-Identifier: LGPL-2.1+
 
 # (Process this file with autoconf to produce a configure script.)
 # The following lines are used by ./autogen.sh.
@@ -28,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [27])
+m4_define([mym4_minor], [28])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -48,8 +49,8 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=22
-LIBGPG_ERROR_LT_AGE=22
+LIBGPG_ERROR_LT_CURRENT=23
+LIBGPG_ERROR_LT_AGE=23
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -81,7 +82,7 @@ AC_PROG_AWK
 AC_CHECK_TOOL(AR, ar, :)
 AC_GNU_SOURCE
 
-# Set some internal variables depending on the platform for later use.
+# Set some variables depending on the platform for later use.
 have_w32_system=no
 have_w64_system=no
 have_w32ce_system=no
@@ -96,6 +97,12 @@ case "${host}" in
         ;;
     *-mingw32*)
         have_w32_system=yes
+        ;;
+    *-apple-darwin*)
+        # This is the equivalent of the _GNU_SOURCE feature-test-macro
+        # on GNU libc systems.
+        AC_DEFINE(_DARWIN_C_SOURCE, 900000L,
+                  Expose all libc features (__DARWIN_C_FULL).)
         ;;
     *)
        ;;
@@ -147,6 +154,7 @@ AH_BOTTOM([
 #define GPG_ERR_ENABLE_GETTEXT_MACROS 1
 #define GPG_ERR_ENABLE_ERRNO_MACROS 1
 #define GPGRT_ENABLE_ES_MACROS 1
+#define GPGRT_ENABLE_LOG_MACROS 1
 ])
 
 
@@ -156,7 +164,9 @@ AM_GNU_GETTEXT([external])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h locale.h stdint.h sys/select.h sys/time.h])
+AC_CHECK_HEADERS([stdlib.h locale.h stdint.h sys/select.h sys/time.h \
+                  signal.h])
+
 AC_FUNC_STRERROR_R
 case "${host_os}" in
      solaris*)
@@ -169,7 +179,9 @@ AC_MSG_WARN([[Without strerror_r, gpg_strerror_r might not be thread-safe]]))
      ;;
 esac
 
-AC_CHECK_FUNCS([flockfile vasprintf])
+AC_FUNC_FORK
+AC_CHECK_FUNCS([flockfile vasprintf mmap rand strlwr stpcpy setenv stat \
+                getrlimit ])
 
 
 #
@@ -195,6 +207,9 @@ AC_CHECK_SIZEOF(time_t,,[[
 #endif
 ]])
 
+GNUPG_FUNC_MKDIR_TAKES_ONE_ARG
+
+
 # Find a 64 bit integer type to be used instead of off_t.  We prefer
 # the standard integer types over int64_t and finally try long long.
 if test "$ac_cv_sizeof_int" = "8"; then
@@ -215,7 +230,6 @@ AC_DEFINE_UNQUOTED(REPLACEMENT_FOR_OFF_T, "$replacement_for_off_t",
                    [Used by mkheader to insert the replacement type.])
 
 
-
 #
 # Setup gcc specific options
 #
@@ -234,8 +248,8 @@ if test "$GCC" = yes; then
     # warning options and the user should have a chance of overriding
     # them.
     if test "$USE_MAINTAINER_MODE" = "yes"; then
-        CFLAGS="$CFLAGS -O3 -Wall -Wcast-align -Wshadow -Wstrict-prototypes"
-        CFLAGS="$CFLAGS -Wformat -Wno-format-y2k -Wformat-security"
+        M_CFLAGS="-O3 -Wall -Wcast-align -Wshadow -Wstrict-prototypes"
+        M_CFLAGS="$M_CFLAGS -Wformat -Wno-format-y2k -Wformat-security"
         if test x"$_gcc_silent_wno" = xyes ; then
           _gcc_wopt=yes
         else
@@ -248,7 +262,7 @@ if test "$GCC" = yes; then
           CFLAGS=$_gcc_cflags_save;
         fi
         if test x"$_gcc_wopt" = xyes ; then
-          CFLAGS="$CFLAGS -W -Wno-sign-compare -Wno-missing-field-initializers"
+          M_CFLAGS="$M_CFLAGS -W -Wno-sign-compare -Wno-missing-field-initializers"
         fi
 
         AC_MSG_CHECKING([if gcc supports -Wdeclaration-after-statement])
@@ -258,8 +272,12 @@ if test "$GCC" = yes; then
         AC_MSG_RESULT($_gcc_wopt)
         CFLAGS=$_gcc_cflags_save;
         if test x"$_gcc_wopt" = xyes ; then
-          CFLAGS="$CFLAGS -Wdeclaration-after-statement"
+          M_CFLAGS="$M_CFLAGS -Wdeclaration-after-statement"
         fi
+
+	# Prepend the maintainer-cflags so that the user can override
+	# them, e.g. to override the optimization flags for debugging.
+	CFLAGS="$M_CFLAGS $CFLAGS"
     else
         CFLAGS="$CFLAGS -Wall"
     fi
@@ -430,7 +448,7 @@ fi
 config_libs="-lgpg-error"
 
 #
-# Check for other libraries (now only for -lrt).
+# Check for other libraries
 #
 LIB_SCHED_YIELD=
 AC_SUBST([LIB_SCHED_YIELD])
@@ -439,6 +457,10 @@ AC_SEARCH_LIBS([sched_yield], [rt posix4],
                   LIB_SCHED_YIELD=$ac_cv_search_sched_yield
                   config_libs="$config_libs $LIB_SCHED_YIELD"
                 fi])
+
+# Check for optional readline support
+GNUPG_CHECK_READLINE
+
 
 #
 # Prepare building of estream
@@ -499,6 +521,47 @@ AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 AM_CONDITIONAL(FORCE_USE_SYSCFG, test x$force_use_syscfg = xyes)
 
 AC_DEFINE_UNQUOTED(HOST_TRIPLET_STRING, "$host", [The host triplet])
+
+
+#
+# gpgrt_log_clock may require linking with extra libaries.  As long as
+# we don't have a good test for this we require the use of this
+# configure option to enabling printing of a timestamp.
+#
+AC_MSG_CHECKING([whether to enable log_clock])
+AC_ARG_ENABLE(log_clock,
+              AC_HELP_STRING([--enable-log-clock],
+                             [enable log_clock timestamps]),
+              enable_log_clock=$enableval, enable_log_clock=no)
+AC_MSG_RESULT($enable_log_clock)
+if test "$enable_log_clock" = yes ; then
+  AC_DEFINE(ENABLE_LOG_CLOCK,1,[Defined to use log_clock timestamps])
+fi
+
+#
+# For now we do not build gpgscm by default.
+# Eventually we will reverse the meaning of that option.
+#
+build_gpgscm=no
+#AC_MSG_CHECKING([whether to build gpgscm])
+#AC_ARG_ENABLE(gpgscm,
+#              AC_HELP_STRING([--enable-gpgscm],
+#                             [build the gpgscm tool]),
+#              build_gpgscm=$enableval, build_gpgscm=no)
+#AC_MSG_RESULT($build_gpgscm)
+AM_CONDITIONAL([BUILD_GPGSCM], [test "x$build_gpgscm" != xno])
+
+
+#
+# Add -Werror to CFLAGS.  This hack can be used to avoid problems with
+# misbehaving autoconf tests in case the user supplied -Werror.
+#
+AC_ARG_ENABLE(werror,
+   AC_HELP_STRING([--enable-werror],
+                  [append -Werror to CFLAGS]),
+                  [if test $enableval = yes ; then
+                      CFLAGS="$CFLAGS -Werror"
+                   fi])
 
 
 #

@@ -201,14 +201,6 @@ GPGRT_LOCK_DEFINE (estream_list_lock);
 
 
 /*
- * Functions called before and after blocking syscalls.
- * gpgrt_set_syscall_clamp is used to set them.
- */
-static void (*pre_syscall_func)(void);
-static void (*post_syscall_func)(void);
-
-
-/*
  * Error code replacements.
  */
 #ifndef EOPNOTSUPP
@@ -459,17 +451,30 @@ do_list_add (estream_t stream, int with_locked_list)
 static void
 do_list_remove (estream_t stream, int with_locked_list)
 {
-  estream_list_t item;
+  estream_list_t item, item_prev = NULL;
 
   if (!with_locked_list)
     lock_list ();
 
   for (item = estream_list; item; item = item->next)
     if (item->stream == stream)
-      {
-        item->stream = NULL;
-        break;
-      }
+      break;
+    else
+      item_prev = item;
+
+  if (item_prev)
+    {
+      item_prev->next = item->next;
+      mem_free (item);
+    }
+  else
+    {
+      if (item)
+        {
+          estream_list = item->next;
+          mem_free (item);
+        }
+    }
 
   if (!with_locked_list)
     unlock_list ();
@@ -478,7 +483,7 @@ do_list_remove (estream_t stream, int with_locked_list)
 
 
 /*
- * The atexit handler for this estream module.
+ * The atexit handler for the entire gpgrt.
  */
 static void
 do_deinit (void)
@@ -495,10 +500,7 @@ do_deinit (void)
      we keep the list and let the OS clean it up at process end.  */
 
   /* Reset the syscall clamp.  */
-  pre_syscall_func = NULL;
-  post_syscall_func = NULL;
-  _gpgrt_thread_set_syscall_clamp (NULL, NULL);
-  _gpgrt_lock_set_lock_clamp (NULL, NULL);
+  _gpgrt_set_syscall_clamp (NULL, NULL);
 }
 
 
@@ -517,37 +519,6 @@ _gpgrt_estream_init (void)
     }
   return 0;
 }
-
-/*
- * Register the syscall clamp.  These two functions are called
- * immediately before and after a possible blocking system call.  This
- * should be used before any I/O happens.  The function is commonly
- * used with the nPth library:
- *
- *    gpgrt_set_syscall_clamp (npth_unprotect, npth_protect);
- *
- * These functions may not modify ERRNO.
- */
-void
-_gpgrt_set_syscall_clamp (void (*pre)(void), void (*post)(void))
-{
-  pre_syscall_func = pre;
-  post_syscall_func = post;
-  _gpgrt_thread_set_syscall_clamp (pre, post);
-  _gpgrt_lock_set_lock_clamp (pre, post);
-}
-
-/*
- * Return the current sycall clamp functions.  This can be used by
- * other libraries which have blocking functions.
- */
-void
-_gpgrt_get_syscall_clamp (void (**r_pre)(void), void (**r_post)(void))
-{
-  *r_pre  = pre_syscall_func;
-  *r_post = post_syscall_func;
-}
-
 
 
 /*
@@ -958,15 +929,13 @@ func_fd_read (void *cookie, void *buffer, size_t size)
     }
   else
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       do
         {
           bytes_read = read (file_cookie->fd, buffer, size);
         }
       while (bytes_read == -1 && errno == EINTR);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
 
   trace_errno (bytes_read == -1, ("leave: bytes_read=%d", (int)bytes_read));
@@ -992,15 +961,13 @@ func_fd_write (void *cookie, const void *buffer, size_t size)
     }
   else if (buffer)
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       do
         {
           bytes_written = write (file_cookie->fd, buffer, size);
         }
       while (bytes_written == -1 && errno == EINTR);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
   else
     bytes_written = size; /* Note that for a flush SIZE should be 0.  */
@@ -1028,11 +995,9 @@ func_fd_seek (void *cookie, gpgrt_off_t *offset, int whence)
     }
   else
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       offset_new = lseek (file_cookie->fd, *offset, whence);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
       if (offset_new == -1)
         err = -1;
       else
@@ -1203,8 +1168,8 @@ func_w32_read (void *cookie, void *buffer, size_t size)
     }
   else
     {
-      if (pre_syscall_func && !w32_cookie->no_syscall_clamp)
-        pre_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_pre_syscall ();
       do
         {
           DWORD nread, ec;
@@ -1226,8 +1191,8 @@ func_w32_read (void *cookie, void *buffer, size_t size)
             bytes_read = (int)nread;
         }
       while (bytes_read == -1 && errno == EINTR);
-      if (post_syscall_func && !w32_cookie->no_syscall_clamp)
-        post_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_post_syscall ();
     }
 
   trace_errno (bytes_read==-1,("leave: bytes_read=%d", (int)bytes_read));
@@ -1256,8 +1221,8 @@ func_w32_write (void *cookie, const void *buffer, size_t size)
     }
   else if (buffer)
     {
-      if (pre_syscall_func && !w32_cookie->no_syscall_clamp)
-        pre_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_pre_syscall ();
       do
         {
           DWORD nwritten;
@@ -1274,8 +1239,8 @@ func_w32_write (void *cookie, const void *buffer, size_t size)
 	    bytes_written = (int)nwritten;
         }
       while (bytes_written == -1 && errno == EINTR);
-      if (post_syscall_func && !w32_cookie->no_syscall_clamp)
-        post_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_post_syscall ();
     }
   else
     bytes_written = size; /* Note that for a flush SIZE should be 0.  */
@@ -1325,17 +1290,16 @@ func_w32_seek (void *cookie, gpgrt_off_t *offset, int whence)
 #ifdef HAVE_W32CE_SYSTEM
 # warning need to use SetFilePointer
 #else
-  if (pre_syscall_func && !w32_cookie->no_syscall_clamp)
-    pre_syscall_func ();
+  if (!w32_cookie->no_syscall_clamp)
+    _gpgrt_pre_syscall ();
   if (!SetFilePointerEx (w32_cookie->hd, distance, &newoff, method))
     {
       _set_errno (map_w32_to_errno (GetLastError ()));
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
       return -1;
     }
-  if (post_syscall_func && !w32_cookie->no_syscall_clamp)
-    post_syscall_func ();
+  if (!w32_cookie->no_syscall_clamp)
+    _gpgrt_post_syscall ();
 #endif
   /* Note that gpgrt_off_t is always 64 bit.  */
   *offset = (gpgrt_off_t)newoff.QuadPart;
@@ -1460,11 +1424,9 @@ func_fp_read (void *cookie, void *buffer, size_t size)
 
   if (file_cookie->fp)
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       bytes_read = fread (buffer, 1, size, file_cookie->fp);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
   else
     bytes_read = 0;
@@ -1485,8 +1447,7 @@ func_fp_write (void *cookie, const void *buffer, size_t size)
 
   if (file_cookie->fp)
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       if (buffer)
         {
 #ifdef HAVE_W32_SYSTEM
@@ -1514,8 +1475,7 @@ func_fp_write (void *cookie, const void *buffer, size_t size)
         bytes_written = size;
 
       fflush (file_cookie->fp);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
   else
     bytes_written = size; /* Successfully written to the bit bucket.  */
@@ -1541,20 +1501,17 @@ func_fp_seek (void *cookie, gpgrt_off_t *offset, int whence)
       return -1;
     }
 
-  if (pre_syscall_func)
-    pre_syscall_func ();
+  _gpgrt_pre_syscall ();
   if ( fseek (file_cookie->fp, (long int)*offset, whence) )
     {
       /* fprintf (stderr, "\nfseek failed: errno=%d (%s)\n", */
       /*          errno,strerror (errno)); */
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
       return -1;
     }
 
   offset_new = ftell (file_cookie->fp);
-  if (post_syscall_func)
-    post_syscall_func ();
+  _gpgrt_post_syscall ();
   if (offset_new == -1)
     {
       /* fprintf (stderr, "\nftell failed: errno=%d (%s)\n",  */
@@ -1579,11 +1536,9 @@ func_fp_destroy (void *cookie)
     {
       if (fp_cookie->fp)
         {
-          if (pre_syscall_func)
-            pre_syscall_func ();
+          _gpgrt_pre_syscall ();
           fflush (fp_cookie->fp);
-          if (post_syscall_func)
-            post_syscall_func ();
+          _gpgrt_post_syscall ();
           err = fp_cookie->no_close? 0 : fclose (fp_cookie->fp);
         }
       else
@@ -1686,7 +1641,7 @@ func_file_create (void **cookie, int *filedes,
  *    allowed to leave out trailing dashes.  If this keyword parameter
  *    is not given the default mode for creating files is "-rw-rw-r--"
  *    (664).  Note that the system still applies the current umask to
- *    the mode when crating a file.  Example:
+ *    the mode when creating a file.  Example:
  *
  *       "wb,mode=-rw-r--"
  *
@@ -2233,6 +2188,8 @@ do_close (estream_t stream, int with_locked_list)
         }
       err = deinit_stream_obj (stream);
       destroy_stream_lock (stream);
+      if (stream->intern->deallocate_buffer)
+        mem_free (stream->buffer);
       mem_free (stream->intern);
       mem_free (stream);
     }
@@ -4179,7 +4136,7 @@ _gpgrt_fread (void *_GPGRT__RESTRICT ptr, size_t size, size_t nitems,
 {
   size_t ret, bytes;
 
-  if (size * nitems)
+  if (size && nitems)
     {
       lock_stream (stream);
       es_readn (stream, ptr, size * nitems, &bytes);
@@ -4200,7 +4157,7 @@ _gpgrt_fwrite (const void *_GPGRT__RESTRICT ptr, size_t size, size_t nitems,
 {
   size_t ret, bytes;
 
-  if (size * nitems)
+  if (size && nitems)
     {
       lock_stream (stream);
       es_writen (stream, ptr, size * nitems, &bytes);
@@ -4842,9 +4799,6 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
       /* FIXME */
     }
 
-  if (count)
-    goto leave;  /* Early return without waiting.  */
-
   /* Now do the real select.  */
 #ifdef HAVE_W32_SYSTEM
 
@@ -4897,8 +4851,7 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
         }
     }
 
-  if (pre_syscall_func)
-    pre_syscall_func ();
+  _gpgrt_pre_syscall ();
   do
     {
       struct timeval timeout_val;
@@ -4912,8 +4865,7 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
                     timeout == -1 ? NULL : &timeout_val);
     }
   while (ret == -1 && errno == EINTR);
-  if (post_syscall_func)
-    post_syscall_func ();
+  _gpgrt_post_syscall ();
 
   if (ret == -1)
     {

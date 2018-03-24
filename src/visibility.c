@@ -15,10 +15,12 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, see <https://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: LGPL-2.1+
  */
 
 #include <config.h>
 #include <stdarg.h>
+#include <stdlib.h> /* For abort().  */
 
 #define _GPGRT_INCL_BY_VISIBILITY_C 1
 #include "gpgrt-int.h"
@@ -502,13 +504,6 @@ gpgrt_read_line (estream_t stream,
                            max_length);
 }
 
-void
-gpgrt_free (void *a)
-{
-  if (a)
-    _gpgrt_free (a);
-}
-
 int
 gpgrt_vfprintf (estream_t _GPGRT__RESTRICT stream,
                 const char *_GPGRT__RESTRICT format,
@@ -712,6 +707,88 @@ gpgrt_vsnprintf (char *buf, size_t bufsize,
   return _gpgrt_estream_vsnprintf (buf, bufsize, format, arg_ptr);
 }
 
+
+
+void *
+gpgrt_realloc (void *a, size_t n)
+{
+  return _gpgrt_realloc (a, n);
+}
+
+void *
+gpgrt_malloc (size_t n)
+{
+  return _gpgrt_malloc (n);
+}
+
+void *
+gpgrt_calloc (size_t n, size_t m)
+{
+  return _gpgrt_calloc (n, m);
+}
+
+char *
+gpgrt_strdup (const char *string)
+{
+  return _gpgrt_strdup (string);
+}
+
+char *
+gpgrt_strconcat (const char *s1, ...)
+{
+  va_list arg_ptr;
+  char *result;
+
+  if (!s1)
+    result = _gpgrt_strdup ("");
+  else
+    {
+      va_start (arg_ptr, s1);
+      result = _gpgrt_strconcat_core (s1, arg_ptr);
+      va_end (arg_ptr);
+    }
+  return result;
+}
+
+void
+gpgrt_free (void *a)
+{
+  if (a)
+    _gpgrt_free (a);
+}
+
+char *
+gpgrt_getenv (const char *name)
+{
+  return _gpgrt_getenv (name);
+}
+
+gpg_err_code_t
+gpgrt_setenv (const char *name, const char *value, int overwrite)
+{
+  return _gpgrt_setenv (name, value, overwrite);
+}
+
+gpg_err_code_t
+gpgrt_mkdir (const char *name, const char *modestr)
+{
+  return _gpgrt_mkdir (name, modestr);
+}
+
+gpg_err_code_t
+gpgrt_chdir (const char *name)
+{
+  return _gpgrt_chdir (name);
+}
+
+char *
+gpgrt_getcwd (void)
+{
+  return _gpgrt_getcwd ();
+}
+
+
+
 gpgrt_b64state_t
 gpgrt_b64dec_start (const char *title)
 {
@@ -730,3 +807,274 @@ gpgrt_b64dec_finish (gpgrt_b64state_t state)
 {
   return _gpgrt_b64dec_finish (state);
 }
+
+
+
+int
+gpgrt_get_errorcount (int clear)
+{
+  return _gpgrt_get_errorcount (clear);
+}
+
+void
+gpgrt_inc_errorcount (void)
+{
+  _gpgrt_inc_errorcount ();
+}
+
+void
+gpgrt_log_set_sink (const char *name, estream_t stream, int fd)
+{
+  _gpgrt_log_set_sink (name, stream, fd);
+}
+
+void
+gpgrt_log_set_socket_dir_cb (const char *(*fnc)(void))
+{
+  _gpgrt_log_set_socket_dir_cb (fnc);
+}
+
+void
+gpgrt_log_set_pid_suffix_cb (int (*cb)(unsigned long *r_value))
+{
+  _gpgrt_log_set_pid_suffix_cb (cb);
+}
+
+void
+gpgrt_log_set_prefix (const char *text, unsigned int flags)
+{
+  _gpgrt_log_set_prefix (text, flags);
+}
+
+const char *
+gpgrt_log_get_prefix (unsigned int *flags)
+{
+  return _gpgrt_log_get_prefix (flags);
+}
+
+int
+gpgrt_log_test_fd (int fd)
+{
+  return _gpgrt_log_test_fd (fd);
+}
+
+int
+gpgrt_log_get_fd (void)
+{
+  return _gpgrt_log_get_fd ();
+}
+
+estream_t
+gpgrt_log_get_stream (void)
+{
+  return _gpgrt_log_get_stream ();
+}
+
+void
+gpgrt_log (int level, const char *fmt, ...)
+{
+  va_list arg_ptr ;
+
+  va_start (arg_ptr, fmt) ;
+  _gpgrt_logv (level, fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+gpgrt_logv (int level, const char *fmt, va_list arg_ptr)
+{
+  _gpgrt_logv (level, fmt, arg_ptr);
+}
+
+void
+gpgrt_logv_prefix (int level, const char *prefix,
+                    const char *fmt, va_list arg_ptr)
+{
+  _gpgrt_logv_prefix (level, prefix, fmt, arg_ptr);
+}
+
+void
+gpgrt_log_string (int level, const char *string)
+{
+  _gpgrt_log_string (level, string);
+}
+
+void
+gpgrt_log_info (const char *fmt, ...)
+{
+  va_list arg_ptr;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv (GPGRT_LOGLVL_INFO, fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+gpgrt_log_error (const char *fmt, ...)
+{
+  va_list arg_ptr;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv (GPGRT_LOGLVL_ERROR, fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+gpgrt_log_fatal (const char *fmt, ...)
+{
+  va_list arg_ptr;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv (GPGRT_LOGLVL_FATAL, fmt, arg_ptr);
+  va_end (arg_ptr);
+  abort (); /* Never called; just to make the compiler happy.  */
+}
+
+void
+gpgrt_log_bug (const char *fmt, ...)
+{
+  va_list arg_ptr;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv (GPGRT_LOGLVL_BUG, fmt, arg_ptr);
+  va_end (arg_ptr);
+  abort (); /* Never called; just to make the compiler happy.  */
+}
+
+void
+gpgrt_log_debug (const char *fmt, ...)
+{
+  va_list arg_ptr ;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv (GPGRT_LOGLVL_DEBUG, fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+gpgrt_log_debug_string (const char *string, const char *fmt, ...)
+{
+  va_list arg_ptr ;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG, 0, string, NULL, fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+gpgrt_log_printf (const char *fmt, ...)
+{
+  va_list arg_ptr;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv (fmt ? GPGRT_LOGLVL_CONT : GPGRT_LOGLVL_BEGIN, fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+gpgrt_log_flush (void)
+{
+  _gpgrt_log_flush ();
+}
+
+void
+gpgrt_log_printhex (const void *buffer, size_t length, const char *fmt, ...)
+{
+  va_list arg_ptr;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv_printhex (buffer, length, fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+gpgrt_log_clock (const char *fmt, ...)
+{
+  va_list arg_ptr;
+
+  va_start (arg_ptr, fmt);
+  _gpgrt_logv_clock (fmt, arg_ptr);
+  va_end (arg_ptr);
+}
+
+void
+_gpgrt_log_assert (const char *expr, const char *file,
+                   int line, const char *func)
+{
+#ifdef GPGRT_HAVE_MACRO_FUNCTION
+  _gpgrt__log_assert (expr, file, line, func);
+#else
+  _gpgrt__log_assert (expr, file, line);
+#endif
+}
+
+
+#if 0
+gpg_err_code_t
+gpgrt_make_pipe (int filedes[2], estream_t *r_fp, int direction, int nonblock)
+{
+  return _gpgrt_make_pipe (filedes, r_fp, direction, nonblock);
+}
+
+gpg_err_code_t
+gpgrt_spawn_process (const char *pgmname, const char *argv[],
+                     int *except, void (*preexec)(void), unsigned int flags,
+                     estream_t *r_infp, estream_t *r_outfp, estream_t *r_errfp,
+                     pid_t *pid)
+{
+  return _gpgrt_spawn_process (pgmname, argv, except, preexec, flags,
+                               r_infp, r_outfp, r_errfp, pid);
+}
+
+gpg_err_code_t
+gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
+                        int infd, int outfd, int errfd, pid_t *pid)
+{
+  return _gpgrt_spawn_process_fd (pgmname, argv, infd, outfd, errfd, pid);
+}
+
+gpg_err_code_t
+gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
+                              const char *envp[])
+{
+  return _gpgrt_spawn_process_detached (pgmname, argv, envp);
+}
+
+gpg_err_code_t
+gpgrt_wait_process (const char *pgmname, pid_t pid, int hang, int *r_exitcode)
+{
+  return _gpgrt_wait_process (pgmname, pid, hang, r_exitcode);
+}
+
+gpg_err_code_t
+gpgrt_wait_processes (const char **pgmnames, pid_t *pids,
+                      size_t count, int hang, int *r_exitcodes)
+{
+  return _gpgrt_wait_processes (pgmnames, pids, count, hang, r_exitcodes);
+}
+
+void
+gpgrt_kill_process (pid_t pid)
+{
+  _gpgrt_kill_process (pid);
+}
+
+void
+gpgrt_release_process (pid_t pid)
+{
+  _gpgrt_release_process (pid);
+}
+#endif /*0*/
+
+
+/* For consistency reasons we use function wrappers also for Windows
+ * specific function despite that they are technically not needed.  */
+#ifdef HAVE_W32_SYSTEM
+
+char *
+gpgrt_w32_reg_query_string (const char *root, const char *dir, const char *name)
+{
+  return _gpgrt_w32_reg_query_string (root, dir, name);
+}
+
+#endif /*HAVE_W32_SYSTEM*/
