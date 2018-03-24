@@ -239,7 +239,7 @@ typedef unsigned int gpg_error_t;
 
 /* A macro defined if a GCC style __FUNCTION__ macro is available.  */
 #undef GPGRT_HAVE_MACRO_FUNCTION
-#if _GPG_ERR_GCC_VERSION >= 20500
+#if _GPG_ERR_GCC_VERSION >= 20500 || defined(_MSC_VER)
 # define GPGRT_HAVE_MACRO_FUNCTION 1
 #endif
 
