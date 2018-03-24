@@ -3,6 +3,9 @@
    language is requested. */
 /* #undef ENABLE_NLS */
 
+/* Defined to use log_clock timestamps. */
+/* #undef ENABLE_LOG_CLOCK */
+
 /* Define to use the GNU C visibility attribute. */
 /* #undef GPGRT_USE_VISIBILITY */
 
@@ -34,6 +37,9 @@
 /* Define if the GNU gettext() function is already present or preinstalled. */
 /* #undef HAVE_GETTEXT */
 
+/* Define to 1 if you have the `getrlimit' function. */
+/* #undef HAVE_GETRLIMIT */
+
 /* Define if you have the iconv() function and it works. */
 #define HAVE_ICONV 1
 
@@ -58,6 +64,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
+/* Define to 1 if you have the `mmap' function. */
+/* #undef HAVE_MMAP */
+
 /* Define to 1 if you have the `memrchr' function. */
 /* #undef HAVE_MEMRCHR */
 
@@ -70,11 +79,26 @@
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #define HAVE_PTRDIFF_T 1
 
+/* Define to 1 if you have the `rand' function. */
+#define HAVE_RAND 1
+
+/* Define to 1 if you have the `setenv' function. */
+#define HAVE_SETENV 1
+
+/* Define to 1 if you have the <signal.h> header file. */
+#define HAVE_SIGNAL_H 1
+
+/* Define to 1 if you have the `stat' function. */
+#define HAVE_STAT 1
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
+
+/* Define to 1 if you have the `stpcpy' function. */
+/* #undef HAVE_STPCPY */
 
 /* Define to 1 if you have the `strerror_r' function. */
 /* #undef HAVE_STRERROR_R */
@@ -84,6 +108,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #define HAVE_STRING_H 1
+
+/* Define to 1 if you have the `strlwr' function. */
+#define HAVE_STRLWR 1
 
 /* Define to 1 if you have the <sys/select.h> header file. */
 /* #undef HAVE_SYS_SELECT_H */
@@ -198,4 +225,5 @@
 #define GPG_ERR_ENABLE_GETTEXT_MACROS 1
 #define GPG_ERR_ENABLE_ERRNO_MACROS 1
 #define GPGRT_ENABLE_ES_MACROS 1
+#define GPGRT_ENABLE_LOG_MACROS 1
 
