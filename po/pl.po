@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.22\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2016-05-11 18:02+0200\n"
+"PO-Revision-Date: 2018-03-21 19:02+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
@@ -1320,10 +1320,73 @@ msgstr "Koniec pliku"
 msgid "Unknown error code"
 msgstr "Nieznany kod błędu"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Składnia: %s BŁĄD-GPG [...]\n"
+msgid "argument not expected"
+msgstr "nieoczekiwany argument"
+
+msgid "read error"
+msgstr "błąd odczytu"
+
+msgid "keyword too long"
+msgstr "słowo kluczowe zbyt długie"
+
+msgid "missing argument"
+msgstr "brak argumentu"
+
+#, fuzzy
+#| msgid "invalid value\n"
+msgid "invalid argument"
+msgstr "niepoprawna wartość\n"
+
+msgid "invalid command"
+msgstr "błędne polecenie"
+
+msgid "invalid alias definition"
+msgstr "błędna definicja aliasu"
+
+msgid "out of core"
+msgstr "brak pamięci"
+
+msgid "invalid option"
+msgstr "błędna opcja"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: uwaga: nie rozpoznano %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "brak argumentu dla opcji ,,%.50s''\n"
+
+#, fuzzy, c-format
+#| msgid "missing argument for option \"%.50s\"\n"
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "brak argumentu dla opcji ,,%.50s''\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "opcja ,,%.50s'' nie może mieć argumentów\n"
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "błędne polecenie ,,%.50s''\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "opcja ,,%.50s'' jest niejednoznaczna\n"
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "polecenie ,,%.50s'' jest niejednoznaczne\n"
+
+msgid "out of core\n"
+msgstr "brak pamięci\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "błędna opcja ,,%.50s''\n"
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "uwaga: nie rozpoznano %s\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Składnia: %s BŁĄD-GPG [...]\n"

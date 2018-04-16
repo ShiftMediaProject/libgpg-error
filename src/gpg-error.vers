@@ -179,6 +179,17 @@ GPG_ERROR_1.0 {
 #    gpgrt_kill_process;
 #    gpgrt_release_process;
 
+    gpgrt_argparse;
+    gpgrt_usage;
+    gpgrt_strusage;
+    gpgrt_set_strusage;
+    gpgrt_set_usage_outfnc;
+    gpgrt_set_fixed_string_mapper;
+
+    gpgrt_b64enc_start;
+    gpgrt_b64enc_write;
+    gpgrt_b64enc_finish;
+
 
   local:
     *;

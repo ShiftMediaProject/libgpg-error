@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [28])
+m4_define([mym4_minor], [29])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,8 +49,8 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=23
-LIBGPG_ERROR_LT_AGE=23
+LIBGPG_ERROR_LT_CURRENT=24
+LIBGPG_ERROR_LT_AGE=24
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -138,6 +138,9 @@ fi
 AC_MSG_RESULT($CC_FOR_BUILD)
 AC_ARG_VAR(CC_FOR_BUILD,[build system C compiler])
 
+AC_PATH_PROG(YAT2M, yat2m)
+AC_ARG_VAR(YAT2M, [tool to convert texi to man pages])
+AM_CONDITIONAL(HAVE_YAT2M, test -n "$ac_cv_path_YAT2M")
 
 AH_BOTTOM([
 /* Force using of NLS for W32 even if no libintl has been found.  This is
@@ -155,6 +158,7 @@ AH_BOTTOM([
 #define GPG_ERR_ENABLE_ERRNO_MACROS 1
 #define GPGRT_ENABLE_ES_MACROS 1
 #define GPGRT_ENABLE_LOG_MACROS 1
+#define GPGRT_ENABLE_ARGPARSE_MACROS 1
 ])
 
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2013-02-23 20:11+0100\n"
+"PO-Revision-Date: 2018-03-21 19:04+0100\n"
 "Last-Translator: Aron Xu <happyaron.xu@gmail.com>\n"
 "Language-Team: Chinese (simplified) <translation-team-zh-cn@lists."
 "sourceforge.net>\n"
@@ -1482,13 +1482,81 @@ msgstr "文件结尾"
 msgid "Unknown error code"
 msgstr "未知的错误代码"
 
+#, fuzzy
+msgid "argument not expected"
+msgstr "不允许使用管理员命令\n"
+
+#, fuzzy
+msgid "read error"
+msgstr "文件读取错误"
+
+#, fuzzy
+msgid "keyword too long"
+msgstr "列太长"
+
+#, fuzzy
+msgid "missing argument"
+msgstr "无效的参数"
+
+#, fuzzy
+#| msgid "invalid armor"
+msgid "invalid argument"
+msgstr "无效的 ASCII 封装格式"
+
+#, fuzzy
+msgid "invalid command"
+msgstr "仅供管理员使用的命令\n"
+
+#, fuzzy
+msgid "invalid alias definition"
+msgstr "无效的列表选项\n"
+
+#, fuzzy
+msgid "out of core"
+msgstr "可选"
+
+#, fuzzy
+msgid "invalid option"
+msgstr "无效的列表选项\n"
+
 #, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "无效的列表选项\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "无效的指令(尝试“help”)\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
 msgstr ""
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s：警告：无法识别 %s\n"
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, fuzzy
+msgid "out of core\n"
+msgstr "可选"
+
+#, fuzzy, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "无效的列表选项\n"
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "警告：无法识别 %s\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

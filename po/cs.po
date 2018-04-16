@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.18\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2014-11-27 19:31+0100\n"
+"PO-Revision-Date: 2018-03-21 18:59+0100\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
 "Language: cs\n"
@@ -1451,13 +1451,74 @@ msgstr "Konec souboru"
 msgid "Unknown error code"
 msgstr "Neznámý kód chyby"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Použití: %s CHYBA_GPG […]\n"
+msgid "argument not expected"
+msgstr "argument nebyl očekáván"
+
+msgid "read error"
+msgstr "chyba při čtení"
+
+msgid "keyword too long"
+msgstr "klíčové slovo je příliš dlouhé"
+
+msgid "missing argument"
+msgstr "postrádám argument"
+
+msgid "invalid argument"
+msgstr "neplatný argument"
+
+msgid "invalid command"
+msgstr "neplatný příkaz"
+
+msgid "invalid alias definition"
+msgstr "neplatný definice aliasu"
+
+msgid "out of core"
+msgstr "nedostatek paměti"
+
+msgid "invalid option"
+msgstr "neplatný parametr"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: pozor: %s nebylo možné rozpoznat\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "postrádám argument u volby „%.50s“\n"
+
+#, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "neplatný argument u volby „%.50s“\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "volba „%.50s“ nečeká argument\n"
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "neplatný příkaz „%.50s“\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "volba „%.50s“ není jednoznačná\n"
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "příkaz „%.50s“ není jednoznačný\n"
+
+# Yet another expression for `not enough memory' :)
+msgid "out of core\n"
+msgstr "nedostatek paměti\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "neplatný parametr „%.50s“\n"
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "pozor: %s nebylo možné rozpoznat\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Použití: %s CHYBA_GPG […]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

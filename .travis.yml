@@ -1,0 +1,18 @@
+language: c
+
+os:
+  - linux
+
+#    dist: trusty
+#    sudo: required
+
+compiler:
+  - gcc
+
+before_install:
+  - echo "Building for $TRAVIS_OS_NAME"
+  - wget -q http://de.archive.ubuntu.com/ubuntu/pool/main/g/gettext/gettext_0.19.7-2ubuntu3_amd64.deb
+  - sudo dpkg -i gettext_0.19.7-2ubuntu3_amd64.deb
+
+script:
+  - ./autogen.sh --git-build

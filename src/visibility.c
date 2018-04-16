@@ -790,6 +790,24 @@ gpgrt_getcwd (void)
 
 
 gpgrt_b64state_t
+gpgrt_b64enc_start (estream_t stream, const char *title)
+{
+  return _gpgrt_b64enc_start (stream, title);
+}
+
+gpg_err_code_t
+gpgrt_b64enc_write (gpgrt_b64state_t state, const void *buffer, size_t nbytes)
+{
+  return _gpgrt_b64enc_write (state, buffer, nbytes);
+}
+
+gpg_err_code_t
+gpgrt_b64enc_finish (gpgrt_b64state_t state)
+{
+  return _gpgrt_b64enc_finish (state);
+}
+
+gpgrt_b64state_t
 gpgrt_b64dec_start (const char *title)
 {
   return _gpgrt_b64dec_start (title);
@@ -1065,6 +1083,44 @@ gpgrt_release_process (pid_t pid)
   _gpgrt_release_process (pid);
 }
 #endif /*0*/
+
+
+int
+gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts)
+{
+  return _gpgrt_argparse (fp, arg, opts);
+}
+
+void
+gpgrt_usage (int level)
+{
+  _gpgrt_usage (level);
+}
+
+const char *
+gpgrt_strusage (int level)
+{
+  return _gpgrt_strusage (level);
+}
+
+void
+gpgrt_set_strusage (const char *(*f)(int))
+{
+  _gpgrt_set_strusage (f);
+}
+
+void
+gpgrt_set_usage_outfnc (int (*f)(int, const char *))
+{
+  _gpgrt_set_usage_outfnc (f);
+}
+
+void
+gpgrt_set_fixed_string_mapper (const char *(*f)(const char*))
+{
+  _gpgrt_set_fixed_string_mapper (f);
+}
+
 
 
 /* For consistency reasons we use function wrappers also for Windows

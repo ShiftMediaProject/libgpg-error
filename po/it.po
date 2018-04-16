@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2014-11-17 09:06+0100\n"
+"PO-Revision-Date: 2018-03-21 19:02+0100\n"
 "Last-Translator: Milo Casagrande <milo@milo.name>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "Language: it\n"
@@ -1441,13 +1441,86 @@ msgstr "Fine del file"
 msgid "Unknown error code"
 msgstr "Codice di errore sconosciuto"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Uso: %s GPG-ERROR [...]\n"
+#, fuzzy
+msgid "argument not expected"
+msgstr "scrittura della chiave segreta in `%s'\n"
+
+#, fuzzy
+msgid "read error"
+msgstr "errore durante la lettura del file"
+
+#, fuzzy
+msgid "keyword too long"
+msgstr "riga troppo lunga\n"
+
+#, fuzzy
+msgid "missing argument"
+msgstr "argomento non valido"
+
+#, fuzzy
+#| msgid "invalid armor"
+msgid "invalid argument"
+msgstr "armatura non valida"
+
+#, fuzzy
+msgid "invalid command"
+msgstr "comandi in conflitto\n"
+
+#, fuzzy
+msgid "invalid alias definition"
+msgstr "opzioni di importazione non valide\n"
+
+# ??? (Md)
+#, fuzzy
+msgid "out of core"
+msgstr "non esaminato"
+
+#, fuzzy
+msgid "invalid option"
+msgstr "opzioni di importazione non valide\n"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: avviso: impossibile riconoscere %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "opzioni di importazione non valide\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "Comando non valido  (prova \"help\")\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+# ??? (Md)
+#, fuzzy
+msgid "out of core\n"
+msgstr "non esaminato"
+
+#, fuzzy, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "opzioni di importazione non valide\n"
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "avviso: impossibile riconoscere %s\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Uso: %s GPG-ERROR [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

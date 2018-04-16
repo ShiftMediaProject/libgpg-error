@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.1\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2013-02-23 20:10+0100\n"
+"PO-Revision-Date: 2018-03-21 19:03+0100\n"
 "Last-Translator: Laurentiu Buzdugan <lbuz@rolix.org>\n"
 "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -1494,13 +1494,84 @@ msgstr "Sfârşit de fişier"
 msgid "Unknown error code"
 msgstr "Cod de eroare necunoscut"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Folosire: %s EROARE-GPG [...]\n"
+#, fuzzy
+msgid "argument not expected"
+msgstr "Nu sunt permise comenzi administrare\n"
+
+#, fuzzy
+msgid "read error"
+msgstr "eroare citire fişier"
+
+#, fuzzy
+msgid "keyword too long"
+msgstr "linie prea lungă"
+
+#, fuzzy
+msgid "missing argument"
+msgstr "argument invalid"
+
+#, fuzzy
+#| msgid "invalid armor"
+msgid "invalid argument"
+msgstr "armură invalidă"
+
+#, fuzzy
+msgid "invalid command"
+msgstr "Comandă numai-administrare\n"
+
+#, fuzzy
+msgid "invalid alias definition"
+msgstr "opţiuni enumerare invalide\n"
+
+#, fuzzy
+msgid "out of core"
+msgstr "neforţat(ă)"
+
+#, fuzzy
+msgid "invalid option"
+msgstr "opţiuni enumerare invalide\n"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: avertisment: nu am putut recunoaşte %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "opţiuni enumerare invalide\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "Comandă invalidă  (încercaţi \"ajutor\")\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, fuzzy
+msgid "out of core\n"
+msgstr "neforţat(ă)"
+
+#, fuzzy, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "opţiuni enumerare invalide\n"
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "avertisment: nu am putut recunoaşte %s\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Folosire: %s EROARE-GPG [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
