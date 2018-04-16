@@ -510,11 +510,11 @@ write_special (const char *fname, int lnr, const char *tag)
               fputs ("#include <stdint.h>\n", stdout);
               stdint_h_included = 1;
             }
-          fputs ("typedef int64_t pid_t\n", stdout);
+          fputs ("typedef int64_t pid_t;\n", stdout);
         }
       else
         {
-          fputs ("typedef int     pid_t\n", stdout);
+          fputs ("typedef int     pid_t;\n", stdout);
         }
     }
   else if (!strcmp (tag, "include:err-sources"))
