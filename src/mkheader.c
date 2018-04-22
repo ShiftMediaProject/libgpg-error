@@ -503,15 +503,6 @@ write_special (const char *fname, int lnr, const char *tag)
               sys_types_h_included = 1;
             }
         }
-      else if (have_w64_system)
-        {
-          if (!stdint_h_included && have_stdint_h)
-            {
-              fputs ("#include <stdint.h>\n", stdout);
-              stdint_h_included = 1;
-            }
-          fputs ("typedef int64_t pid_t;\n", stdout);
-        }
       else
         {
           fputs ("typedef int     pid_t;\n", stdout);
