@@ -55,17 +55,6 @@
 #undef X_OK
 #define X_OK F_OK
 
-/* We assume that a HANDLE can be represented by an int which should
- * be true for all i386 systems (HANDLE is defined as void *) and
- * these are the only systems for which Windows is available.  Further
- * we assume that -1 denotes an invalid handle.
- * FIXME: With Windows 64 this is no longer true.
- */
-#define fd_to_handle(a)  ((HANDLE)(a))
-#define handle_to_fd(a)  ((int)(a))
-#define pid_to_handle(a) ((HANDLE)(a))
-#define handle_to_pid(a) ((int)(a))
-
 
 /* Return the maximum number of currently allowed open file
  * descriptors.  Only useful on POSIX systems but returns a value on
@@ -301,7 +290,7 @@ do_create_pipe_and_estream (int filedes[2],
   err = GPG_ERR_GENERAL;
   if (!create_inheritable_pipe (fds, flags))
     {
-      filedes[0] = _open_osfhandle (handle_to_fd (fds[0]), O_RDONLY);
+      filedes[0] = _open_osfhandle ((intptr_t) (fds[0]), O_RDONLY);
       if (filedes[0] == -1)
         {
           _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[0]);
@@ -309,7 +298,7 @@ do_create_pipe_and_estream (int filedes[2],
         }
       else
         {
-          filedes[1] = _open_osfhandle (handle_to_fd (fds[1]), O_APPEND);
+          filedes[1] = _open_osfhandle ((intptr_t) (fds[1]), O_APPEND);
           if (filedes[1] == -1)
             {
               _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[1]);
@@ -617,7 +606,11 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
   if (r_errfp)
     *r_errfp = errfp;
 
-  *pid = handle_to_pid (pi.hProcess);
+#ifdef HAVE_W64_SYSTEM
+  *pid = (pi.dwProcessId);
+#else
+  *pid = (int)(pi.hProcess);
+#endif
   return 0;
 }
 
@@ -700,7 +693,11 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
   ResumeThread (pi.hThread);
   CloseHandle (pi.hThread);
 
-  *pid = handle_to_pid (pi.hProcess);
+#ifdef HAVE_W64_SYSTEM
+  *pid = (pi.dwProcessId);
+#else
+  *pid = (int)(pi.hProcess);
+#endif
   return 0;
 }
 
@@ -735,7 +732,11 @@ _gpgrt_wait_processes (const char **pgmnames, pid_t *pids, size_t count,
       if (pids[i] == (pid_t)(-1))
         return GPG_ERR_INV_VALUE;
 
-      procs[i] = fd_to_handle (pids[i]);
+#ifdef HAVE_W64_SYSTEM
+      procs[i] = OpenProcess (PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE, FALSE, pids[i]);
+#else
+      procs[i] = (HANDLE) pids[i];
+#endif
     }
 
   _gpgrt_pre_syscall ();
@@ -880,9 +881,13 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
 void
 _gpgrt_kill_process (pid_t pid)
 {
-  if (pid != (pid_t) INVALID_HANDLE_VALUE)
+  if (pid != (pid_t) (-1))
     {
-      HANDLE process = (HANDLE) pid;
+#ifdef HAVE_W64_SYSTEM
+      HANDLE process = OpenProcess (PROCESS_TERMINATE, FALSE, pid);
+#else
+      HANDLE process = (HANDLE)pid;
+#endif
 
       /* Arbitrary error code.  */
       _gpgrt_pre_syscall ();
@@ -895,9 +900,13 @@ _gpgrt_kill_process (pid_t pid)
 void
 _gpgrt_release_process (pid_t pid)
 {
-  if (pid != (pid_t)INVALID_HANDLE_VALUE)
+  if (pid != (pid_t) (-1))
     {
+#ifdef HAVE_W64_SYSTEM
+      HANDLE process = OpenProcess(DELETE, FALSE, pid);
+#else
       HANDLE process = (HANDLE)pid;
+#endif
 
       CloseHandle (process);
     }
