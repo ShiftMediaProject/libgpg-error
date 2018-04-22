@@ -1,7 +1,7 @@
-/* gpg-error.h or gpgrt.h - Public interface to libgpg-error.   -*- c -*-
+/* gpg-error.h or gpgrt.h - Common code for GnuPG and others.    -*- c -*-
  * Copyright (C) 2001-2018 g10 Code GmbH
  *
- * This file is part of libgpg-error.
+ * This file is part of libgpg-error (aka libgpgrt).
  *
  * libgpg-error is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,6 +21,41 @@
                  win32-msvc
  */
 
+/* The GnuPG project consists of many components.  Error codes are
+ * exchanged between all components.  The common error codes and their
+ * user-presentable descriptions are kept into a shared library to
+ * allow adding new error codes and components without recompiling any
+ * of the other components.  In addition to error codes this library
+ * also features several other groups of functions which are common to
+ * all GnuPG components.  They may be used by independet project as
+ * well.  The interfaces will not change in a backward incompatible way.
+ *
+ * An error code together with an error source build up an error
+ * value.  As the error value is been passed from one component to
+ * another, it preserves the information about the source and nature
+ * of the error.
+ *
+ * A component of the GnuPG project can define the following macros to
+ * tune the behaviour of the library:
+ *
+ * GPG_ERR_SOURCE_DEFAULT: Define to an error source of type
+ * gpg_err_source_t to make that source the default for gpg_error().
+ * Otherwise GPG_ERR_SOURCE_UNKNOWN is used as default.
+ *
+ * GPG_ERR_ENABLE_GETTEXT_MACROS: Define to provide macros to map the
+ * internal gettext API to standard names.  This has only an effect on
+ * Windows platforms.
+ *
+ * GPGRT_ENABLE_ES_MACROS: Define to provide "es_" macros for the
+ * estream functions.
+ *
+ * GPGRT_ENABLE_LOG_MACROS: Define to provide short versions of the
+ * log functions.
+ *
+ * GPGRT_ENABLE_ARGPARSE_MACROS: Needs to be defined to provide the
+ * mandatory macros of the argparse interface.
+ */
+
 #ifndef GPG_ERROR_H
 #define GPG_ERROR_H 1
 #ifndef GPGRT_H
@@ -31,12 +66,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.28"
-#define GPGRT_VERSION     "1.28"
+#define GPG_ERROR_VERSION "1.29"
+#define GPGRT_VERSION     "1.29"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x011c00
-#define GPGRT_VERSION_NUMBER     0x011c00
+#define GPG_ERROR_VERSION_NUMBER 0x011d00
+#define GPGRT_VERSION_NUMBER     0x011d00
 
 
 #ifdef __GNUC__
@@ -58,44 +93,17 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-/* The GnuPG project consists of many components.  Error codes are
-   exchanged between all components.  The common error codes and their
-   user-presentable descriptions are kept into a shared library to
-   allow adding new error codes and components without recompiling any
-   of the other components.  The interface will not change in a
-   backward incompatible way.
-
-   An error code together with an error source build up an error
-   value.  As the error value is been passed from one component to
-   another, it preserver the information about the source and nature
-   of the error.
-
-   A component of the GnuPG project can define the following macros to
-   tune the behaviour of the library:
-
-   GPG_ERR_SOURCE_DEFAULT: Define to an error source of type
-   gpg_err_source_t to make that source the default for gpg_error().
-   Otherwise GPG_ERR_SOURCE_UNKNOWN is used as default.
-
-   GPG_ERR_ENABLE_GETTEXT_MACROS: Define to provide macros to map the
-   internal gettext API to standard names.  This has only an effect on
-   Windows platforms.
-
-   GPGRT_ENABLE_ES_MACROS: Define to provide "es_" macros for the
-   estream functions.
-
-   In addition to the error codes, Libgpg-error also provides a set of
-   functions used by most GnuPG components.  */
 
 
 /* The error source type gpg_err_source_t.
-
-   Where as the Poo out of a welle small
-   Taketh his firste springing and his sours.
-					--Chaucer.  */
+ *
+ * Where as the Poo out of a welle small
+ * Taketh his firste springing and his sours.
+ *					--Chaucer.
+ */
 
 /* Only use free slots, never change or reorder the existing
-   entries.  */
+ * entries.  */
 typedef enum
   {
     GPG_ERR_SOURCE_UNKNOWN = 0,
@@ -129,7 +137,7 @@ typedef enum
 /* The error code type gpg_err_code_t.  */
 
 /* Only use free slots, never change or reorder the existing
-   entries.  */
+ * entries.  */
 typedef enum
   {
     GPG_ERR_NO_ERROR = 0,
@@ -686,13 +694,13 @@ typedef enum
 /* The error value type gpg_error_t.  */
 
 /* We would really like to use bit-fields in a struct, but using
-   structs as return values can cause binary compatibility issues, in
-   particular if you want to do it efficiently (also see
-   -freg-struct-return option to GCC).  */
+ * structs as return values can cause binary compatibility issues, in
+ * particular if you want to do it efficiently (also see
+ * -freg-struct-return option to GCC).  */
 typedef unsigned int gpg_error_t;
 
 /* We use the lowest 16 bits of gpg_error_t for error codes.  The 16th
-   bit indicates system errors.  */
+ * bit indicates system errors.  */
 #define GPG_ERR_CODE_MASK	(GPG_ERR_CODE_DIM - 1)
 
 /* Bits 17 to 24 are reserved.  */
@@ -702,11 +710,13 @@ typedef unsigned int gpg_error_t;
 #define GPG_ERR_SOURCE_SHIFT	24
 
 /* The highest bit is reserved.  It shouldn't be used to prevent
-   potential negative numbers when transmitting error values as
-   text.  */
+ * potential negative numbers when transmitting error values as
+ * text.  */
 
 
-/* GCC feature test.  */
+/*
+ * GCC feature test.
+ */
 #if __GNUC__
 # define _GPG_ERR_GCC_VERSION (__GNUC__ * 10000 \
                                + __GNUC_MINOR__ * 100 \
@@ -767,9 +777,9 @@ typedef unsigned int gpg_error_t;
 #endif
 
 /* The used and unused attributes.
-   I am not sure since when the unused attribute is really supported.
-   In any case it it only needed for gcc versions which print a
-   warning.  Thus let us require gcc >= 3.5.  */
+ * I am not sure since when the unused attribute is really supported.
+ * In any case it it only needed for gcc versions which print a
+ * warning.  Thus let us require gcc >= 3.5.  */
 #if _GPG_ERR_GCC_VERSION >= 40000
 # define GPGRT_ATTR_USED  __attribute__ ((used))
 #else
@@ -849,7 +859,9 @@ gpgrt_annotate_leaked_object (const void *p)
 }
 
 
-/* Initialization function.  */
+/*
+ * Initialization function.
+ */
 
 /* Initialize the library.  This function should be run early.  */
 gpg_error_t gpg_err_init (void) _GPG_ERR_CONSTRUCTOR;
@@ -879,10 +891,12 @@ void gpgrt_set_alloc_func  (void *(*f)(void *a, size_t n));
 
 
 
-/* Constructor and accessor functions.  */
+/*
+ * Constructor and accessor functions.
+ */
 
 /* Construct an error value from an error code and source.  Within a
-   subsystem, use gpg_error.  */
+ * subsystem, use gpg_error.  */
 static GPG_ERR_INLINE gpg_error_t
 gpg_err_make (gpg_err_source_t source, gpg_err_code_t code)
 {
@@ -893,7 +907,7 @@ gpg_err_make (gpg_err_source_t source, gpg_err_code_t code)
 
 
 /* The user should define GPG_ERR_SOURCE_DEFAULT before including this
-   file to specify a default source for gpg_error.  */
+ * file to specify a default source for gpg_error.  */
 #ifndef GPG_ERR_SOURCE_DEFAULT
 #define GPG_ERR_SOURCE_DEFAULT	GPG_ERR_SOURCE_UNKNOWN
 #endif
@@ -925,44 +939,44 @@ gpg_err_source (gpg_error_t err)
 /* String functions.  */
 
 /* Return a pointer to a string containing a description of the error
-   code in the error value ERR.  This function is not thread-safe.  */
+ * code in the error value ERR.  This function is not thread-safe.  */
 const char *gpg_strerror (gpg_error_t err);
 
 /* Return the error string for ERR in the user-supplied buffer BUF of
-   size BUFLEN.  This function is, in contrast to gpg_strerror,
-   thread-safe if a thread-safe strerror_r() function is provided by
-   the system.  If the function succeeds, 0 is returned and BUF
-   contains the string describing the error.  If the buffer was not
-   large enough, ERANGE is returned and BUF contains as much of the
-   beginning of the error string as fits into the buffer.  */
+ * size BUFLEN.  This function is, in contrast to gpg_strerror,
+ * thread-safe if a thread-safe strerror_r() function is provided by
+ * the system.  If the function succeeds, 0 is returned and BUF
+ * contains the string describing the error.  If the buffer was not
+ * large enough, ERANGE is returned and BUF contains as much of the
+ * beginning of the error string as fits into the buffer.  */
 int gpg_strerror_r (gpg_error_t err, char *buf, size_t buflen);
 
 /* Return a pointer to a string containing a description of the error
-   source in the error value ERR.  */
+ * source in the error value ERR.  */
 const char *gpg_strsource (gpg_error_t err);
 
 
-/* Mapping of system errors (errno).  */
+/*
+ * Mapping of system errors (errno).
+ */
 
 /* Retrieve the error code for the system error ERR.  This returns
-   GPG_ERR_UNKNOWN_ERRNO if the system error is not mapped (report
-   this). */
+ * GPG_ERR_UNKNOWN_ERRNO if the system error is not mapped (report
+ * this). */
 gpg_err_code_t gpg_err_code_from_errno (int err);
 
-
 /* Retrieve the system error for the error code CODE.  This returns 0
-   if CODE is not a system error code.  */
+ * if CODE is not a system error code.  */
 int gpg_err_code_to_errno (gpg_err_code_t code);
 
-
 /* Retrieve the error code directly from the ERRNO variable.  This
-   returns GPG_ERR_UNKNOWN_ERRNO if the system error is not mapped
-   (report this) and GPG_ERR_MISSING_ERRNO if ERRNO has the value 0. */
+ * returns GPG_ERR_UNKNOWN_ERRNO if the system error is not mapped
+ * (report this) and GPG_ERR_MISSING_ERRNO if ERRNO has the value 0. */
 gpg_err_code_t gpg_err_code_from_syserror (void);
 
 
 /* Set the ERRNO variable.  This function is the preferred way to set
-   ERRNO due to peculiarities on WindowsCE.  */
+ * ERRNO due to peculiarities on WindowsCE.  */
 void gpg_err_set_errno (int err);
 
 /* Return or check the version.  Both functions are identical.  */
@@ -970,16 +984,14 @@ const char *gpgrt_check_version (const char *req_version);
 const char *gpg_error_check_version (const char *req_version);
 
 /* System specific type definitions.  */
-# include <stdint.h>
+#include <stdint.h>
+typedef int     pid_t;
+
 typedef int64_t gpgrt_ssize_t;
 
 typedef int64_t gpgrt_off_t;
 
 
-
-/* Fixme: This is a quick hack.  We need to check whether the compiler
- * actually in use already knows that type.  */
-typedef int pid_t;
 
 /* Decide whether to use the format_arg attribute.  */
 #if _GPG_ERR_GCC_VERSION > 20800
@@ -1560,16 +1572,22 @@ int gpgrt_vsnprintf (char *buf,size_t bufsize,
 
 
 /*
- * Base64 decode functions.
+ * Base64 encode and decode functions.
  */
 
 struct _gpgrt_b64state;
 typedef struct _gpgrt_b64state *gpgrt_b64state_t;
 
+gpgrt_b64state_t gpgrt_b64enc_start (gpgrt_stream_t stream, const char *title);
+gpg_err_code_t   gpgrt_b64enc_write (gpgrt_b64state_t state,
+                                     const void *buffer, size_t nbytes);
+gpg_err_code_t   gpgrt_b64enc_finish (gpgrt_b64state_t state);
+
 gpgrt_b64state_t gpgrt_b64dec_start (const char *title);
-gpg_error_t gpgrt_b64dec_proc (gpgrt_b64state_t state,
-                               void *buffer, size_t length, size_t *r_nbytes);
-gpg_error_t gpgrt_b64dec_finish (gpgrt_b64state_t state);
+gpg_error_t      gpgrt_b64dec_proc (gpgrt_b64state_t state,
+                                    void *buffer, size_t length,
+                                    size_t *r_nbytes);
+gpg_error_t      gpgrt_b64dec_finish (gpgrt_b64state_t state);
 
 
 
@@ -1736,6 +1754,180 @@ void gpgrt_kill_process (pid_t pid);
 void gpgrt_release_process (pid_t pid);
 
 #endif /*0*/
+
+
+
+/*
+ * Option parsing.
+ */
+
+struct _gpgrt_argparse_internal_s;
+typedef struct
+{
+  int  *argc;	      /* Pointer to ARGC (value subject to change). */
+  char ***argv;	      /* Pointer to ARGV (value subject to change). */
+  unsigned int flags; /* Global flags.  May be set prior to calling the
+                         parser.  The parser may change the value.  */
+  int err;            /* Print error description for last option.
+                         Either 0,  ARGPARSE_PRINT_WARNING or
+                         ARGPARSE_PRINT_ERROR.  */
+  unsigned int lineno;/* The current line number.  */
+  int r_opt; 	      /* Returns option code. */
+  int r_type;	      /* Returns type of option value.  */
+  union {
+    int   ret_int;
+    long  ret_long;
+    unsigned long ret_ulong;
+    char *ret_str;
+  } r;		      /* Return values */
+
+  struct _gpgrt_argparse_internal_s *internal;
+} gpgrt_argparse_t;
+
+
+typedef struct
+{
+  int          short_opt;
+  const char  *long_opt;
+  unsigned int flags;
+  const char  *description; /* Optional description. */
+} gpgrt_opt_t;
+
+
+#ifdef GPGRT_ENABLE_ARGPARSE_MACROS
+
+/* Global flags for (gpgrt_argparse_t).flags.  */
+#define ARGPARSE_FLAG_KEEP        1  /* Do not remove options form argv.     */
+#define ARGPARSE_FLAG_ALL         2  /* Do not stop at last option but return
+                                        remaining args with R_OPT set to -1. */
+#define ARGPARSE_FLAG_MIXED       4  /* Assume options and args are mixed.   */
+#define ARGPARSE_FLAG_NOSTOP      8  /* Do not stop processing at "--".      */
+#define ARGPARSE_FLAG_ARG0       16  /* Do not skip the first arg.           */
+#define ARGPARSE_FLAG_ONEDASH    32  /* Allow long options with one dash.    */
+#define ARGPARSE_FLAG_NOVERSION  64  /* No output for "--version".           */
+#define ARGPARSE_FLAG_RESET     128  /* Request to reset the internal state. */
+#define ARGPARSE_FLAG_STOP_SEEN 256  /* Set to true if a "--" has been seen. */
+#define ARGPARSE_FLAG_NOLINENO  512  /* Do not zero the lineno field.         */
+
+/* Constants for (gpgrt_argparse_t).err.  */
+#define ARGPARSE_PRINT_WARNING  1    /* Print a diagnostic.                  */
+#define ARGPARSE_PRINT_ERROR    2    /* Print a diagnostic and call exit.    */
+
+/* Special return values of gpgrt_argparse.  */
+#define ARGPARSE_IS_ARG            (-1)
+#define ARGPARSE_INVALID_OPTION    (-2)
+#define ARGPARSE_MISSING_ARG       (-3)
+#define ARGPARSE_KEYWORD_TOO_LONG  (-4)
+#define ARGPARSE_READ_ERROR        (-5)
+#define ARGPARSE_UNEXPECTED_ARG    (-6)
+#define ARGPARSE_INVALID_COMMAND   (-7)
+#define ARGPARSE_AMBIGUOUS_OPTION  (-8)
+#define ARGPARSE_AMBIGUOUS_COMMAND (-9)
+#define ARGPARSE_INVALID_ALIAS     (-10)
+#define ARGPARSE_OUT_OF_CORE       (-11)
+#define ARGPARSE_INVALID_ARG       (-12)
+
+/* Flags for the option descriptor (gpgrt_opt_t)->flags.  Note that
+ * a TYPE constant may be or-ed with the OPT constants.  */
+#define ARGPARSE_TYPE_NONE        0  /* Does not take an argument.        */
+#define ARGPARSE_TYPE_INT         1  /* Takes an int argument.            */
+#define ARGPARSE_TYPE_STRING      2  /* Takes a string argument.          */
+#define ARGPARSE_TYPE_LONG        3  /* Takes a long argument.            */
+#define ARGPARSE_TYPE_ULONG       4  /* Takes an unsigned long argument.  */
+#define ARGPARSE_OPT_OPTIONAL (1<<3) /* Argument is optional.             */
+#define ARGPARSE_OPT_PREFIX   (1<<4) /* Allow 0x etc. prefixed values.    */
+#define ARGPARSE_OPT_IGNORE   (1<<6) /* Ignore command or option.         */
+#define ARGPARSE_OPT_COMMAND  (1<<7) /* The argument is a command.        */
+
+/* A set of macros to make option definitions easier to read.  */
+#define ARGPARSE_x(s,l,t,f,d) \
+     { (s), (l), ARGPARSE_TYPE_ ## t | (f), (d) }
+
+#define ARGPARSE_s(s,l,t,d) \
+     { (s), (l), ARGPARSE_TYPE_ ## t, (d) }
+#define ARGPARSE_s_n(s,l,d) \
+     { (s), (l), ARGPARSE_TYPE_NONE, (d) }
+#define ARGPARSE_s_i(s,l,d) \
+     { (s), (l), ARGPARSE_TYPE_INT, (d) }
+#define ARGPARSE_s_s(s,l,d) \
+     { (s), (l), ARGPARSE_TYPE_STRING, (d) }
+#define ARGPARSE_s_l(s,l,d) \
+     { (s), (l), ARGPARSE_TYPE_LONG, (d) }
+#define ARGPARSE_s_u(s,l,d) \
+     { (s), (l), ARGPARSE_TYPE_ULONG, (d) }
+
+#define ARGPARSE_o(s,l,t,d) \
+     { (s), (l), (ARGPARSE_TYPE_ ## t  | ARGPARSE_OPT_OPTIONAL), (d) }
+#define ARGPARSE_o_n(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_NONE   | ARGPARSE_OPT_OPTIONAL), (d) }
+#define ARGPARSE_o_i(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_INT    | ARGPARSE_OPT_OPTIONAL), (d) }
+#define ARGPARSE_o_s(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_STRING | ARGPARSE_OPT_OPTIONAL), (d) }
+#define ARGPARSE_o_l(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_LONG   | ARGPARSE_OPT_OPTIONAL), (d) }
+#define ARGPARSE_o_u(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_ULONG  | ARGPARSE_OPT_OPTIONAL), (d) }
+
+#define ARGPARSE_p(s,l,t,d) \
+     { (s), (l), (ARGPARSE_TYPE_ ## t  | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_p_n(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_NONE   | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_p_i(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_INT    | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_p_s(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_STRING | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_p_l(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_LONG   | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_p_u(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_ULONG  | ARGPARSE_OPT_PREFIX), (d) }
+
+#define ARGPARSE_op(s,l,t,d) \
+     { (s), (l), (ARGPARSE_TYPE_ ## t \
+                  | ARGPARSE_OPT_OPTIONAL | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_op_n(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_NONE \
+                  | ARGPARSE_OPT_OPTIONAL | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_op_i(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_INT \
+                  | ARGPARSE_OPT_OPTIONAL | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_op_s(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_STRING \
+                  | ARGPARSE_OPT_OPTIONAL | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_op_l(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_LONG \
+                  | ARGPARSE_OPT_OPTIONAL | ARGPARSE_OPT_PREFIX), (d) }
+#define ARGPARSE_op_u(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_ULONG \
+                  | ARGPARSE_OPT_OPTIONAL | ARGPARSE_OPT_PREFIX), (d) }
+
+#define ARGPARSE_c(s,l,d) \
+     { (s), (l), (ARGPARSE_TYPE_NONE | ARGPARSE_OPT_COMMAND), (d) }
+
+#define ARGPARSE_ignore(s,l) \
+     { (s), (l), (ARGPARSE_OPT_IGNORE), "@" }
+
+#define ARGPARSE_group(s,d) \
+     { (s), NULL, 0, (d) }
+
+/* Mark the end of the list (mandatory).  */
+#define ARGPARSE_end() \
+     { 0, NULL, 0, NULL }
+
+#endif /* GPGRT_ENABLE_ARGPARSE_MACROS */
+
+/* Take care: gpgrt_argparse keeps state in ARG and requires that
+ * either ARGPARSE_FLAG_RESET is used after OPTS has been changed or
+ * gpgrt_argparse (NULL, ARG, NULL) is called first.  */
+int gpgrt_argparse (gpgrt_stream_t fp,
+                    gpgrt_argparse_t *arg, gpgrt_opt_t *opts);
+void gpgrt_usage (int level);
+const char *gpgrt_strusage (int level);
+void gpgrt_set_strusage (const char *(*f)(int));
+void gpgrt_set_usage_outfnc (int (*f)(int, const char *));
+void gpgrt_set_fixed_string_mapper (const char *(*f)(const char*));
+
+
 
 #ifdef __cplusplus
 }

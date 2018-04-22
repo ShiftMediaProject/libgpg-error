@@ -41,7 +41,7 @@
 /* #undef HAVE_GETRLIMIT */
 
 /* Define if you have the iconv() function and it works. */
-#define HAVE_ICONV 1
+/* #undef HAVE_ICONV */
 
 /* Define to 1 if the system has the type `intmax_t'. */
 #define HAVE_INTMAX_T 1
@@ -122,7 +122,7 @@
 /* #undef HAVE_SYS_TIME_H */
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#define HAVE_SYS_TYPES_H 1
+/* #undef HAVE_SYS_TYPES_H */
 
 /* Define to 1 if the system has the type `uintmax_t'. */
 #define HAVE_UINTMAX_T 1
@@ -226,4 +226,5 @@
 #define GPG_ERR_ENABLE_ERRNO_MACROS 1
 #define GPGRT_ENABLE_ES_MACROS 1
 #define GPGRT_ENABLE_LOG_MACROS 1
+#define GPGRT_ENABLE_ARGPARSE_MACROS 1
 

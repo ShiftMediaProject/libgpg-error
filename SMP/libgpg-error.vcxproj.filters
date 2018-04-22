@@ -122,6 +122,12 @@
     <ClCompile Include="..\src\sysutils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\b64enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\argparse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="versioninfo.rc">
