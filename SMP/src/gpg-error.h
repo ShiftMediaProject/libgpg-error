@@ -66,12 +66,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.31"
-#define GPGRT_VERSION     "1.31"
+#define GPG_ERROR_VERSION "1.32"
+#define GPGRT_VERSION     "1.32"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x011f00
-#define GPGRT_VERSION_NUMBER     0x011f00
+#define GPG_ERROR_VERSION_NUMBER 0x012000
+#define GPGRT_VERSION_NUMBER     0x012000
 
 
 #ifdef __GNUC__
@@ -743,7 +743,7 @@ typedef unsigned int gpg_error_t;
 
 /* The noreturn attribute.  */
 #if _GPG_ERR_GCC_VERSION >= 20500
-# define GPGRT_ATTR_NORETURN   __attribute__ ((noreturn))
+# define GPGRT_ATTR_NORETURN   __attribute__ ((__noreturn__))
 #else
 # define GPGRT_ATTR_NORETURN
 #endif
@@ -753,12 +753,12 @@ typedef unsigned int gpg_error_t;
 # define GPGRT_ATTR_PRINTF(f, a) \
                     __attribute__ ((format(__gnu_printf__,f,a)))
 # define GPGRT_ATTR_NR_PRINTF(f, a) \
-                    __attribute__ ((noreturn, format(__gnu_printf__,f,a)))
+                    __attribute__ ((__noreturn__, format(__gnu_printf__,f,a)))
 #elif _GPG_ERR_GCC_VERSION >= 20500
 # define GPGRT_ATTR_PRINTF(f, a) \
                     __attribute__ ((format(printf,f,a)))
 # define GPGRT_ATTR_NR_PRINTF(f, a) \
-                    __attribute__ ((noreturn, format(printf,f,a)))
+                    __attribute__ ((__noreturn__, format(printf,f,a)))
 #else
 # define GPGRT_ATTR_PRINTF(f, a)
 # define GPGRT_ATTR_NR_PRINTF(f, a)
@@ -1414,8 +1414,8 @@ int gpgrt_write_hexstring (gpgrt_stream_t _GPGRT__RESTRICT stream,
 
 size_t gpgrt_fread (void *_GPGRT__RESTRICT ptr, size_t size, size_t nitems,
                     gpgrt_stream_t _GPGRT__RESTRICT stream);
-size_t gpgrt_fwrite (const void *_GPGRT__RESTRICT ptr, size_t size, size_t memb,
-                     gpgrt_stream_t _GPGRT__RESTRICT stream);
+size_t gpgrt_fwrite (const void *_GPGRT__RESTRICT ptr, size_t size,
+                     size_t nitems, gpgrt_stream_t _GPGRT__RESTRICT stream);
 
 char *gpgrt_fgets (char *_GPGRT__RESTRICT s, int n,
                    gpgrt_stream_t _GPGRT__RESTRICT stream);
