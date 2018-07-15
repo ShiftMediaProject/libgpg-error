@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [31])
+m4_define([mym4_minor], [32])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,7 +51,7 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 # Note that added error codes don't constitute an interface change.
 LIBGPG_ERROR_LT_CURRENT=24
 LIBGPG_ERROR_LT_AGE=24
-LIBGPG_ERROR_LT_REVISION=2
+LIBGPG_ERROR_LT_REVISION=3
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -126,21 +126,7 @@ LT_LANG([Windows Resource])
 
 
 # We need to compile and run a program on the build machine.
-dnl The AC_PROG_CC_FOR_BUILD macro in the AC archive is broken for
-dnl autoconf 2.57.
-dnl AC_PROG_CC_FOR_BUILD
-AC_MSG_CHECKING(for cc for build)
-if test "$cross_compiling" = "yes"; then
-  CC_FOR_BUILD="${CC_FOR_BUILD-cc}"
-else
-  CC_FOR_BUILD="${CC_FOR_BUILD-$CC}"
-fi
-AC_MSG_RESULT($CC_FOR_BUILD)
-AC_ARG_VAR(CC_FOR_BUILD,[build system C compiler])
-
-AC_PATH_PROG(YAT2M, yat2m)
-AC_ARG_VAR(YAT2M, [tool to convert texi to man pages])
-AM_CONDITIONAL(HAVE_YAT2M, test -n "$ac_cv_path_YAT2M")
+AX_CC_FOR_BUILD
 
 AH_BOTTOM([
 /* Force using of NLS for W32 even if no libintl has been found.  This is
