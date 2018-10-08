@@ -31,7 +31,9 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
@@ -40,6 +42,9 @@
 #endif
 #include <io.h>
 #include <windows.h>
+#ifdef HAVE_W32_SYSTEM
+typedef SSIZE_T ssize_t;
+#endif
 
 /* Enable tracing.  The value is the module name to be printed.  */
 /*#define ENABLE_TRACING "estream" */

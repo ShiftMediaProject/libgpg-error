@@ -22,10 +22,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <errno.h>
 #ifdef HAVE_W32_SYSTEM
 # include <windows.h>
+# include <direct.h>
+# include <io.h>
 #endif
 #ifdef HAVE_STAT
 # include <sys/stat.h>
@@ -35,7 +39,15 @@
 
 #include "gpgrt-int.h"
 
-
+#ifdef HAVE_W32_SYSTEM
+extern wchar_t *utf8_to_wchar(const char *string, size_t length, size_t *retlen);
+# define chdir _chdir
+# define getcwd _getcwd
+# if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#  define getenv(x) NULL
+#  define putenv(x) -1
+# endif
+#endif
 
 /* Return true if FD is valid.  */
 int
@@ -66,7 +78,7 @@ _gpgrt_getenv (const char *name)
     int len, size;
     char *result;
 
-    len = GetEnvironmentVariable (name, NULL, 0);
+    len = GetEnvironmentVariableA (name, NULL, 0);
     if (!len && GetLastError () == ERROR_ENVVAR_NOT_FOUND)
       {
         _gpg_err_set_errno (0);
@@ -77,7 +89,7 @@ _gpgrt_getenv (const char *name)
     result = _gpgrt_malloc (size);
     if (!result)
       return NULL;
-    len = GetEnvironmentVariable (name, result, size);
+    len = GetEnvironmentVariableA (name, result, size);
     if (len >= size)
       {
         /* Changed in the meantime - retry.  */
@@ -139,7 +151,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
 
     if (!value && overwrite)
       {
-        if (!SetEnvironmentVariable (name, NULL))
+        if (!SetEnvironmentVariableA (name, NULL))
           return GPG_ERR_EINVAL;
         if (getenv (name))
           {
@@ -153,8 +165,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
         return 0;
       }
 
-    exists = GetEnvironmentVariable (name, tmpbuf, sizeof tmpbuf);
-    if ((! exists || overwrite) && !SetEnvironmentVariable (name, value))
+    exists = GetEnvironmentVariableA (name, tmpbuf, sizeof tmpbuf);
+    if ((! exists || overwrite) && !SetEnvironmentVariableA (name, value))
       return GPG_ERR_EINVAL; /* (Might also be ENOMEM.) */
     if (overwrite || !getenv (name))
       {
@@ -270,11 +282,12 @@ modestr_to_mode (const char *modestr)
 gpg_err_code_t
 _gpgrt_mkdir (const char *name, const char *modestr)
 {
-#ifdef HAVE_W32CE_SYSTEM
+#ifdef HAVE_W32_SYSTEM
   wchar_t *wname;
+  size_t retlen;
   (void)modestr;
 
-  wname = utf8_to_wchar (name);
+  wname = utf8_to_wchar (name, -1, &retlen);
   if (!wname)
     return _gpg_err_code_from_syserror ();
   if (!CreateDirectoryW (wname, NULL))

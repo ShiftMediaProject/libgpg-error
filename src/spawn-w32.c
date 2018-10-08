@@ -35,12 +35,15 @@
 #ifdef HAVE_SIGNAL_H
 # include <signal.h>
 #endif
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <fcntl.h>
 #ifdef HAVE_STAT
 # include <sys/stat.h>
 #endif
 #define WIN32_LEAN_AND_MEAN  /* We only need the OS core stuff.  */
+#include <io.h>
 #include <windows.h>
 
 #include "gpgrt-int.h"
@@ -53,7 +56,7 @@
  * Previous versions interpreted X_OK as F_OK anyway, so we'll just
  * use F_OK directly. */
 #undef X_OK
-#define X_OK F_OK
+#define X_OK 0
 
 
 /* Return the maximum number of currently allowed open file
@@ -371,7 +374,7 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
       0,         /* Returns pid.  */
       0          /* Returns tid.  */
     };
-  STARTUPINFO si;
+  STARTUPINFOA si;
   int cr_flags;
   char *cmdline;
   HANDLE inpipe[2]  = {INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE};
@@ -526,16 +529,16 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
               | CREATE_SUSPENDED);
   _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
                     pgmname, cmdline);
-  ret = CreateProcess (pgmname,     /* Program to start.  */
-                      cmdline,       /* Command line arguments.  */
-                      &sec_attr,     /* Process security attributes.  */
-                      &sec_attr,     /* Thread security attributes.  */
-                      TRUE,          /* Inherit handles.  */
-                      cr_flags,      /* Creation flags.  */
-                      NULL,          /* Environment.  */
-                      NULL,          /* Use current drive/directory.  */
-                      &si,           /* Startup information. */
-                      &pi            /* Returns process information.  */
+  ret = CreateProcessA (pgmname,     /* Program to start.  */
+                       cmdline,       /* Command line arguments.  */
+                       &sec_attr,     /* Process security attributes.  */
+                       &sec_attr,     /* Thread security attributes.  */
+                       TRUE,          /* Inherit handles.  */
+                       cr_flags,      /* Creation flags.  */
+                       NULL,          /* Environment.  */
+                       NULL,          /* Use current drive/directory.  */
+                       &si,           /* Startup information. */
+                       &pi            /* Returns process information.  */
                         );
   if (!ret)
     {
@@ -623,7 +626,7 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
   gpg_err_code_t err;
   SECURITY_ATTRIBUTES sec_attr;
   PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
-  STARTUPINFO si;
+  STARTUPINFOA si;
   char *cmdline;
   int ret, i;
   HANDLE stdhd[3];
@@ -654,18 +657,18 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
 
   _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
                     pgmname, cmdline);
-  ret = CreateProcess (pgmname,      /* Program to start.  */
-                      cmdline,       /* Command line arguments.  */
-                      &sec_attr,     /* Process security attributes.  */
-                      &sec_attr,     /* Thread security attributes.  */
-                      TRUE,          /* Inherit handles.  */
-                      (CREATE_DEFAULT_ERROR_MODE
-                       | GetPriorityClass (GetCurrentProcess ())
-                       | CREATE_SUSPENDED | DETACHED_PROCESS),
-                      NULL,          /* Environment.  */
-                      NULL,          /* Use current drive/directory.  */
-                      &si,           /* Startup information. */
-                      &pi            /* Returns process information.  */
+  ret = CreateProcessA (pgmname,      /* Program to start.  */
+                       cmdline,       /* Command line arguments.  */
+                       &sec_attr,     /* Process security attributes.  */
+                       &sec_attr,     /* Thread security attributes.  */
+                       TRUE,          /* Inherit handles.  */
+                       (CREATE_DEFAULT_ERROR_MODE
+                        | GetPriorityClass (GetCurrentProcess ())
+                        | CREATE_SUSPENDED | DETACHED_PROCESS),
+                       NULL,          /* Environment.  */
+                       NULL,          /* Use current drive/directory.  */
+                       &si,           /* Startup information. */
+                       &pi            /* Returns process information.  */
                       );
   if (!ret)
     {
@@ -809,7 +812,7 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
       0,         /* Returns pid.  */
       0          /* Returns tid.  */
     };
-  STARTUPINFO si;
+  STARTUPINFOA si;
   int cr_flags;
   char *cmdline;
   int ret;
@@ -842,16 +845,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
               | DETACHED_PROCESS);
   _gpgrt_log_debug ("CreateProcess(detached), path='%s' cmdline='%s'\n",
                     pgmname, cmdline);
-  ret = CreateProcess (pgmname,       /* Program to start.  */
-                      cmdline,       /* Command line arguments.  */
-                      &sec_attr,     /* Process security attributes.  */
-                      &sec_attr,     /* Thread security attributes.  */
-                      FALSE,         /* Inherit handles.  */
-                      cr_flags,      /* Creation flags.  */
-                      NULL,          /* Environment.  */
-                      NULL,          /* Use current drive/directory.  */
-                      &si,           /* Startup information. */
-                      &pi            /* Returns process information.  */
+  ret = CreateProcessA (pgmname,       /* Program to start.  */
+                       cmdline,       /* Command line arguments.  */
+                       &sec_attr,     /* Process security attributes.  */
+                       &sec_attr,     /* Thread security attributes.  */
+                       FALSE,         /* Inherit handles.  */
+                       cr_flags,      /* Creation flags.  */
+                       NULL,          /* Environment.  */
+                       NULL,          /* Use current drive/directory.  */
+                       &si,           /* Startup information. */
+                       &pi            /* Returns process information.  */
                        );
   if (!ret)
     {

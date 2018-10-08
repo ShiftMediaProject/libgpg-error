@@ -38,13 +38,17 @@
 #  include <winsock2.h>
 # endif
 # include <windows.h>
+# include <process.h>
+# include <io.h>
 #else /*!HAVE_W32_SYSTEM*/
 # include <sys/socket.h>
 # include <sys/un.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 #endif /*!HAVE_W32_SYSTEM*/
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <fcntl.h>
 #include <assert.h>
 /* #include <execinfo.h> */
@@ -54,6 +58,10 @@
 
 
 #ifdef HAVE_W32_SYSTEM
+# ifndef S_IRUSR
+#  define S_IRUSR _S_IREAD
+#  define S_IWUSR _S_IWRITE
+# endif
 # ifndef S_IRWXG
 #  define S_IRGRP S_IRUSR
 #  define S_IWGRP S_IWUSR
@@ -62,6 +70,9 @@
 #  define S_IROTH S_IRUSR
 #  define S_IWOTH S_IWUSR
 # endif
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+# define getpid() GetCurrentProcessId()
+#endif
 #endif
 
 

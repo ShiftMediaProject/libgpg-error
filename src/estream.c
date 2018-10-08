@@ -74,12 +74,15 @@
 # include <sys/time.h>
 #endif
 #include <sys/types.h>
-#include <sys/file.h>
-#include <sys/stat.h>
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <stdarg.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -90,6 +93,7 @@
 #  include <winsock2.h>
 # endif
 # include <windows.h>
+# include <io.h>
 #endif
 
 /* Enable tracing.  The value is the module name to be printed.  */
@@ -112,20 +116,29 @@
 
 
 #ifdef HAVE_W32_SYSTEM
+# ifndef S_IRUSR
+#  define S_IRUSR _S_IREAD
+# endif
+# ifndef S_IWUSR
+#  define S_IWUSR _S_IWRITE
+# endif
+# ifndef S_IXUSR
+#  define S_IXUSR _S_IEXEC
+# endif
 # ifndef  S_IRGRP
 #  define S_IRGRP S_IRUSR
-# endif
-# ifndef  S_IROTH
-#  define S_IROTH S_IRUSR
 # endif
 # ifndef  S_IWGRP
 #  define S_IWGRP S_IWUSR
 # endif
-# ifndef  S_IWOTH
-#  define S_IWOTH S_IWUSR
-# endif
 # ifndef  S_IXGRP
 #  define S_IXGRP S_IXUSR
+# endif
+# ifndef  S_IROTH
+#  define S_IROTH S_IRUSR
+# endif
+# ifndef  S_IWOTH
+#  define S_IWOTH S_IWUSR
 # endif
 # ifndef  S_IXOTH
 #  define S_IXOTH S_IXUSR
@@ -164,7 +177,6 @@ int _setmode (int handle, int mode);
 
 /* A helper macro used to convert to a hex string.  */
 #define tohex(n) ((n) < 10 ? ((n) + '0') : (((n) - 10) + 'A'))
-
 
 /* Generally used types.  */
 
@@ -4472,37 +4484,27 @@ tmpfd (void)
 {
 #ifdef HAVE_W32_SYSTEM
   int attempts, n;
-#ifdef HAVE_W32CE_SYSTEM
   wchar_t buffer[MAX_PATH+9+12+1];
 # define mystrlen(a) wcslen (a)
   wchar_t *name, *p;
-#else
-  char buffer[MAX_PATH+9+12+1];
-# define mystrlen(a) strlen (a)
-  char *name, *p;
-#endif
   HANDLE file;
   int pid = GetCurrentProcessId ();
   unsigned int value;
   int i;
 
-  n = GetTempPath (MAX_PATH+1, buffer);
+  n = GetTempPathW (MAX_PATH+1, buffer);
   if (!n || n > MAX_PATH || mystrlen (buffer) > MAX_PATH)
     {
       _set_errno (ENOENT);
       return -1;
     }
   p = buffer + mystrlen (buffer);
-#ifdef HAVE_W32CE_SYSTEM
   wcscpy (p, L"_estream");
-#else
-  strcpy (p, "_estream");
-#endif
   p += 8;
   /* We try to create the directory but don't care about an error as
      it may already exist and the CreateFile would throw an error
      anyway.  */
-  CreateDirectory (buffer, NULL);
+  CreateDirectoryW (buffer, NULL);
   *p++ = '\\';
   name = p;
   for (attempts=0; attempts < 10; attempts++)
@@ -4514,18 +4516,25 @@ tmpfd (void)
           *p++ = tohex (((value >> 28) & 0x0f));
           value <<= 4;
         }
-#ifdef HAVE_W32CE_SYSTEM
       wcscpy (p, L".tmp");
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+      CREATEFILE2_EXTENDED_PARAMETERS ex = { 0 };
+      ex.dwFileFlags = FILE_FLAG_DELETE_ON_CLOSE;
+      ex.dwFileAttributes = FILE_ATTRIBUTE_TEMPORARY;
+      file = CreateFile2(buffer,
+                         GENERIC_READ | GENERIC_WRITE,
+                         0,
+                         CREATE_NEW,
+                         &ex);
 #else
-      strcpy (p, ".tmp");
-#endif
-      file = CreateFile (buffer,
+      file = CreateFileW (buffer,
                          GENERIC_READ | GENERIC_WRITE,
                          0,
                          NULL,
                          CREATE_NEW,
                          FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
                          NULL);
+#endif
       if (file != INVALID_HANDLE_VALUE)
         {
 #ifdef HAVE_W32CE_SYSTEM

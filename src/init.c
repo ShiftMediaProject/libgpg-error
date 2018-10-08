@@ -53,6 +53,10 @@ static int tls_index = TLS_OUT_OF_INDEXES;  /* Index for the TLS functions.  */
 static char *get_locale_dir (void);
 static void drop_locale_dir (char *locale_dir);
 
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+# define getenv(x) NULL
+#endif
+
 #else /*!HAVE_W32_SYSTEM*/
 
 #define get_locale_dir() LOCALEDIR

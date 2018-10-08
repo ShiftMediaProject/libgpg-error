@@ -46,6 +46,9 @@ char *
 _gpgrt_w32_reg_query_string (const char *root, const char *dir,
                              const char *name)
 {
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+    return NULL;
+#else
   HKEY root_key, key_handle;
   DWORD n1, nbytes, type;
   char *result = NULL;
@@ -111,7 +114,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
       tmp = xtrymalloc (n1 + 1);
       if (!tmp)
         goto leave;
-      nbytes = ExpandEnvironmentStrings (result, tmp, n1);
+      nbytes = ExpandEnvironmentStringsA (result, tmp, n1);
       if (nbytes && nbytes > n1)
         {
           xfree (tmp);
@@ -119,7 +122,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
           tmp = xtrymalloc (n1 + 1);
           if (!tmp)
             goto leave;
-          nbytes = ExpandEnvironmentStrings (result, tmp, n1);
+          nbytes = ExpandEnvironmentStringsA (result, tmp, n1);
           if (nbytes && nbytes > n1) {
             xfree (tmp); /* Oops - truncated, better don't expand at all. */
             goto leave;
@@ -151,4 +154,5 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
  leave:
   RegCloseKey (key_handle);
   return result;
+#endif
 }

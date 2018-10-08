@@ -53,6 +53,9 @@
 
 
 #if HAVE_W32_SYSTEM
+# define strcasecmp _stricmp
+# define strncasecmp _strnicmp
+
 /* The implementation follows below.  */
 static char *get_locale_dir (void);
 static void drop_locale_dir (char *locale_dir);

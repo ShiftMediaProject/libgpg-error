@@ -951,7 +951,11 @@ name_to_codepage(const char *name)
 
     if (*name == '\0' ||
 	strcmp(name, "char") == 0)
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+        return CP_ACP;
+#else
         return GetACP();
+#endif
     else if (strcmp(name, "wchar_t") == 0)
         return 1200;
     else if (_strnicmp(name, "cp", 2) == 0)

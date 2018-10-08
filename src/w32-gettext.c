@@ -53,10 +53,13 @@
 #include "init.h"
 #include "gpg-error.h"
 
-#ifdef HAVE_W32CE_SYSTEM
-/* Forward declaration.  */
-static wchar_t *utf8_to_wchar (const char *string, size_t length, size_t *retlen);
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+# define getenv(x) NULL
+#endif
+ /* Forward declaration.  */
+wchar_t *utf8_to_wchar(const char *string, size_t length, size_t *retlen);
 
+#ifdef HAVE_W32CE_SYSTEM
 static HANDLE
 MyCreateFileA (LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwSharedMode,
 	     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
@@ -668,6 +671,8 @@ my_nl_locale_name (const char *categoryname)
   /* Use native Win32 API locale ID.  */
 #ifdef HAVE_W32CE_SYSTEM
   lcid = GetSystemDefaultLCID ();
+#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+  lcid = LOCALE_USER_DEFAULT;
 #else
   lcid = GetThreadLocale ();
 #endif
@@ -1230,13 +1235,31 @@ load_domain (const char *filename)
   struct loaded_domain *domain = NULL;
   size_t to_read;
   char *read_ptr;
+  size_t wlen = 0;
+  wchar_t *filenameW = utf8_to_wchar(filename, -1, &wlen);
 
-  fh = CreateFileA (filename, GENERIC_READ, FILE_SHARE_WRITE, NULL,
-                    OPEN_EXISTING, 0, NULL);
+  if (!filenameW)
+  {
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+	  fh = CreateFile2 (filenameW, GENERIC_READ, FILE_SHARE_WRITE, OPEN_EXISTING, NULL);
+#else
+      fh = CreateFileW (filenameW, GENERIC_READ, FILE_SHARE_WRITE, NULL,
+                        OPEN_EXISTING, 0, NULL);
+#endif
+	  free(filenameW);
+  }
+  else
+	  fh = INVALID_HANDLE_VALUE;
   if (fh == INVALID_HANDLE_VALUE)
     return NULL;
 
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+  WIN32_FILE_ATTRIBUTE_DATA fileinfo;
+  GetFileAttributesEx (filenameW, GetFileExInfoStandard, &fileinfo);
+  size = fileinfo.nFileSizeHigh;
+#else
   size = GetFileSize (fh, NULL);
+#endif
   if (size == INVALID_FILE_SIZE)
     {
       CloseHandle (fh);
@@ -1336,7 +1359,7 @@ load_domain (const char *filename)
    string STRING.  Caller must free this value. On failure returns
    NULL.  The result of calling this function with STRING set to NULL
    is not defined. */
-static wchar_t *
+wchar_t *
 utf8_to_wchar (const char *string, size_t length, size_t *retlen)
 {
   int n;
@@ -1378,6 +1401,9 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
 {
   int n;
   char *result;
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+  unsigned int cpno = CP_ACP;
+#else
   unsigned int cpno = GetConsoleOutputCP ();
 
   /* GetConsoleOutputCP returns the 8-Bit codepage that should be used
@@ -1385,6 +1411,7 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
      to the codepage GUI programs should use (CP_ACP). */
   if (!cpno)
     cpno = GetACP ();
+#endif
 
   n = WideCharToMultiByte (cpno, 0, string, length, NULL, 0, NULL, NULL);
   if (n < 0 || (n+1) <= 0)
