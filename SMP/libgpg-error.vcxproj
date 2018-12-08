@@ -88,7 +88,6 @@
     <ClCompile Include="..\src\code-to-errno.c" />
     <ClCompile Include="..\src\estream-printf.c" />
     <ClCompile Include="..\src\estream.c" />
-    <ClCompile Include="..\src\gpg-error.c" />
     <ClCompile Include="..\src\init.c" />
     <ClCompile Include="..\src\logging.c" />
     <ClCompile Include="..\src\strerror-sym.c" />

@@ -80,9 +80,6 @@
     <ClCompile Include="..\src\code-from-errno.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\gpg-error.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\strerror-sym.c">
       <Filter>Source Files</Filter>
     </ClCompile>
