@@ -32,6 +32,13 @@
 #include "gettext.h"
 #include "err-codes.h"
 
+#ifdef _MSC_VER
+#   include <crtversion.h>
+#   if _VC_CRT_MAJOR_VERSION < 14
+#       define snprintf _snprintf
+#   endif
+#endif
+
 /* Return a pointer to a string containing a description of the error
    code in the error value ERR.  This function is not thread-safe.  */
 const char *
