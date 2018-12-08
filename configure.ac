@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [32])
+m4_define([mym4_minor], [33])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,9 +49,9 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=24
-LIBGPG_ERROR_LT_AGE=24
-LIBGPG_ERROR_LT_REVISION=3
+LIBGPG_ERROR_LT_CURRENT=25
+LIBGPG_ERROR_LT_AGE=25
+LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -483,19 +483,55 @@ if test "x$LIBMULTITHREAD" != x; then
 else
   GPG_ERROR_CONFIG_MT_LIBS=""
 fi
-GPG_ERROR_CONFIG_CFLAGS=""
+if test "$have_w32ce_system" = yes; then
+  GPG_ERROR_CONFIG_CFLAGS="-idirafter \${includedir}/gpg-extra"
+else
+  GPG_ERROR_CONFIG_CFLAGS=""
+fi
 if test "x$THREADLIB_CPPFLAGS" != x; then
   GPG_ERROR_CONFIG_MT_CFLAGS="${THREADLIB_CPPFLAGS}"
 else
   GPG_ERROR_CONFIG_MT_CFLAGS=""
 fi
-GPG_ERROR_CONFIG_ISUBDIRAFTER=""
 GPG_ERROR_CONFIG_HOST="$host"
+
+case "$includedir" in
+  /usr/include|/include) ;;
+  '${prefix}/include')
+    if test "$prefix" != / -a "$prefix" != /usr; then
+      if test -z "$GPG_ERROR_CONFIG_CFLAGS"; then
+        GPG_ERROR_CONFIG_CFLAGS="-I$includedir"
+      else
+        GPG_ERROR_CONFIG_CFLAGS="-I$includedir $GPG_ERROR_CONFIG_CFLAGS"
+      fi
+    fi
+    ;;
+  *)
+    if test -z "$GPG_ERROR_CONFIG_CFLAGS"; then
+      GPG_ERROR_CONFIG_CFLAGS="-I$includedir"
+    else
+      GPG_ERROR_CONFIG_CFLAGS="-I$includedir $GPG_ERROR_CONFIG_CFLAGS"
+    fi
+    ;;
+esac
+case "$libdir" in
+  /usr/lib|/usr/lib64|/lib|/lib64) ;;
+  '${exec_prefix}/lib')
+    if test "$exec_prefix" = "NONE"; then
+      if test "$prefix" != / -a "$prefix" != /usr; then
+        GPG_ERROR_CONFIG_LIBS="-L$libdir $GPG_ERROR_CONFIG_LIBS"
+      fi
+    elif test "$exec_prefix" != / -a "$exec_prefix" != /usr; then
+      GPG_ERROR_CONFIG_LIBS="-L$libdir $GPG_ERROR_CONFIG_LIBS"
+    fi
+    ;;
+  *) GPG_ERROR_CONFIG_LIBS="-L$libdir $GPG_ERROR_CONFIG_LIBS" ;;
+esac
+
 AC_SUBST(GPG_ERROR_CONFIG_LIBS)
 AC_SUBST(GPG_ERROR_CONFIG_CFLAGS)
 AC_SUBST(GPG_ERROR_CONFIG_MT_LIBS)
 AC_SUBST(GPG_ERROR_CONFIG_MT_CFLAGS)
-AC_SUBST(GPG_ERROR_CONFIG_ISUBDIRAFTER)
 AC_SUBST(GPG_ERROR_CONFIG_HOST)
 
 
@@ -510,7 +546,6 @@ if test "$have_w32_system" = yes; then
     fi
     if test "$have_w32ce_system" = yes; then
       AC_DEFINE(HAVE_W32CE_SYSTEM,1,[Defined if we run on WindowsCE])
-      GPG_ERROR_CONFIG_ISUBDIRAFTER="gpg-extra"
     fi
     force_use_syscfg=yes
 fi
@@ -624,7 +659,8 @@ AC_CONFIG_FILES([doc/Makefile po/Makefile.in m4/Makefile])
 AC_CONFIG_FILES([src/Makefile tests/Makefile])
 AC_CONFIG_FILES([lang/Makefile lang/cl/Makefile lang/cl/gpg-error.asd])
 AC_CONFIG_FILES([src/versioninfo.rc src/gpg-error.w32-manifest])
-AC_CONFIG_FILES([src/gpg-error-config], [chmod +x src/gpg-error-config])
+AC_CONFIG_FILES([src/gpg-error.pc])
+AC_CONFIG_FILES([src/gpg-error-config-old:src/gpg-error-config.in], [chmod +x src/gpg-error-config-old])
 
 AC_OUTPUT
 

@@ -22,11 +22,12 @@
 
 #define LINESIZE 1024
 
-static const char *host_os;
-static char *host_triplet;
+static char *host_triplet; /* malloced.  */
+static char *host_os;      /* points into host_triplet.  */
 static char *srcdir;
 static const char *hdr_version;
 static const char *hdr_version_number;
+static int cross_building; /* Command line flag.  */
 
 /* Values take from the supplied config.h.  */
 static int have_stdint_h;
@@ -51,41 +52,61 @@ xfree (void *a)
 
 
 static char *
-xstrdup (const char *string)
+xmalloc (size_t n)
 {
   char *p;
-  size_t len = strlen (string) + 1;
 
-  p = malloc (len);
+  p = malloc (n);
   if (!p)
     {
       fputs (PGM ": out of core\n", stderr);
       exit (1);
     }
+  return p;
+}
+
+
+static char *
+xstrdup (const char *string)
+{
+  char *p;
+  size_t len = strlen (string) + 1;
+
+  p = xmalloc (len);
   memcpy (p, string, len);
   return p;
 }
 
 
 /* Return a malloced string with TRIPLET.  If TRIPLET has an alias
-   return that instead.  In general build-aux/config.sub should do the
-   aliasing but some returned triplets are anyway identical and thus we
-   use this function to map it to the canonical form.  */
+ * return that instead.  In general build-aux/config.sub should do the
+ * aliasing but some returned triplets are anyway identical and thus
+ * we use this function to map it to the canonical form.  A pointer to
+ * the OS part of the returned value is stored at R_OS.
+ * NO_VENDOR_HACK is for internal use; caller must call with 0. */
 static char *
-canon_host_triplet (const char *triplet)
+canon_host_triplet (const char *triplet, int no_vendor_hack, char **r_os)
 {
   struct {
     const char *name;
     const char *alias;
   } tbl[] = {
-    {"i486-pc-linux-gnu", "i686-pc-linux-gnu" },
+    {"i486-pc-linux-gnu", "i686-unknown-linux-gnu" },
     {"i586-pc-linux-gnu" },
-    {"i486-pc-gnu", "i686-pc-gnu"},
-    {"i586-pc-gnu"},
-    {"i486-pc-kfreebsd-gnu", "i686-pc-kfreebsd-gnu"},
-    {"i586-pc-kfreebsd-gnu"},
+    {"i686-pc-linux-gnu" },
+    {"arc-oe-linux-gnu"    }, /* Other CPU but same struct.  */
+    {"arc-oe-linux-uclibc" }, /* and uclibc is also the same.  */
 
-    {"x86_64-pc-linux-gnuhardened1", "x86_64-pc-linux-gnu" },
+    {"i486-pc-gnu", "i686-unknown-gnu"},
+    {"i586-pc-gnu"},
+    {"i686-pc-gnu"},
+
+    {"i486-pc-kfreebsd-gnu", "i686-unknown-kfreebsd-gnu"},
+    {"i586-pc-kfreebsd-gnu"},
+    {"i686-pc-kfreebsd-gnu"},
+
+    {"x86_64-pc-linux-gnuhardened1", "x86_64-unknown-linux-gnu" },
+    {"x86_64-pc-linux-gnu" },
 
     {"powerpc-unknown-linux-gnuspe", "powerpc-unknown-linux-gnu" },
 
@@ -98,6 +119,9 @@ canon_host_triplet (const char *triplet)
   };
   int i;
   const char *lastalias = NULL;
+  const char *s;
+  char *p;
+  char *result;
 
   for (i=0; tbl[i].name; i++)
     {
@@ -107,10 +131,54 @@ canon_host_triplet (const char *triplet)
         {
           if (!lastalias)
             break; /* Ooops: first entry has no alias.  */
-          return xstrdup (lastalias);
+          result = xstrdup (lastalias);
+          goto leave;
         }
     }
-  return xstrdup (triplet);
+  for (i=0, s=triplet; *s; s++)
+    if (*s == '-')
+      i++;
+  if (i > 2 && !no_vendor_hack)
+    {
+      /* We have a 4 part "triplet": CPU-VENDOR-KERNEL-SYSTEM where
+       * the last two parts replace the OS part of a real triplet.
+       * The VENDOR part is then in general useless because
+       * KERNEL-SYSTEM is specific enough.  We now do a second pass by
+       * replacing VENDOR with "unknown".  */
+      char *buf = xmalloc (strlen (triplet) + 7 + 1);
+
+      for (p=buf,s=triplet,i=0; *s; s++)
+        {
+          *p++ = *s;
+          if (*s == '-' && ++i == 1)
+            {
+              memcpy (p, "unknown-",8);
+              p += 8;
+              for (s++; *s != '-'; s++)
+                ;
+            }
+        }
+      *p = 0;
+      result = canon_host_triplet (buf, 1, NULL);
+      xfree (buf);
+      goto leave;
+    }
+
+  result = xstrdup (triplet);
+ leave:
+  /* Find the OS part.  */
+  if (r_os)
+    {
+      *r_os = result + strlen (result); /* Default to the empty string.  */
+      for (i=0, p=result; *p; p++)
+        if (*p == '-' && ++i == 2)
+          {
+            *r_os = p+1;
+            break;
+          }
+    }
+
+  return result;
 }
 
 
@@ -127,7 +195,7 @@ parse_config_h (const char *fname)
   fp = fopen (fname, "r");
   if (!fp)
     {
-      fprintf (stderr, "%s:%d: can't open file: %s",
+      fprintf (stderr, "%s:%d: can't open file: %s\n",
                fname, lnr, strerror (errno));
       return 1;
     }
@@ -536,7 +604,11 @@ write_special (const char *fname, int lnr, const char *tag)
     }
   else if (!strcmp (tag, "include:lock-obj"))
     {
-      if (try_include_file (fname, lnr, "./lock-obj-pub.native.h", write_line))
+      /* If we are not cross compiling and the native file exists we
+       * prefer that over one from syscfg.  */
+      if (cross_building
+          || try_include_file (fname, lnr,
+                               "./lock-obj-pub.native.h", write_line))
         include_file (fname, lnr, "syscfg/lock-obj-pub.&.h", write_line);
     }
   else
@@ -549,7 +621,7 @@ write_special (const char *fname, int lnr, const char *tag)
 int
 main (int argc, char **argv)
 {
-  FILE *fp;
+  FILE *fp = NULL;
   char line[LINESIZE];
   int lnr = 0;
   const char *fname, *s;
@@ -561,23 +633,37 @@ main (int argc, char **argv)
     {
       argc--; argv++;
     }
+  if (argc && !strcmp (argv[0], "--cross"))
+    {
+      cross_building = 1;
+      argc--; argv++;
+    }
 
-  if (argc != 6)
+  if (argc == 1)
+    {
+      /* Print just the canonicalized host triplet.  */
+      host_triplet = canon_host_triplet (argv[0], 0, &host_os);
+      printf ("%s\n", host_triplet);
+      goto leave;
+    }
+  else if (argc == 5)
+    ; /* Standard operation.  */
+  else
     {
       fputs ("usage: " PGM
-             " host_os host_triplet template.h config.h"
-             " version version_number\n",
+             " host_triplet template.h config.h version version_number\n"
+             "       " PGM
+             " host_triplet\n",
              stderr);
       return 1;
     }
-  host_os = argv[0];
-  host_triplet_raw = argv[1];
-  fname = argv[2];
-  config_h = argv[3];
-  hdr_version = argv[4];
-  hdr_version_number = argv[5];
+  host_triplet_raw = argv[0];
+  fname = argv[1];
+  config_h = argv[2];
+  hdr_version = argv[3];
+  hdr_version_number = argv[4];
 
-  host_triplet = canon_host_triplet (host_triplet_raw);
+  host_triplet = canon_host_triplet (host_triplet_raw, 0, &host_os);
 
   srcdir = malloc (strlen (fname) + 2 + 1);
   if (!srcdir)
@@ -598,7 +684,7 @@ main (int argc, char **argv)
   fp = fopen (fname, "r");
   if (!fp)
     {
-      fprintf (stderr, "%s:%d: can't open file: %s",
+      fprintf (stderr, "%s:%d: can't open file: %s\n",
                fname, lnr, strerror (errno));
       return 1;
     }
@@ -668,13 +754,15 @@ main (int argc, char **argv)
          "End:\n"
          "*/\n", stdout);
 
+ leave:
   if (ferror (stdout))
     {
       fprintf (stderr, PGM ": error writing to stdout: %s\n", strerror (errno));
       return 1;
     }
 
-  fclose (fp);
+  if (fp)
+    fclose (fp);
 
   xfree (host_triplet);
   return 0;

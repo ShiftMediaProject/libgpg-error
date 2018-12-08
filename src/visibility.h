@@ -102,6 +102,7 @@ MARK_VISIBLE (gpgrt_fseeko)
 MARK_VISIBLE (gpgrt_ftell)
 MARK_VISIBLE (gpgrt_ftello)
 MARK_VISIBLE (gpgrt_rewind)
+MARK_VISIBLE (gpgrt_ftruncate)
 MARK_VISIBLE (gpgrt_fgetc)
 MARK_VISIBLE (_gpgrt_getc_underflow)
 MARK_VISIBLE (gpgrt_fputc)
@@ -120,6 +121,8 @@ MARK_VISIBLE (gpgrt_getline)
 MARK_VISIBLE (gpgrt_read_line)
 MARK_VISIBLE (gpgrt_fprintf)
 MARK_VISIBLE (gpgrt_fprintf_unlocked)
+MARK_VISIBLE (gpgrt_fprintf_sf)
+MARK_VISIBLE (gpgrt_fprintf_sf_unlocked)
 MARK_VISIBLE (gpgrt_printf)
 MARK_VISIBLE (gpgrt_printf_unlocked)
 MARK_VISIBLE (gpgrt_vfprintf)
@@ -209,6 +212,8 @@ MARK_VISIBLE (gpgrt_set_strusage)
 MARK_VISIBLE (gpgrt_set_fixed_string_mapper);
 MARK_VISIBLE (gpgrt_set_usage_outfnc);
 
+MARK_VISIBLE (gpgrt_cmp_version);
+
 #undef MARK_VISIBLE
 
 #else /*!_GPGRT_INCL_BY_VISIBILITY_C*/
@@ -274,6 +279,7 @@ MARK_VISIBLE (gpgrt_set_usage_outfnc);
 #define gpgrt_ftell                 _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_ftello                _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_rewind                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_ftruncate             _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fgetc                 _gpgrt_USE_UNDERSCORED_FUNCTION
 #define _gpgrt_getc_underflow       _gpgrt_USE_DBLUNDERSCO_FUNCTION
 #define gpgrt_fputc                 _gpgrt_USE_UNDERSCORED_FUNCTION
@@ -292,6 +298,8 @@ MARK_VISIBLE (gpgrt_set_usage_outfnc);
 #define gpgrt_read_line             _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fprintf               _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fprintf_unlocked      _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_fprintf_sf            _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_fprintf_sf_unlocked   _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_printf                _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_printf_unlocked       _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_vfprintf              _gpgrt_USE_UNDERSCORED_FUNCTION
@@ -378,6 +386,8 @@ MARK_VISIBLE (gpgrt_set_usage_outfnc);
 #define gpgrt_strusage                _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_set_usage_outfnc        _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_set_fixed_string_mapper _gpgrt_USE_UNDERSCORED_FUNCTION
+
+#define gpgrt_cmp_version           _gpgrt_USE_UNDERSCORED_FUNCTION
 
 /* Windows specific functions.  */
 #define gpgrt_w32_reg_query_string  _gpgrt_USE_UNDERSCORED_FUNCTION

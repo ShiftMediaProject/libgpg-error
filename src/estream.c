@@ -832,6 +832,14 @@ func_mem_ioctl (void *cookie, int cmd, void *ptr, size_t *len)
       mem_cookie->offset = 0;
       ret = 0;
     }
+  else if (cmd == COOKIE_IOCTL_TRUNCATE)
+    {
+      gpgrt_off_t length = *(gpgrt_off_t *)ptr;
+
+      ret = func_mem_seek (cookie, &length, SEEK_SET);
+      if (ret != -1)
+        mem_cookie->data_len = mem_cookie->offset;
+    }
   else
     {
       _set_errno (EINVAL);
@@ -2986,12 +2994,13 @@ print_writer (void *outfncarg, const char *buf, size_t buflen)
 /* The core of our printf function.  This is called in locked state. */
 static int
 do_print_stream (estream_t _GPGRT__RESTRICT stream,
+                 gpgrt_string_filter_t sf, void *sfvalue,
                  const char *_GPGRT__RESTRICT format, va_list ap)
 {
   int rc;
 
   stream->intern->print_ntotal = 0;
-  rc = _gpgrt_estream_format (print_writer, stream, format, ap);
+  rc = _gpgrt_estream_format (print_writer, stream, sf, sfvalue, format, ap);
   if (rc)
     return -1;
   return (int)stream->intern->print_ntotal;
@@ -4039,6 +4048,29 @@ _gpgrt_rewind (estream_t stream)
 
 
 int
+_gpgrt_ftruncate (estream_t stream, gpgrt_off_t length)
+{
+  cookie_ioctl_function_t func_ioctl;
+  int ret;
+
+  lock_stream (stream);
+  func_ioctl = stream->intern->func_ioctl;
+  if (!func_ioctl)
+    {
+      _set_errno (EOPNOTSUPP);
+      ret = -1;
+    }
+  else
+    {
+      ret = func_ioctl (stream->intern->cookie, COOKIE_IOCTL_TRUNCATE,
+                        &length, NULL);
+    }
+  unlock_stream (stream);
+  return ret;
+}
+
+
+int
 _gpgrt__getc_underflow (estream_t stream)
 {
   int err;
@@ -4425,22 +4457,24 @@ _gpgrt_read_line (estream_t stream,
 
 int
 _gpgrt_vfprintf_unlocked (estream_t _GPGRT__RESTRICT stream,
+                          gpgrt_string_filter_t sf, void *sfvalue,
                           const char *_GPGRT__RESTRICT format,
                           va_list ap)
 {
-  return do_print_stream (stream, format, ap);
+  return do_print_stream (stream, sf, sfvalue, format, ap);
 }
 
 
 int
 _gpgrt_vfprintf (estream_t _GPGRT__RESTRICT stream,
+                 gpgrt_string_filter_t sf, void *sfvalue,
                  const char *_GPGRT__RESTRICT format,
                  va_list ap)
 {
   int ret;
 
   lock_stream (stream);
-  ret = do_print_stream (stream, format, ap);
+  ret = do_print_stream (stream, sf, sfvalue, format, ap);
   unlock_stream (stream);
 
   return ret;
@@ -4455,7 +4489,7 @@ _gpgrt_fprintf_unlocked (estream_t _GPGRT__RESTRICT stream,
 
   va_list ap;
   va_start (ap, format);
-  ret = do_print_stream (stream, format, ap);
+  ret = do_print_stream (stream, NULL, NULL, format, ap);
   va_end (ap);
 
   return ret;
@@ -4471,7 +4505,7 @@ _gpgrt_fprintf (estream_t _GPGRT__RESTRICT stream,
   va_list ap;
   va_start (ap, format);
   lock_stream (stream);
-  ret = do_print_stream (stream, format, ap);
+  ret = do_print_stream (stream, NULL, NULL, format, ap);
   unlock_stream (stream);
   va_end (ap);
 

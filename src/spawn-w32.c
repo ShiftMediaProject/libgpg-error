@@ -735,11 +735,7 @@ _gpgrt_wait_processes (const char **pgmnames, pid_t *pids, size_t count,
       if (pids[i] == (pid_t)(-1))
         return GPG_ERR_INV_VALUE;
 
-#ifdef HAVE_W64_SYSTEM
-      procs[i] = OpenProcess (PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE, FALSE, pids[i]);
-#else
-      procs[i] = (HANDLE) pids[i];
-#endif
+      procs[i] = pid_to_handle (pids[i]);
     }
 
   _gpgrt_pre_syscall ();

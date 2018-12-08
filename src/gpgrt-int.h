@@ -208,12 +208,12 @@ void _gpgrt_internal_trace_end (void);
 
 /*
  * A private cookie function to implement an internal IOCTL service.
- * and ist IOCTL numbers.
  */
 typedef int (*cookie_ioctl_function_t) (void *cookie, int cmd,
 					void *ptr, size_t *len);
 #define COOKIE_IOCTL_SNATCH_BUFFER 1
 #define COOKIE_IOCTL_NONBLOCK      2
+#define COOKIE_IOCTL_TRUNCATE      3
 
 /* An internal variant of gpgrt_cookie_close_function_t with a slot
  * for the ioctl function.  */
@@ -366,6 +366,7 @@ int _gpgrt_fseeko (gpgrt_stream_t stream, gpgrt_off_t offset, int whence);
 long int _gpgrt_ftell (gpgrt_stream_t stream);
 gpgrt_off_t _gpgrt_ftello (gpgrt_stream_t stream);
 void _gpgrt_rewind (gpgrt_stream_t stream);
+int  _gpgrt_ftruncate (estream_t stream, gpgrt_off_t length);
 
 int _gpgrt_fgetc (gpgrt_stream_t stream);
 int _gpgrt_fputc (int c, gpgrt_stream_t stream);
@@ -434,11 +435,13 @@ int _gpgrt_fprintf_unlocked (gpgrt_stream_t _GPGRT__RESTRICT stream,
                              GPGRT_ATTR_PRINTF(2,3);
 
 int _gpgrt_vfprintf (gpgrt_stream_t _GPGRT__RESTRICT stream,
+                     gpgrt_string_filter_t sf, void *sfvalue,
                      const char *_GPGRT__RESTRICT format, va_list ap)
-                     GPGRT_ATTR_PRINTF(2,0);
+                     GPGRT_ATTR_PRINTF(4,0);
 int _gpgrt_vfprintf_unlocked (gpgrt_stream_t _GPGRT__RESTRICT stream,
+                              gpgrt_string_filter_t sf, void *sfvalue,
                               const char *_GPGRT__RESTRICT format, va_list ap)
-                              GPGRT_ATTR_PRINTF(2,0);
+                              GPGRT_ATTR_PRINTF(4,0);
 
 int _gpgrt_setvbuf (gpgrt_stream_t _GPGRT__RESTRICT stream,
                     char *_GPGRT__RESTRICT buf, int mode, size_t size);
@@ -740,6 +743,12 @@ const char *_gpgrt_strusage (int level);
 void _gpgrt_set_strusage (const char *(*f)(int));
 void _gpgrt_set_usage_outfnc (int (*fnc)(int, const char *));
 void _gpgrt_set_fixed_string_mapper (const char *(*f)(const char*));
+
+
+/*
+ * Various helper functions
+ */
+int _gpgrt_cmp_version (const char *a, const char *b, int level);
 
 
 
