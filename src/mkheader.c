@@ -16,7 +16,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifdef _WIN32
+#include <io.h>
+#define R_OK 4
+#else
 #include <unistd.h>
+#endif
 
 #define PGM "mkheader"
 
