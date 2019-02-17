@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [34])
+m4_define([mym4_minor], [35])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,7 +51,7 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 # Note that added error codes don't constitute an interface change.
 LIBGPG_ERROR_LT_CURRENT=26
 LIBGPG_ERROR_LT_AGE=26
-LIBGPG_ERROR_LT_REVISION=0
+LIBGPG_ERROR_LT_REVISION=1
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
