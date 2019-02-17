@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [33])
+m4_define([mym4_minor], [34])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,8 +49,8 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=25
-LIBGPG_ERROR_LT_AGE=25
+LIBGPG_ERROR_LT_CURRENT=26
+LIBGPG_ERROR_LT_AGE=26
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -81,6 +81,41 @@ AC_PROG_CPP
 AC_PROG_AWK
 AC_CHECK_TOOL(AR, ar, :)
 AC_GNU_SOURCE
+
+# Taken from mpfr-4.0.1, then modified for LDADD_FOR_TESTS_KLUDGE
+dnl Under Linux, make sure that the old dtags are used if LD_LIBRARY_PATH
+dnl is defined. The issue is that with the new dtags, LD_LIBRARY_PATH has
+dnl the precedence over the run path, so that if a compatible MPFR library
+dnl is installed in some directory from $LD_LIBRARY_PATH, then the tested
+dnl MPFR library will be this library instead of the MPFR library from the
+dnl build tree. Other OS with the same issue might be added later.
+dnl
+dnl References:
+dnl   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=859732
+dnl   http://lists.gnu.org/archive/html/libtool/2017-05/msg00000.html
+dnl
+dnl We need to check whether --disable-new-dtags is supported as alternate
+dnl linkers may be used (e.g., with tcc: CC=tcc LD=tcc).
+dnl
+case $host in
+  *-*-linux*)
+    if test -n "$LD_LIBRARY_PATH"; then
+      saved_LDFLAGS="$LDFLAGS"
+      LDADD_FOR_TESTS_KLUDGE="-Wl,--disable-new-dtags"
+      LDFLAGS="$LDFLAGS $LDADD_FOR_TESTS_KLUDGE"
+      AC_MSG_CHECKING(whether --disable-new-dtags is supported by the linker)
+      AC_LINK_IFELSE([AC_LANG_SOURCE([[
+int main (void) { return 0; }
+      ]])],
+      [AC_MSG_RESULT(yes (use it since LD_LIBRARY_PATH is set))],
+      [AC_MSG_RESULT(no)
+       LDADD_FOR_TESTS_KLUDGE=""
+      ])
+      LDFLAGS="$saved_LDFLAGS"
+    fi
+    ;;
+esac
+AC_SUBST([LDADD_FOR_TESTS_KLUDGE])
 
 # Set some variables depending on the platform for later use.
 have_w32_system=no

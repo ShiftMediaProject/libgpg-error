@@ -107,6 +107,10 @@ void _gpg_err_set_errno (int err);
 
 gpg_error_t _gpg_err_init (void);
 void _gpg_err_deinit (int mode);
+
+void _gpgrt_add_emergency_cleanup (void (*f)(void));
+void _gpgrt_abort (void) GPGRT_ATTR_NORETURN;
+
 void _gpgrt_set_alloc_func (void *(*f)(void *a, size_t n));
 
 void *_gpgrt_realloc (void *a, size_t n);
@@ -464,6 +468,7 @@ const char *_gpgrt_fname_get (gpgrt_stream_t stream);
 #include "estream-printf.h"
 
 /* Make sure we always use our snprintf */
+#undef snprintf
 #define snprintf _gpgrt_estream_snprintf
 
 

@@ -1,5 +1,5 @@
 /* gpg-error.h or gpgrt.h - Common code for GnuPG and others.    -*- c -*-
- * Copyright (C) 2001-2018 g10 Code GmbH
+ * Copyright (C) 2001-2019 g10 Code GmbH
  *
  * This file is part of libgpg-error (aka libgpgrt).
  *
@@ -323,6 +323,12 @@ void gpgrt_get_syscall_clamp (void (**r_pre)(void), void (**r_post)(void));
 
 /* Register a custom malloc/realloc/free function.  */
 void gpgrt_set_alloc_func  (void *(*f)(void *a, size_t n));
+
+/* Register an emergency cleanup handler.  */
+void gpgrt_add_emergency_cleanup (void (*f)(void));
+
+/* Wrapper around abort to make sure emergency cleanups are run.  */
+void gpgrt_abort (void) GPGRT_ATTR_NORETURN;
 
 
 

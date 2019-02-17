@@ -50,7 +50,6 @@
 # include <unistd.h>
 #endif
 #include <fcntl.h>
-#include <assert.h>
 /* #include <execinfo.h> */
 
 #define _GPGRT_NEED_AFLOCAL 1
@@ -701,7 +700,11 @@ _gpgrt_log_get_stream ()
     {
       /* Make sure a log stream has been set.  */
       _gpgrt_log_set_sink (NULL, NULL, -1);
-      assert (logstream);
+      if (!logstream)
+        {
+          fputs ("gpgrt fatal: failed to init log stream\n", stderr);
+          _gpgrt_abort ();
+        }
     }
   return logstream;
 }
@@ -913,7 +916,11 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
       /* Make sure a log stream has been set.  */
       _gpgrt_log_set_sink (NULL, NULL, -1);
 #endif
-      assert (logstream);
+      if (!logstream)
+        {
+          fputs ("gpgrt fatal: failed to init log stream\n", stderr);
+          _gpgrt_abort ();
+        }
     }
 
   _gpgrt_flockfile (logstream);
@@ -1049,7 +1056,7 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
       /*     for (btidx=0; btidx < btlen; btidx++) */
       /*       log_debug ("[%d] %s\n", btidx, btstr[btidx]); */
       /* } */
-      abort ();
+      _gpgrt_abort ();
     }
   else
     _gpgrt_funlockfile (logstream);
@@ -1147,7 +1154,7 @@ _gpgrt_log_fatal (const char *fmt, ...)
   va_start (arg_ptr, fmt);
   _gpgrt_logv_internal (GPGRT_LOGLVL_FATAL, 0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
-  abort (); /* Never called; just to make the compiler happy.  */
+  _gpgrt_abort (); /* Never called; just to make the compiler happy.  */
 }
 
 
@@ -1159,7 +1166,7 @@ _gpgrt_log_bug (const char *fmt, ...)
   va_start (arg_ptr, fmt);
   _gpgrt_logv_internal (GPGRT_LOGLVL_BUG, 0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
-  abort (); /* Never called; just to make the compiler happy.  */
+  _gpgrt_abort (); /* Never called; just to make the compiler happy.  */
 }
 
 
@@ -1342,5 +1349,5 @@ _gpgrt__log_assert (const char *expr, const char *file,
   _gpgrt_log (GPGRT_LOGLVL_BUG, "Assertion \"%s\" failed (%s:%d)\n",
            expr, file, line);
 #endif /*!GPGRT_HAVE_MACRO_FUNCTION*/
-  abort (); /* Never called; just to make the compiler happy.  */
+  _gpgrt_abort (); /* Never called; just to make the compiler happy.  */
 }
