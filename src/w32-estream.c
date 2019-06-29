@@ -65,6 +65,7 @@ typedef SSIZE_T ssize_t;
 #define READBUF_SIZE 8192
 #define WRITEBUF_SIZE 8192
 
+
 typedef struct estream_cookie_w32_pollable *estream_cookie_w32_pollable_t;
 
 struct reader_context_s
@@ -93,38 +94,38 @@ struct reader_context_s
 
 struct writer_context_s
 {
-    estream_cookie_w32_pollable_t pcookie;
-    HANDLE thread_hd;
+  estream_cookie_w32_pollable_t pcookie;
+  HANDLE thread_hd;
 
   CRITICAL_SECTION mutex;
 
-    int stop_me;
-    int error;
-    int error_code;
+  int stop_me;
+  int error;
+  int error_code;
 
-    /* This is manually reset.  */
-    HANDLE have_data;
-    HANDLE is_empty;
-    HANDLE close_ev;
-    size_t nbytes;
-    char buffer[WRITEBUF_SIZE];
+  /* This is manually reset.  */
+  HANDLE have_data;
+  HANDLE is_empty;
+  HANDLE close_ev;
+  size_t nbytes;
+  char buffer[WRITEBUF_SIZE];
 };
 
 /* Cookie for pollable objects.  */
 struct estream_cookie_w32_pollable
 {
-    unsigned int modeflags;
+  unsigned int modeflags;
 
-    struct cookie_io_functions_s next_functions;
-    void *next_cookie;
+  struct cookie_io_functions_s next_functions;
+  void *next_cookie;
 
-    struct reader_context_s *reader;
-    struct writer_context_s *writer;
+  struct reader_context_s *reader;
+  struct writer_context_s *writer;
 };
 
 
 static DWORD CALLBACK
-reader(void *arg)
+reader (void *arg)
 {
   struct reader_context_s *ctx = arg;
   int nbytes;
@@ -163,7 +164,7 @@ reader(void *arg)
 
       trace (("%p: reading up to %d bytes", ctx, nbytes));
 
-        nread = ctx->pcookie->next_functions.public.func_read
+      nread = ctx->pcookie->next_functions.public.func_read
         (ctx->pcookie->next_cookie, ctx->buffer + ctx->writepos, nbytes);
       trace (("%p: got %d bytes", ctx, nread));
       if (nread < 0)
@@ -181,7 +182,7 @@ reader(void *arg)
               ctx->error = 1;
               trace (("%p: read error: ec=%d", ctx, ctx->error_code));
             }
-            break;
+          break;
         }
 
       EnterCriticalSection (&ctx->mutex);
@@ -219,19 +220,20 @@ reader(void *arg)
   DeleteCriticalSection (&ctx->mutex);
   free (ctx);  /* Standard free!  See comment in create_reader. */
 
-    return 0;
+  return 0;
 }
 
-static struct reader_context_s *
-create_reader(estream_cookie_w32_pollable_t pcookie)
-{
-    struct reader_context_s *ctx;
-    SECURITY_ATTRIBUTES sec_attr;
-    DWORD tid;
 
-    memset(&sec_attr, 0, sizeof sec_attr);
-    sec_attr.nLength = sizeof sec_attr;
-    sec_attr.bInheritHandle = FALSE;
+static struct reader_context_s *
+create_reader (estream_cookie_w32_pollable_t pcookie)
+{
+  struct reader_context_s *ctx;
+  SECURITY_ATTRIBUTES sec_attr;
+  DWORD tid;
+
+  memset (&sec_attr, 0, sizeof sec_attr);
+  sec_attr.nLength = sizeof sec_attr;
+  sec_attr.bInheritHandle = FALSE;
 
   /* The CTX must be allocated in standard system memory so that we
    * won't use any custom allocation handler which may use our lock
@@ -269,10 +271,10 @@ create_reader(estream_cookie_w32_pollable_t pcookie)
   InitializeCriticalSection (&ctx->mutex);
 
 #ifdef HAVE_W32CE_SYSTEM
-    ctx->thread_hd = CreateThread(&sec_attr, 64 * 1024, reader, ctx,
-                                  STACK_SIZE_PARAM_IS_A_RESERVATION, &tid);
+  ctx->thread_hd = CreateThread (&sec_attr, 64 * 1024, reader, ctx,
+				 STACK_SIZE_PARAM_IS_A_RESERVATION, &tid);
 #else
-    ctx->thread_hd = CreateThread(&sec_attr, 0, reader, ctx, 0, &tid);
+  ctx->thread_hd = CreateThread (&sec_attr, 0, reader, ctx, 0, &tid);
 #endif
 
   if (!ctx->thread_hd)
@@ -294,18 +296,19 @@ create_reader(estream_cookie_w32_pollable_t pcookie)
       /* We set the priority of the thread higher because we know that
          it only runs for a short time.  This greatly helps to
          increase the performance of the I/O.  */
-        SetThreadPriority(ctx->thread_hd, get_desired_thread_priority());
+      SetThreadPriority (ctx->thread_hd, get_desired_thread_priority ());
 #endif
     }
 
-    return ctx;
+  return ctx;
 }
+
 
 /* Prepare destruction of the reader thread for CTX.  Returns 0 if a
    call to this function is sufficient and destroy_reader_finish shall
    not be called.  */
 static void
-destroy_reader(struct reader_context_s *ctx)
+destroy_reader (struct reader_context_s *ctx)
 {
   EnterCriticalSection (&ctx->mutex);
   ctx->stop_me = 1;
@@ -332,14 +335,15 @@ destroy_reader(struct reader_context_s *ctx)
   /* XXX is it feasible to unblock the thread?  */
 
   /* After setting this event CTX is void. */
-    SetEvent(ctx->close_ev);
+  SetEvent (ctx->close_ev);
 }
+
 
 /*
  * Read function for pollable objects.
  */
 static gpgrt_ssize_t
-func_w32_pollable_read(void *cookie, void *buffer, size_t count)
+func_w32_pollable_read (void *cookie, void *buffer, size_t count)
 {
   estream_cookie_w32_pollable_t pcookie = cookie;
   gpgrt_ssize_t nread;
@@ -443,11 +447,12 @@ func_w32_pollable_read(void *cookie, void *buffer, size_t count)
   return nread;
 }
 
+
 /* The writer does use a simple buffering strategy so that we are
    informed about write errors as soon as possible (i. e. with the the
    next call to the write function.  */
 static DWORD CALLBACK
-writer(void *arg)
+writer (void *arg)
 {
   struct writer_context_s *ctx = arg;
   ssize_t nwritten;
@@ -483,7 +488,7 @@ writer(void *arg)
 
       trace (("%p: writing up to %d bytes", ctx, ctx->nbytes));
 
-        nwritten = ctx->pcookie->next_functions.public.func_write
+      nwritten = ctx->pcookie->next_functions.public.func_write
         (ctx->pcookie->next_cookie, ctx->buffer, ctx->nbytes);
       trace (("%p: wrote %d bytes", ctx, nwritten));
       if (nwritten < 1)
@@ -524,19 +529,20 @@ writer(void *arg)
   trace (("%p: writer is destroyed", ctx));
   free (ctx); /* Standard free!  See comment in create_writer. */
 
-    return 0;
+  return 0;
 }
 
-static struct writer_context_s *
-create_writer(estream_cookie_w32_pollable_t pcookie)
-{
-    struct writer_context_s *ctx;
-    SECURITY_ATTRIBUTES sec_attr;
-    DWORD tid;
 
-    memset(&sec_attr, 0, sizeof sec_attr);
-    sec_attr.nLength = sizeof sec_attr;
-    sec_attr.bInheritHandle = FALSE;
+static struct writer_context_s *
+create_writer (estream_cookie_w32_pollable_t pcookie)
+{
+  struct writer_context_s *ctx;
+  SECURITY_ATTRIBUTES sec_attr;
+  DWORD tid;
+
+  memset (&sec_attr, 0, sizeof sec_attr);
+  sec_attr.nLength = sizeof sec_attr;
+  sec_attr.bInheritHandle = FALSE;
 
   /* See comment at create_reader.  */
   ctx = calloc (1, sizeof *ctx);
@@ -568,10 +574,10 @@ create_writer(estream_cookie_w32_pollable_t pcookie)
   InitializeCriticalSection (&ctx->mutex);
 
 #ifdef HAVE_W32CE_SYSTEM
-    ctx->thread_hd = CreateThread(&sec_attr, 64 * 1024, writer, ctx,
-                                  STACK_SIZE_PARAM_IS_A_RESERVATION, &tid);
+  ctx->thread_hd = CreateThread (&sec_attr, 64 * 1024, writer, ctx,
+				 STACK_SIZE_PARAM_IS_A_RESERVATION, &tid);
 #else
-    ctx->thread_hd = CreateThread(&sec_attr, 0, writer, ctx, 0, &tid);
+  ctx->thread_hd = CreateThread (&sec_attr, 0, writer, ctx, 0, &tid );
 #endif
 
   if (!ctx->thread_hd)
@@ -591,17 +597,18 @@ create_writer(estream_cookie_w32_pollable_t pcookie)
     {
 #if 0
       /* We set the priority of the thread higher because we know
-     that it only runs for a short time.  This greatly helps to
-     increase the performance of the I/O.  */
-        SetThreadPriority(ctx->thread_hd, get_desired_thread_priority());
+	 that it only runs for a short time.  This greatly helps to
+	 increase the performance of the I/O.  */
+      SetThreadPriority (ctx->thread_hd, get_desired_thread_priority ());
 #endif
     }
 
-    return ctx;
+  return ctx;
 }
 
+
 static void
-destroy_writer(struct writer_context_s *ctx)
+destroy_writer (struct writer_context_s *ctx)
 {
   trace (("%p: enter pollable_destroy_writer", ctx));
   EnterCriticalSection (&ctx->mutex);
@@ -613,8 +620,8 @@ destroy_writer(struct writer_context_s *ctx)
 
   trace (("%p: waiting for empty", ctx));
 
-    /* Give the writer a chance to flush the buffer.  */
-    WaitForSingleObject(ctx->is_empty, INFINITE);
+  /* Give the writer a chance to flush the buffer.  */
+  WaitForSingleObject (ctx->is_empty, INFINITE);
 
 #ifdef HAVE_W32CE_SYSTEM
   /* Scenario: We never create a full pipe, but already started
@@ -636,11 +643,12 @@ destroy_writer(struct writer_context_s *ctx)
   trace (("%p: leave pollable_destroy_writer", ctx));
 }
 
+
 /*
  * Write function for pollable objects.
  */
 static gpgrt_ssize_t
-func_w32_pollable_write(void *cookie, const void *buffer, size_t count)
+func_w32_pollable_write (void *cookie, const void *buffer, size_t count)
 {
   estream_cookie_w32_pollable_t pcookie = cookie;
   struct writer_context_s *ctx = pcookie->writer;
@@ -751,7 +759,7 @@ func_w32_pollable_write(void *cookie, const void *buffer, size_t count)
 /* This is the core of _gpgrt_poll.  The caller needs to make sure that
  * the syscall clamp has been engaged.  */
 int
-_gpgrt_w32_poll(gpgrt_poll_t *fds, size_t nfds, int timeout)
+_gpgrt_w32_poll (gpgrt_poll_t *fds, size_t nfds, int timeout)
 {
   HANDLE waitbuf[MAXIMUM_WAIT_OBJECTS];
   int waitidx[MAXIMUM_WAIT_OBJECTS];
@@ -765,7 +773,7 @@ _gpgrt_w32_poll(gpgrt_poll_t *fds, size_t nfds, int timeout)
   int count;
 
 #if 0
-    restart:
+ restart:
 #endif
 
   any = 0;
@@ -948,6 +956,8 @@ _gpgrt_w32_poll(gpgrt_poll_t *fds, size_t nfds, int timeout)
   return count;
 }
 
+
+
 /*
  * Implementation of pollable I/O on Windows.
  */
@@ -956,10 +966,10 @@ _gpgrt_w32_poll(gpgrt_poll_t *fds, size_t nfds, int timeout)
  * Constructor for pollable objects.
  */
 int
-_gpgrt_w32_pollable_create(void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
-                           unsigned int modeflags,
-                           struct cookie_io_functions_s next_functions,
-                           void *next_cookie)
+_gpgrt_w32_pollable_create (void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
+                            unsigned int modeflags,
+                            struct cookie_io_functions_s next_functions,
+                            void *next_cookie)
 {
   estream_cookie_w32_pollable_t pcookie;
   int err;
@@ -982,74 +992,79 @@ _gpgrt_w32_pollable_create(void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
   return err;
 }
 
+
 /*
  * Seek function for pollable objects.
  */
 static int
-func_w32_pollable_seek(void *cookie, gpgrt_off_t *offset, int whence)
+func_w32_pollable_seek (void *cookie, gpgrt_off_t *offset, int whence)
 {
-    estream_cookie_w32_pollable_t pcookie = cookie;
-    (void)pcookie;
-    (void)offset;
-    (void)whence;
-    /* XXX */
-    _gpg_err_set_errno(EOPNOTSUPP);
-    return -1;
+  estream_cookie_w32_pollable_t pcookie = cookie;
+  (void) pcookie;
+  (void) offset;
+  (void) whence;
+  /* XXX */
+  _gpg_err_set_errno (EOPNOTSUPP);
+  return -1;
 }
+
 
 /*
  * The IOCTL function for pollable objects.
  */
 static int
-func_w32_pollable_ioctl(void *cookie, int cmd, void *ptr, size_t *len)
+func_w32_pollable_ioctl (void *cookie, int cmd, void *ptr, size_t *len)
 {
-    estream_cookie_w32_pollable_t pcookie = cookie;
-    cookie_ioctl_function_t func_ioctl = pcookie->next_functions.func_ioctl;
+  estream_cookie_w32_pollable_t pcookie = cookie;
+  cookie_ioctl_function_t func_ioctl = pcookie->next_functions.func_ioctl;
 
-    if (cmd == COOKIE_IOCTL_NONBLOCK) {
-        if (ptr)
-            pcookie->modeflags |= O_NONBLOCK;
-        else
-            pcookie->modeflags &= ~O_NONBLOCK;
-        return 0;
+  if (cmd == COOKIE_IOCTL_NONBLOCK)
+    {
+      if (ptr)
+        pcookie->modeflags |= O_NONBLOCK;
+      else
+        pcookie->modeflags &= ~O_NONBLOCK;
+      return 0;
     }
 
-    if (func_ioctl)
-        return func_ioctl(pcookie->next_cookie, cmd, ptr, len);
+  if (func_ioctl)
+    return func_ioctl (pcookie->next_cookie, cmd, ptr, len);
 
-    _gpg_err_set_errno(EOPNOTSUPP);
-    return -1;
+  _gpg_err_set_errno (EOPNOTSUPP);
+  return -1;
 }
+
 
 /*
  * The destroy function for pollable objects.
  */
 static int
-func_w32_pollable_destroy(void *cookie)
+func_w32_pollable_destroy (void *cookie)
 {
-    estream_cookie_w32_pollable_t pcookie = cookie;
+  estream_cookie_w32_pollable_t pcookie = cookie;
 
-    if (cookie) {
-        if (pcookie->reader)
-            destroy_reader(pcookie->reader);
-        if (pcookie->writer)
-            destroy_writer(pcookie->writer);
-        pcookie->next_functions.public.func_close(pcookie->next_cookie);
-        _gpgrt_free(pcookie);
+  if (cookie)
+    {
+      if (pcookie->reader)
+        destroy_reader (pcookie->reader);
+      if (pcookie->writer)
+        destroy_writer (pcookie->writer);
+      pcookie->next_functions.public.func_close (pcookie->next_cookie);
+      _gpgrt_free (pcookie);
     }
-    return 0;
+  return 0;
 }
 
 /*
  * Access object for the pollable functions.
  */
 struct cookie_io_functions_s _gpgrt_functions_w32_pollable =
-{
   {
-    func_w32_pollable_read,
-    func_w32_pollable_write,
-    func_w32_pollable_seek,
-    func_w32_pollable_destroy,
-  },
-  func_w32_pollable_ioctl,
-};
+    {
+      func_w32_pollable_read,
+      func_w32_pollable_write,
+      func_w32_pollable_seek,
+      func_w32_pollable_destroy,
+    },
+    func_w32_pollable_ioctl,
+  };
