@@ -92,6 +92,7 @@
 #  include <winsock2.h>
 # endif
 # include <windows.h>
+# include <io.h>
 #else
 # ifdef HAVE_POLL_H
 #  include <poll.h>

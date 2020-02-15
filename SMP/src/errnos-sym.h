@@ -25,7 +25,7 @@
 /* The purpose of this complex string table is to produce
    optimal code with a minimum of relocations.  */
 
-static const char errnos_msgstr[] =
+static const char errnos_msgstr[] = 
   "GPG_ERR_E2BIG" "\0"
   "GPG_ERR_EACCES" "\0"
   "GPG_ERR_EADDRINUSE" "\0"
@@ -311,7 +311,7 @@ static const int errnos_msgidx[] =
     2269,
     2289,
     2303,
-
+    
   };
 
 static GPG_ERR_INLINE int
