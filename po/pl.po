@@ -1,13 +1,13 @@
 # Polish translation for libgpg-error.
 # Copyright (C) 2004, 2005, 2006 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
-# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2018.
+# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2019.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.29\n"
+"Project-Id-Version: libgpg-error 1.36\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2018-04-12 19:02+0100\n"
+"PO-Revision-Date: 2019-03-24 09:01+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
@@ -960,15 +960,29 @@ msgstr "Proszę spróbować później"
 msgid "Wrong name"
 msgstr "Zła nazwa"
 
-#, fuzzy
-#| msgid "Not enabled"
 msgid "Not authenticated"
-msgstr "Nie włączony"
+msgstr "Brak uwierzytelnienia"
+
+msgid "Bad authentication"
+msgstr "Niewłaściwe uwierzytelnienie"
 
 #, fuzzy
-#| msgid "Inappropriate LDAP authentication"
-msgid "Bad authentication"
-msgstr "Niewłaściwe uwierzytelnienie LDAP"
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Agent nie uruchomiony"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Błąd demona SmartCard"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Błąd serwera kluczy"
 
 msgid "System bug detected"
 msgstr "Wykryto błąd systemu"
@@ -1287,6 +1301,107 @@ msgstr "Zdefiniowany przez użytkownika kod błędu 15"
 
 msgid "User defined error code 16"
 msgstr "Zdefiniowany przez użytkownika kod błędu 16"
+
+#, fuzzy
+#| msgid "LDAP success"
+msgid "SQL success"
+msgstr "Sukces LDAP"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Błąd składni"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "LDAP protocol error"
+msgid "SQL database lock protocol error"
+msgstr "Błąd protokołu LDAP"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+#, fuzzy
+#| msgid "Proxied authorization denied by LDAP"
+msgid "Authorization denied (SQL)"
+msgstr "Autoryzacja przez proxy odrzucona przez LDAP"
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
 
 msgid "System error w/o errno"
 msgstr "Błąd systemowy bez errno"
