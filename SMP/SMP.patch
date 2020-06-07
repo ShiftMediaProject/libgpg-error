@@ -13,28 +13,31 @@ index 9b36158..ac8c522 100755
  info "Running autoconf${FORCE} ..."
  $AUTOCONF${FORCE}
  
-diff --git a/src/Makefile.am b/src/Makefile.am
-index 9303954..c96f80e 100644
---- a/src/Makefile.am
-+++ b/src/Makefile.am
-@@ -317,6 +317,9 @@ pre_mkheader_cmds = if test -f lock-obj-pub.native.h; \
-                     then rm lock-obj-pub.native.h; fi
- mkheader_opts = --cross
- else
-+if HAVE_W32_SYSTEM
-+pre_mkheader_cmds = -rm lock-obj-pub.native.h 2>/dev/null
-+else
- pre_mkheader_cmds = :
- mkheader_opts =
- parts_of_gpg_error_h += ./lock-obj-pub.native.h
-@@ -324,6 +327,7 @@ parts_of_gpg_error_h += ./lock-obj-pub.native.h
- ./lock-obj-pub.native.h: Makefile gen-posix-lock-obj$(EXEEXT) posix-lock-obj.h
- 	./gen-posix-lock-obj >$@
- endif
-+endif
+diff --git a/src/argparse.c b/src/argparse.c
+index 88e75c2..ea1cbe1 100644
+--- a/src/argparse.c
++++ b/src/argparse.c
+@@ -33,14 +33,19 @@
+ #include <stdarg.h>
+ #include <limits.h>
+ #include <errno.h>
+-#include <unistd.h>
++#ifdef HAVE_UNISTD_H
++# include <unistd.h>
++#endif
+ #include <time.h>
  
- # We also depend on versioninfo.rc because that is build by
- # config.status and thus has up-to-date version numbers.
+ #include "gpgrt-int.h"
+ 
+ #ifdef HAVE_W32_SYSTEM
++# include <io.h>
+ # define PATHSEP_C ';'
+ # define DIRSEP_C  '\\'
++# define R_OK    4
++# define strcasecmp _stricmp
+ #else
+ # define PATHSEP_C ':'
+ # define DIRSEP_C  '/'
 diff --git a/src/estream-printf.c b/src/estream-printf.c
 index fe25657..35f08cd 100644
 --- a/src/estream-printf.c
@@ -211,7 +214,7 @@ index cc92c10..13075d6 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index d118e90..6338ffb 100644
+index e915797..79735f2 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
@@ -224,7 +227,7 @@ index d118e90..6338ffb 100644
  #endif
  
 diff --git a/src/init.c b/src/init.c
-index 8ddf0c0..45be43a 100644
+index 6239682..0565a26 100644
 --- a/src/init.c
 +++ b/src/init.c
 @@ -53,6 +53,10 @@ static int tls_index = TLS_OUT_OF_INDEXES;  /* Index for the TLS functions.  */
@@ -239,7 +242,7 @@ index 8ddf0c0..45be43a 100644
  
  #define get_locale_dir() LOCALEDIR
 diff --git a/src/logging.c b/src/logging.c
-index b6b727e..1285e8e 100644
+index e4b7e40..e0c28b6 100644
 --- a/src/logging.c
 +++ b/src/logging.c
 @@ -38,13 +38,17 @@
@@ -546,7 +549,7 @@ index 4cce17f..c224625 100644
     code in the error value ERR.  This function is not thread-safe.  */
  const char *
 diff --git a/src/sysutils.c b/src/sysutils.c
-index bc31d92..9299412 100644
+index bc446fb..c247550 100644
 --- a/src/sysutils.c
 +++ b/src/sysutils.c
 @@ -22,10 +22,14 @@
@@ -565,7 +568,7 @@ index bc31d92..9299412 100644
  #endif
  #ifdef HAVE_STAT
  # include <sys/stat.h>
-@@ -35,7 +39,15 @@
+@@ -38,7 +42,15 @@
  
  #include "gpgrt-int.h"
  
@@ -582,7 +585,7 @@ index bc31d92..9299412 100644
  
  /* Return true if FD is valid.  */
  int
-@@ -66,7 +78,7 @@ _gpgrt_getenv (const char *name)
+@@ -69,7 +81,7 @@ _gpgrt_getenv (const char *name)
      int len, size;
      char *result;
  
@@ -591,7 +594,7 @@ index bc31d92..9299412 100644
      if (!len && GetLastError () == ERROR_ENVVAR_NOT_FOUND)
        {
          _gpg_err_set_errno (0);
-@@ -77,7 +89,7 @@ _gpgrt_getenv (const char *name)
+@@ -80,7 +92,7 @@ _gpgrt_getenv (const char *name)
      result = _gpgrt_malloc (size);
      if (!result)
        return NULL;
@@ -600,7 +603,7 @@ index bc31d92..9299412 100644
      if (len >= size)
        {
          /* Changed in the meantime - retry.  */
-@@ -139,7 +151,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+@@ -142,7 +154,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
  
      if (!value && overwrite)
        {
@@ -609,7 +612,7 @@ index bc31d92..9299412 100644
            return GPG_ERR_EINVAL;
          if (getenv (name))
            {
-@@ -153,8 +165,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+@@ -156,8 +168,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
          return 0;
        }
  
@@ -620,7 +623,7 @@ index bc31d92..9299412 100644
        return GPG_ERR_EINVAL; /* (Might also be ENOMEM.) */
      if (overwrite || !getenv (name))
        {
-@@ -270,11 +282,12 @@ modestr_to_mode (const char *modestr)
+@@ -273,11 +285,12 @@ modestr_to_mode (const char *modestr)
  gpg_err_code_t
  _gpgrt_mkdir (const char *name, const char *modestr)
  {
@@ -635,6 +638,22 @@ index bc31d92..9299412 100644
    if (!wname)
      return _gpg_err_code_from_syserror ();
    if (!CreateDirectoryW (wname, NULL))
+@@ -386,6 +399,7 @@ _gpgrt_getusername (void)
+   char *result = NULL;
+ 
+ #ifdef HAVE_W32_SYSTEM
++#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY!=WINAPI_FAMILY_PC_APP && WINAPI_FAMILY!=WINAPI_FAMILY_PHONE_APP)
+   char tmp[1];
+   DWORD size = 1;
+ 
+@@ -397,6 +411,7 @@ _gpgrt_getusername (void)
+       result = NULL;
+     }
+ 
++#endif
+ #else /* !HAVE_W32_SYSTEM */
+ 
+ # if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
 diff --git a/src/w32-estream.c b/src/w32-estream.c
 index 8ce9419..1c106f1 100644
 --- a/src/w32-estream.c

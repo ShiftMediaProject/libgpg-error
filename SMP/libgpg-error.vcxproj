@@ -92,6 +92,7 @@
     <ClCompile Include="..\src\logging.c" />
     <ClCompile Include="..\src\strerror-sym.c" />
     <ClCompile Include="..\src\strerror.c" />
+    <ClCompile Include="..\src\stringutils.c" />
     <ClCompile Include="..\src\strsource-sym.c" />
     <ClCompile Include="..\src\strsource.c" />
     <ClCompile Include="..\src\syscall-clamp.c" />
