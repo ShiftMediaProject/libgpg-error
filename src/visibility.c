@@ -764,6 +764,12 @@ gpgrt_realloc (void *a, size_t n)
 }
 
 void *
+gpgrt_reallocarray (void *a, size_t oldnmemb, size_t nmemb, size_t size)
+{
+  return _gpgrt_reallocarray (a, oldnmemb, nmemb, size);
+}
+
+void *
 gpgrt_malloc (size_t n)
 {
   return _gpgrt_malloc (n);
@@ -1139,6 +1145,12 @@ gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts)
   return _gpgrt_argparse (fp, arg, opts);
 }
 
+int
+gpgrt_argparser (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, const char *name)
+{
+  return _gpgrt_argparser (arg, opts, name);
+}
+
 void
 gpgrt_usage (int level)
 {
@@ -1169,6 +1181,12 @@ gpgrt_set_fixed_string_mapper (const char *(*f)(const char*))
   _gpgrt_set_fixed_string_mapper (f);
 }
 
+void
+gpgrt_set_confdir (int what, const char *name)
+{
+  _gpgrt_set_confdir (what, name);
+}
+
 
 
 /* Compare program versions.  */
@@ -1176,6 +1194,33 @@ int
 gpgrt_cmp_version (const char *a, const char *b, int level)
 {
   return _gpgrt_cmp_version (a, b, level);
+}
+
+
+
+/* String utilities.  */
+char *
+gpgrt_fnameconcat (const char *first, ... )
+{
+  va_list arg_ptr;
+  char *result;
+
+  va_start (arg_ptr, first);
+  result = _gpgrt_vfnameconcat (0, first, arg_ptr);
+  va_end (arg_ptr);
+  return result;
+}
+
+char *
+gpgrt_absfnameconcat (const char *first, ... )
+{
+  va_list arg_ptr;
+  char *result;
+
+  va_start (arg_ptr, first);
+  result = _gpgrt_vfnameconcat (1, first, arg_ptr);
+  va_end (arg_ptr);
+  return result;
 }
 
 

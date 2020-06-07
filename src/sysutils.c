@@ -36,6 +36,9 @@
 #endif
 #include <sys/types.h>
 #include <fcntl.h>
+#ifdef HAVE_PWD_H
+# include <pwd.h>
+#endif
 
 #include "gpgrt-int.h"
 
@@ -349,4 +352,78 @@ _gpgrt_getcwd (void)
       size *= 2;
 #endif
     }
+}
+
+
+/* Get the standard home directory for user NAME. If NAME is NULL the
+ * directory for the current user is returned.  Caller must release
+ * the returned string.  */
+char *
+_gpgrt_getpwdir (const char *name)
+{
+  char *result = NULL;
+#ifdef HAVE_PWD_H
+  struct passwd *pwd = NULL;
+
+  if (name)
+    {
+#ifdef HAVE_GETPWNAM
+      /* Fixme: We should use getpwnam_r if available.  */
+      pwd = getpwnam (name);
+#endif
+    }
+  else
+    {
+#ifdef HAVE_GETPWUID
+      /* Fixme: We should use getpwuid_r if available.  */
+      pwd = getpwuid (getuid());
+#endif
+    }
+  if (pwd)
+    {
+      result = _gpgrt_strdup (pwd->pw_dir);
+    }
+#else /*!HAVE_PWD_H*/
+  /* No support at all.  */
+  (void)name;
+#endif /*HAVE_PWD_H*/
+  return result;
+}
+
+
+/* Return a malloced copy of the current user's account name; this may
+ * return NULL on memory failure.  */
+char *
+_gpgrt_getusername (void)
+{
+  char *result = NULL;
+
+#ifdef HAVE_W32_SYSTEM
+  char tmp[1];
+  DWORD size = 1;
+
+  GetUserNameA (tmp, &size);
+  result = _gpgrt_malloc (size);
+  if (result && !GetUserNameA (result, &size))
+    {
+      xfree (result);
+      result = NULL;
+    }
+
+#else /* !HAVE_W32_SYSTEM */
+
+# if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
+  struct passwd *pwd;
+
+  pwd = getpwuid (getuid());
+  if (pwd)
+    {
+      result = _gpgrt_strdup (pwd->pw_name);
+    }
+
+# endif /*HAVE_PWD_H*/
+
+#endif /* !HAVE_W32_SYSTEM */
+
+  return result;
 }

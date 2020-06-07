@@ -158,6 +158,7 @@ GPG_ERROR_1.0 {
     _gpgrt_log_assert;
 
     gpgrt_realloc;
+    gpgrt_reallocarray;
     gpgrt_malloc;
     gpgrt_calloc;
     gpgrt_strdup;
@@ -180,11 +181,13 @@ GPG_ERROR_1.0 {
 #    gpgrt_release_process;
 
     gpgrt_argparse;
+    gpgrt_argparser;
     gpgrt_usage;
     gpgrt_strusage;
     gpgrt_set_strusage;
     gpgrt_set_usage_outfnc;
     gpgrt_set_fixed_string_mapper;
+    gpgrt_set_confdir;
 
     gpgrt_b64enc_start;
     gpgrt_b64enc_write;
@@ -198,6 +201,9 @@ GPG_ERROR_1.0 {
 
     gpgrt_add_emergency_cleanup;
     gpgrt_abort;
+
+    gpgrt_fnameconcat;
+    gpgrt_absfnameconcat;
 
   local:
     *;
