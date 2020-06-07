@@ -33,14 +33,19 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <errno.h>
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <time.h>
 
 #include "gpgrt-int.h"
 
 #ifdef HAVE_W32_SYSTEM
+# include <io.h>
 # define PATHSEP_C ';'
 # define DIRSEP_C  '\\'
+# define R_OK    4
+# define strcasecmp _stricmp
 #else
 # define PATHSEP_C ':'
 # define DIRSEP_C  '/'

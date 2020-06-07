@@ -399,6 +399,7 @@ _gpgrt_getusername (void)
   char *result = NULL;
 
 #ifdef HAVE_W32_SYSTEM
+#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY!=WINAPI_FAMILY_PC_APP && WINAPI_FAMILY!=WINAPI_FAMILY_PHONE_APP)
   char tmp[1];
   DWORD size = 1;
 
@@ -410,6 +411,7 @@ _gpgrt_getusername (void)
       result = NULL;
     }
 
+#endif
 #else /* !HAVE_W32_SYSTEM */
 
 # if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
