@@ -73,6 +73,7 @@
     <ClInclude Include="..\src\gpgrt-int.h" />
     <ClInclude Include="..\src\init.h" />
     <ClInclude Include="..\src\lock.h" />
+    <ClInclude Include="..\src\protos.h" />
     <ClInclude Include="..\src\thread.h" />
     <ClInclude Include="..\src\visibility.h" />
     <ClInclude Include="..\src\w32-add.h" />

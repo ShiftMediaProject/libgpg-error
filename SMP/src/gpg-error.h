@@ -66,12 +66,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.38"
-#define GPGRT_VERSION     "1.38"
+#define GPG_ERROR_VERSION "1.39"
+#define GPGRT_VERSION     "1.39"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x012600
-#define GPGRT_VERSION_NUMBER     0x012600
+#define GPG_ERROR_VERSION_NUMBER 0x012700
+#define GPGRT_VERSION_NUMBER     0x012700
 
 
 #ifdef __GNUC__
@@ -1386,6 +1386,7 @@ gpgrt_stream_t gpgrt_fopencookie (void *_GPGRT__RESTRICT cookie,
                                   const char *_GPGRT__RESTRICT mode,
                                   gpgrt_cookie_io_functions_t functions);
 int gpgrt_fclose (gpgrt_stream_t stream);
+int gpgrt_fcancel (gpgrt_stream_t stream);
 int gpgrt_fclose_snatch (gpgrt_stream_t stream,
                          void **r_buffer, size_t *r_buflen);
 int gpgrt_onclose (gpgrt_stream_t stream, int mode,

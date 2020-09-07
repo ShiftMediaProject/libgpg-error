@@ -51,6 +51,9 @@
     <ClInclude Include="..\src\visibility.h">
       <Filter>Header Files\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\protos.h">
+      <Filter>Header Files\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\w32-lock.c">
