@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [38])
+m4_define([mym4_minor], [39])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,8 +49,8 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=29
-LIBGPG_ERROR_LT_AGE=29
+LIBGPG_ERROR_LT_CURRENT=30
+LIBGPG_ERROR_LT_AGE=30
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -597,13 +597,19 @@ fi
 if test x$cross_compiling = xyes; then
   case $host in
     *-*-linux*)
-    lock_obj_h_generated=yes
-    LOCK_ABI_VERSION=1 host=$host host_alias=$host_alias \
-        CC=$CC OBJDUMP=$host_alias-objdump \
-        ac_ext=$ac_ext ac_objext=$ac_objext \
-        AWK=$AWK $srcdir/src/gen-lock-obj.sh \
-        >src/lock-obj-pub.native.h
-    AC_MSG_NOTICE([generated src/lock-obj-pub.native.h])
+    AC_CHECK_PROG(CROSS_HOST_OBJDUMP, [$host_alias-objdump], [yes])
+    if test "$CROSS_HOST_OBJDUMP" = "yes" ; then
+      lock_obj_h_generated=yes
+      if test ! -d src; then mkdir src; fi
+      LOCK_ABI_VERSION=1 host=$host host_alias=$host_alias \
+          CC=$CC OBJDUMP=$host_alias-objdump \
+          ac_ext=$ac_ext ac_objext=$ac_objext \
+          AWK=$AWK $srcdir/src/gen-lock-obj.sh \
+          >src/lock-obj-pub.native.h
+      AC_MSG_NOTICE([generated src/lock-obj-pub.native.h using $host_alias-objdump and $AWK])
+    else
+      force_use_syscfg=yes
+    fi
     ;;
     *)
     force_use_syscfg=yes

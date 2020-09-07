@@ -61,7 +61,7 @@ static struct
 
 
 /* Hidden argparse flag used to mark the object as initialized.  */
-#define ARGPARSE_FLAG__INITIALIZED  (1<< ((8*SIZEOF_INT)-1))
+#define ARGPARSE_FLAG__INITIALIZED  (1u << ((8*SIZEOF_INT)-1))
 
 /* Special short options which are auto-inserterd.  Must fit into an
  * unsigned short.  */
@@ -1930,14 +1930,13 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig, int no_init)
     }
 
  next_one:
-  if (!argc)
+  if (!argc || (s = *argv) == NULL)
     {
       /* No more args.  */
       arg->r_opt = 0;
       goto leave; /* Ready. */
     }
 
-  s = *argv;
   arg->internal->last = s;
   arg->internal->opt_flags = 0;
 
@@ -2258,7 +2257,7 @@ set_opt_arg (gpgrt_argparse_t *arg, unsigned flags, char *s)
 
 
 /* Return the length of the option O.  This needs to consider the
- * description as weel as the option name.  */
+ * description as well as the option name.  */
 static size_t
 long_opt_strlen (opttable_t *o)
 {

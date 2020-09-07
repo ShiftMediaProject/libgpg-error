@@ -102,7 +102,7 @@ EXTRA_DIST = mkstrtable.awk err-sources.h.in err-codes.h.in \
 	gpg-error.vers gpg-error.def.in \
         versioninfo.rc.in gpg-error.w32-manifest.in \
 	gpg-error-config-test.sh gpg-error.pc.in \
-	$(lock_obj_pub)
+	gen-lock-obj.sh $(lock_obj_pub)
 
 BUILT_SOURCES = $(srcdir)/err-sources.h $(srcdir)/err-codes.h \
 	code-to-errno.h code-from-errno.h \
@@ -194,7 +194,7 @@ libgpg_error_la_LDFLAGS = \
   @LIBGPG_ERROR_LT_CURRENT@:@LIBGPG_ERROR_LT_REVISION@:@LIBGPG_ERROR_LT_AGE@
 
 libgpg_error_la_SOURCES = gettext.h $(arch_sources) \
-	gpgrt-int.h init.c init.h version.c lock.h thread.h \
+	gpgrt-int.h protos.h init.c init.h version.c lock.h thread.h \
 	estream.c estream-printf.c estream-printf.h \
 	strsource.c strerror.c code-to-errno.c code-from-errno.c \
 	visibility.c visibility.h \
