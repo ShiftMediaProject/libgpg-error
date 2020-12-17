@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\src\estream-printf.h" />
+    <ClInclude Include="..\src\estream.h" />
+    <ClInclude Include="..\src\gettext.h" />
+    <ClInclude Include="..\src\gpgrt-int.h" />
+    <ClInclude Include="..\src\init.h" />
+    <ClInclude Include="..\src\lock.h" />
+    <ClInclude Include="..\src\protos.h" />
+    <ClInclude Include="..\src\thread.h" />
+    <ClInclude Include="..\src\visibility.h" />
+    <ClInclude Include="..\src\w32-add.h" />
+    <ClInclude Include="..\src\w32-lock-obj.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\argparse.c" />
+    <ClCompile Include="..\src\b64dec.c" />
+    <ClCompile Include="..\src\b64enc.c" />
+    <ClCompile Include="..\src\code-from-errno.c" />
+    <ClCompile Include="..\src\code-to-errno.c" />
+    <ClCompile Include="..\src\estream-printf.c" />
+    <ClCompile Include="..\src\estream.c" />
+    <ClCompile Include="..\src\init.c" />
+    <ClCompile Include="..\src\logging.c" />
+    <ClCompile Include="..\src\strerror-sym.c" />
+    <ClCompile Include="..\src\strerror.c" />
+    <ClCompile Include="..\src\stringutils.c" />
+    <ClCompile Include="..\src\strsource-sym.c" />
+    <ClCompile Include="..\src\strsource.c" />
+    <ClCompile Include="..\src\syscall-clamp.c" />
+    <ClCompile Include="..\src\sysutils.c" />
+    <ClCompile Include="..\src\version.c" />
+    <ClCompile Include="..\src\visibility.c" />
+    <ClCompile Include="..\src\w32-estream.c" />
+    <ClCompile Include="..\src\w32-gettext.c" />
+    <ClCompile Include="..\src\w32-iconv.c" />
+    <ClCompile Include="..\src\w32-lock.c" />
+    <ClCompile Include="..\src\w32-reg.c" />
+    <ClCompile Include="..\src\w32-thread.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="versioninfo.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseWinRT'">true</ExcludedFromBuild>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libgpg-error.def" />
+  </ItemGroup>
+</Project>
