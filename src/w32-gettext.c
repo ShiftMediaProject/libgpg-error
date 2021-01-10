@@ -1439,6 +1439,39 @@ _gpgrt_free_wchar (wchar_t *wstring)
 }
 
 
+/* Helper for wchar_to_native and wchar_to_utf8.  */
+static char *
+wchar_to_cp (const wchar_t *string, size_t length, size_t *retlen,
+             unsigned int cpno)
+{
+  int n;
+  char *result;
+
+  n = WideCharToMultiByte (cpno, 0, string, length, NULL, 0, NULL, NULL);
+  if (n < 0 || (n+1) <= 0)
+    {
+      _gpgrt_w32_set_errno (-1);
+      return NULL;
+    }
+
+  result = jnlib_malloc (n+1);
+  if (!result)
+    return NULL;
+
+  n = WideCharToMultiByte (cpno, 0, string, length, result, n, NULL, NULL);
+  if (n < 0)
+    {
+      _gpgrt_w32_set_errno (-1);
+      jnlib_free (result);
+      return NULL;
+    }
+  result[n] = 0;
+  if (retlen)
+    *retlen = n;
+  return result;
+}
+
+
 /* Return a malloced string encoded in the native console codepage
    from the wide char input string STRING.
    Caller must free this value. On failure returns NULL.
@@ -1447,8 +1480,6 @@ _gpgrt_free_wchar (wchar_t *wstring)
 static char *
 wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
 {
-  int n;
-  char *result;
 #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
   unsigned int cpno = CP_ACP;
 #else
@@ -1461,22 +1492,16 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
     cpno = GetACP ();
 #endif
 
-  n = WideCharToMultiByte (cpno, 0, string, length, NULL, 0, NULL, NULL);
-  if (n < 0 || (n+1) <= 0)
-    return NULL;
+  return wchar_to_cp (string, length, retlen, cpno);
+}
 
-  result = jnlib_malloc (n+1);
-  if (!result)
-    return NULL;
 
-  n = WideCharToMultiByte (cpno, 0, string, length, result, n, NULL, NULL);
-  if (n < 0)
-    {
-      jnlib_free (result);
-      return NULL;
-    }
-  *retlen = n;
-  return result;
+/* Convert a WCHAR string to UTF-8.  Caller should use xfree to
+ * release the result.  Returns NULL on error and sets ERRNO. */
+char *
+_gpgrt_wchar_to_utf8 (const wchar_t *string, size_t length)
+{
+  return wchar_to_cp (string, length, NULL, CP_UTF8);
 }
 
 
