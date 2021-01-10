@@ -14,7 +14,7 @@ index 9b36158..ac8c522 100755
  $AUTOCONF${FORCE}
  
 diff --git a/src/argparse.c b/src/argparse.c
-index 69bafca..212ee24 100644
+index e4a1436..961c04a 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -214,7 +214,7 @@ index 4e8bd8b..2c64a40 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index 925ef51..e43ad46 100644
+index d2c3b8d..0792507 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
@@ -323,7 +323,7 @@ index 77826da..7267473 100644
      }
    else if (!strcmp (tag, "include:err-sources"))
 diff --git a/src/spawn-w32.c b/src/spawn-w32.c
-index 12ebe40..c19ed7f 100644
+index 3ede1f2..44a71a2 100644
 --- a/src/spawn-w32.c
 +++ b/src/spawn-w32.c
 @@ -34,12 +34,15 @@
@@ -472,7 +472,7 @@ index 12ebe40..c19ed7f 100644
    int cr_flags;
    char *cmdline;
    int ret;
-@@ -855,16 +866,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
+@@ -857,16 +868,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
                | DETACHED_PROCESS);
    _gpgrt_log_debug ("CreateProcess(detached), path='%s' cmdline='%s'\n",
                      pgmname, cmdline);
@@ -499,7 +499,7 @@ index 12ebe40..c19ed7f 100644
                         );
    if (!ret)
      {
-@@ -894,9 +905,13 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
+@@ -896,9 +907,13 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
  void
  _gpgrt_kill_process (pid_t pid)
  {
@@ -515,7 +515,7 @@ index 12ebe40..c19ed7f 100644
  
        /* Arbitrary error code.  */
        _gpgrt_pre_syscall ();
-@@ -909,9 +924,13 @@ _gpgrt_kill_process (pid_t pid)
+@@ -911,9 +926,13 @@ _gpgrt_kill_process (pid_t pid)
  void
  _gpgrt_release_process (pid_t pid)
  {
@@ -549,7 +549,7 @@ index 4cce17f..c224625 100644
     code in the error value ERR.  This function is not thread-safe.  */
  const char *
 diff --git a/src/sysutils.c b/src/sysutils.c
-index eb5249a..71e5f6f 100644
+index 8f70a66..024802c 100644
 --- a/src/sysutils.c
 +++ b/src/sysutils.c
 @@ -22,10 +22,14 @@
@@ -568,24 +568,7 @@ index eb5249a..71e5f6f 100644
  #endif
  #ifdef HAVE_STAT
  # include <sys/stat.h>
-@@ -38,7 +42,15 @@
- 
- #include "gpgrt-int.h"
- 
--
-+#ifdef HAVE_W32_SYSTEM
-+extern wchar_t *utf8_to_wchar(const char *string, size_t length, size_t *retlen);
-+# define chdir _chdir
-+# define getcwd _getcwd
-+# if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
-+#  define getenv(x) NULL
-+#  define putenv(x) -1
-+# endif
-+#endif
- 
- /* Return true if FD is valid.  */
- int
-@@ -69,7 +81,7 @@ _gpgrt_getenv (const char *name)
+@@ -82,7 +86,7 @@ _gpgrt_getenv (const char *name)
      int len, size;
      char *result;
  
@@ -594,7 +577,7 @@ index eb5249a..71e5f6f 100644
      if (!len && GetLastError () == ERROR_ENVVAR_NOT_FOUND)
        {
          _gpg_err_set_errno (0);
-@@ -80,7 +92,7 @@ _gpgrt_getenv (const char *name)
+@@ -93,7 +97,7 @@ _gpgrt_getenv (const char *name)
      result = _gpgrt_malloc (size);
      if (!result)
        return NULL;
@@ -603,7 +586,7 @@ index eb5249a..71e5f6f 100644
      if (len >= size)
        {
          /* Changed in the meantime - retry.  */
-@@ -142,7 +154,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+@@ -155,7 +159,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
  
      if (!value && overwrite)
        {
@@ -612,7 +595,7 @@ index eb5249a..71e5f6f 100644
            return GPG_ERR_EINVAL;
          if (getenv (name))
            {
-@@ -156,8 +168,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+@@ -169,8 +173,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
          return 0;
        }
  
@@ -623,17 +606,17 @@ index eb5249a..71e5f6f 100644
        return GPG_ERR_EINVAL; /* (Might also be ENOMEM.) */
      if (overwrite || !getenv (name))
        {
-@@ -413,6 +425,7 @@ _gpgrt_getusername (void)
+@@ -483,6 +487,7 @@ _gpgrt_getusername (void)
    char *result = NULL;
  
  #ifdef HAVE_W32_SYSTEM
 +#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY!=WINAPI_FAMILY_PC_APP && WINAPI_FAMILY!=WINAPI_FAMILY_PHONE_APP)
-   char tmp[1];
-   DWORD size = 1;
- 
-@@ -425,6 +438,7 @@ _gpgrt_getusername (void)
-       result = NULL;
-     }
+   wchar_t wtmp[1];
+   wchar_t *wbuf;
+   DWORD wsize = 1;
+@@ -505,6 +510,7 @@ _gpgrt_getusername (void)
+   xfree (wbuf);
+   return buf;
  
 +#endif
  #else /* !HAVE_W32_SYSTEM */
@@ -664,7 +647,7 @@ index 5bb1bcf..d1f1b71 100644
  /* Enable tracing.  The value is the module name to be printed.  */
  /*#define ENABLE_TRACING "estream" */
 diff --git a/src/w32-gettext.c b/src/w32-gettext.c
-index a734ef2..406c7f4 100644
+index 569b126..f091925 100644
 --- a/src/w32-gettext.c
 +++ b/src/w32-gettext.c
 @@ -63,11 +63,13 @@ static struct
@@ -730,24 +713,24 @@ index a734ef2..406c7f4 100644
    if (size == INVALID_FILE_SIZE)
      {
        CloseHandle (fh);
-@@ -1427,6 +1449,9 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
+@@ -1458,6 +1480,9 @@ wchar_to_cp (const wchar_t *string, size_t length, size_t *retlen,
+ static char *
+ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
  {
-   int n;
-   char *result;
 +#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
 +  unsigned int cpno = CP_ACP;
 +#else
    unsigned int cpno = GetConsoleOutputCP ();
  
    /* GetConsoleOutputCP returns the 8-Bit codepage that should be used
-@@ -1434,6 +1459,7 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
+@@ -1465,6 +1490,7 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
       to the codepage GUI programs should use (CP_ACP). */
    if (!cpno)
      cpno = GetACP ();
 +#endif
  
-   n = WideCharToMultiByte (cpno, 0, string, length, NULL, 0, NULL, NULL);
-   if (n < 0 || (n+1) <= 0)
+   return wchar_to_cp (string, length, retlen, cpno);
+ }
 diff --git a/src/w32-iconv.c b/src/w32-iconv.c
 index 888b722..faad56b 100644
 --- a/src/w32-iconv.c
