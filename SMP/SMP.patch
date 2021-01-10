@@ -14,7 +14,7 @@ index 9b36158..ac8c522 100755
  $AUTOCONF${FORCE}
  
 diff --git a/src/argparse.c b/src/argparse.c
-index e4a1436..961c04a 100644
+index e116fff..40a382f 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@

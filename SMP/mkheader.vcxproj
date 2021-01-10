@@ -127,7 +127,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.40" "0x012800" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.41" "0x012900" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -173,7 +173,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.40" "0x012800" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.41" "0x012900" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -219,7 +219,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.40" "0x012800" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.41" "0x012900" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -266,7 +266,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.40" "0x012800" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.41" "0x012900" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
