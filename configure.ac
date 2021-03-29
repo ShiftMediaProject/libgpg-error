@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [41])
+m4_define([mym4_minor], [42])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,9 +49,9 @@ AC_INIT([mym4_package],[mym4_version],[https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=31
-LIBGPG_ERROR_LT_AGE=31
-LIBGPG_ERROR_LT_REVISION=1
+LIBGPG_ERROR_LT_CURRENT=32
+LIBGPG_ERROR_LT_AGE=32
+LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -595,9 +595,15 @@ if test "$have_w32_system" = yes; then
     fi
     force_use_syscfg=yes
 fi
-if test x$cross_compiling = xyes; then
+if test x"$gl_use_threads" = xno; then
+  lock_obj_h_generated=yes
+  if test ! -d src; then mkdir src; fi
+  host=$host $srcdir/src/gen-lock-obj.sh --disable-threads \
+    >src/lock-obj-pub.native.h
+  AC_MSG_NOTICE([generated src/lock-obj-pub.native.h for $host])
+elif test x$cross_compiling = xyes; then
   case $host in
-    *-*-linux*)
+    *-*-linux-gnu*)
     AC_CHECK_TOOL(OBJDUMP, [objdump])
     if test -n "$OBJDUMP"; then
       lock_obj_h_generated=yes

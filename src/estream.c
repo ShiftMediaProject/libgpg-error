@@ -131,17 +131,17 @@
 # ifndef  S_IRGRP
 #  define S_IRGRP S_IRUSR
 # endif
-# ifndef  S_IWGRP
-#  define S_IWGRP S_IWUSR
-# endif
-# ifndef  S_IXGRP
-#  define S_IXGRP S_IXUSR
-# endif
 # ifndef  S_IROTH
 #  define S_IROTH S_IRUSR
 # endif
+# ifndef  S_IWGRP
+#  define S_IWGRP S_IWUSR
+# endif
 # ifndef  S_IWOTH
 #  define S_IWOTH S_IWUSR
+# endif
+# ifndef  S_IXGRP
+#  define S_IXGRP S_IXUSR
 # endif
 # ifndef  S_IXOTH
 #  define S_IXOTH S_IXUSR

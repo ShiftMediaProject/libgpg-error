@@ -1,3 +1,21 @@
+Noteworthy changes in version 1.42 (2021-03-22) [C32/A32/R0]
+-----------------------------------------------
+
+ * Allow Unicode file names under Windows for the gettext domain.
+
+ * Improve cross-compiling support.  [#5289]
+
+ * Improve $libdir determination by gpgrt-config.  [#5293]
+
+ * Support --disable-thread by gen-lock-obj.sh.  [#5296]
+
+ * Interface changes relative to the 1.40 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ GPG_ERR_SOURCE_TPM2D             NEW.
+
+ Release-info: https://dev.gnupg.org/T5194
+
+
 Noteworthy changes in version 1.41 (2020-12-21) [C31/A31/R1]
 -----------------------------------------------
 
@@ -159,6 +177,7 @@ Noteworthy changes in version 1.37 (2020-02-07) [C28/A28/R0]
  GPG_ERR_SQL_WARNING	          NEW.
  GPG_ERR_SQL_ROW	          NEW.
  GPG_ERR_SQL_DONE	          NEW.
+ gpg_err_code_from_sqlite         NEW.
 
  Release-info: https://dev.gnupg.org/T4772
 

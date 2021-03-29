@@ -34,9 +34,7 @@
 #include <sys/types.h>
 #endif
 #include <stdint.h>
-#ifndef HAVE_W32CE_SYSTEM
-# include <locale.h>
-#endif /*HAVE_W32CE_SYSTEM*/
+#include <locale.h>
 #include <windows.h>
 
 #ifdef JNLIB_IN_JNLIB
@@ -51,7 +49,7 @@
 #endif /*!jnlib_malloc*/
 
 #include "init.h"
-#include "gpg-error.h"
+#include "gpgrt-int.h"
 #include "protos.h"
 
 /* Override values initialized by gpgrt_w32_override_locale.  If NAME
@@ -63,40 +61,7 @@ static struct
   char name[28];
 } override_locale;
 
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
-# define getenv(x) NULL
-#endif
-/* Forward declaration.  */
-wchar_t *utf8_to_wchar (const char *string, size_t length, size_t *retlen);
 
-#ifdef HAVE_W32CE_SYSTEM
-static HANDLE
-MyCreateFileA (LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwSharedMode,
-	     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-	     DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes,
-	     HANDLE hTemplateFile)
-{
-  wchar_t *filename;
-  HANDLE result;
-  int err;
-  size_t size;
-
-  filename = utf8_to_wchar (lpFileName, -1, &size);
-  if (!filename)
-    return INVALID_HANDLE_VALUE;
-
-  result = CreateFileW (filename, dwDesiredAccess, dwSharedMode,
-			lpSecurityAttributes, dwCreationDisposition,
-			dwFlagsAndAttributes, hTemplateFile);
-
-  err = GetLastError ();
-  free (filename);
-  SetLastError (err);
-  return result;
-}
-#undef CreateFileA
-#define CreateFileA MyCreateFileA
-#endif
 
 
 /* localname.c from gettext BEGIN.  */
@@ -657,9 +622,7 @@ MyCreateFileA (LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwSharedMode,
 static const char *
 my_nl_locale_name (const char *categoryname)
 {
-#ifndef HAVE_W32CE_SYSTEM
   const char *retval;
-#endif
   LANGID langid;
   int primary, sub;
 
@@ -675,7 +638,6 @@ my_nl_locale_name (const char *categoryname)
 
       /* Let the user override the system settings through environment
        *  variables, as on POSIX systems.  */
-#ifndef HAVE_W32CE_SYSTEM
       retval = getenv ("LC_ALL");
       if (retval != NULL && retval[0] != '\0')
         return retval;
@@ -685,12 +647,9 @@ my_nl_locale_name (const char *categoryname)
       retval = getenv ("LANG");
       if (retval != NULL && retval[0] != '\0')
         return retval;
-#endif /*!HAVE_W32CE_SYSTEM*/
 
       /* Use native Win32 API locale ID.  */
-#if defined(HAVE_W32CE_SYSTEM)
-      lcid = GetSystemDefaultLCID ();
-#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
       lcid = LOCALE_USER_DEFAULT;
 #else
       lcid = GetThreadLocale ();
@@ -1254,31 +1213,30 @@ load_domain (const char *filename)
   struct loaded_domain *domain = NULL;
   size_t to_read;
   char *read_ptr;
-  size_t wlen = 0;
-  wchar_t *filenameW = utf8_to_wchar(filename, -1, &wlen);
 
-  if (!filenameW)
   {
+    wchar_t *wfilename = _gpgrt_utf8_to_wchar (filename);
+
+    if (!wfilename)
+      fh = INVALID_HANDLE_VALUE;
+    else
 #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-	  fh = CreateFile2 (filenameW, GENERIC_READ, FILE_SHARE_WRITE, OPEN_EXISTING, NULL);
+      fh = CreateFile2 (wfilename, GENERIC_READ, FILE_SHARE_WRITE, OPEN_EXISTING, NULL);
 #else
-      fh = CreateFileW (filenameW, GENERIC_READ, FILE_SHARE_WRITE, NULL,
+      fh = CreateFileW (wfilename, GENERIC_READ, FILE_SHARE_WRITE, NULL,
                         OPEN_EXISTING, 0, NULL);
 #endif
-	  free(filenameW);
-  }
-  else
-	  fh = INVALID_HANDLE_VALUE;
-  if (fh == INVALID_HANDLE_VALUE)
-    return NULL;
-
+    xfree (wfilename);
+    if (fh == INVALID_HANDLE_VALUE)
+        return NULL;
 #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-  WIN32_FILE_ATTRIBUTE_DATA fileinfo;
-  GetFileAttributesEx (filenameW, GetFileExInfoStandard, &fileinfo);
-  size = fileinfo.nFileSizeHigh;
+    WIN32_FILE_ATTRIBUTE_DATA fileinfo;
+    GetFileAttributesEx(wfilename, GetFileExInfoStandard, &fileinfo);
+    size = fileinfo.nFileSizeHigh;
 #else
-  size = GetFileSize (fh, NULL);
+    size = GetFileSize(fh, NULL);
 #endif
+  }
   if (size == INVALID_FILE_SIZE)
     {
       CloseHandle (fh);
@@ -1400,7 +1358,7 @@ utf8_to_wchar (const char *string, size_t length, size_t *retlen)
   nbytes = (size_t)(n+1) * sizeof(*result);
   if (nbytes / sizeof(*result) != (n+1))
     {
-      gpg_err_set_errno (ENOMEM);
+      _gpg_err_set_errno (ENOMEM);
       return NULL;
     }
   result = jnlib_malloc (nbytes);
@@ -1948,7 +1906,7 @@ _gpg_w32_textdomain (const char *domainname)
   if (!domainname)
     {
       if (!current_domainname)
-        gpg_err_set_errno (0);
+        _gpg_err_set_errno (0);
     }
   else
     {
@@ -2068,7 +2026,7 @@ main (int argc, char **argv)
   return 0;
 }
 /*
- * Local Variables:
+ *No-Local Variables:
  *  compile-command: "i586-mingw32msvc-gcc -DTEST -Wall -g w32-gettext.c"
  * End:
  */
