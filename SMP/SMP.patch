@@ -14,7 +14,7 @@ index 9b36158..ac8c522 100755
  $AUTOCONF${FORCE}
  
 diff --git a/src/argparse.c b/src/argparse.c
-index e116fff..40a382f 100644
+index cb5c58c..855b6ba 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -54,7 +54,7 @@ index fe25657..35f08cd 100644
  #include <errno.h>
  #include <stddef.h>
 diff --git a/src/estream.c b/src/estream.c
-index f75e052..68b1d17 100644
+index f75e052..a2da261 100644
 --- a/src/estream.c
 +++ b/src/estream.c
 @@ -74,12 +74,15 @@
@@ -84,7 +84,7 @@ index f75e052..68b1d17 100644
  #else
  # ifdef HAVE_POLL_H
  #  include <poll.h>
-@@ -115,21 +119,30 @@
+@@ -115,6 +119,15 @@
  
  
  #ifdef HAVE_W32_SYSTEM
@@ -99,27 +99,6 @@ index f75e052..68b1d17 100644
 +# endif
  # ifndef  S_IRGRP
  #  define S_IRGRP S_IRUSR
- # endif
--# ifndef  S_IROTH
--#  define S_IROTH S_IRUSR
--# endif
- # ifndef  S_IWGRP
- #  define S_IWGRP S_IWUSR
- # endif
--# ifndef  S_IWOTH
--#  define S_IWOTH S_IWUSR
--# endif
- # ifndef  S_IXGRP
- #  define S_IXGRP S_IXUSR
- # endif
-+# ifndef  S_IROTH
-+#  define S_IROTH S_IRUSR
-+# endif
-+# ifndef  S_IWOTH
-+#  define S_IWOTH S_IWUSR
-+# endif
- # ifndef  S_IXOTH
- #  define S_IXOTH S_IXUSR
  # endif
 @@ -164,7 +177,6 @@ int _setmode (int handle, int mode);
  /* A helper macro used to convert to a hex string.  */
@@ -286,7 +265,7 @@ index e4b7e40..e0c28b6 100644
  
  
 diff --git a/src/mkheader.c b/src/mkheader.c
-index 77826da..7267473 100644
+index 77826da..eb6ac32 100644
 --- a/src/mkheader.c
 +++ b/src/mkheader.c
 @@ -16,7 +16,12 @@
@@ -647,73 +626,52 @@ index 5bb1bcf..d1f1b71 100644
  /* Enable tracing.  The value is the module name to be printed.  */
  /*#define ENABLE_TRACING "estream" */
 diff --git a/src/w32-gettext.c b/src/w32-gettext.c
-index 569b126..f091925 100644
+index 7c4c9b0..09a2171 100644
 --- a/src/w32-gettext.c
 +++ b/src/w32-gettext.c
-@@ -63,11 +63,13 @@ static struct
-   char name[28];
- } override_locale;
- 
--
--#ifdef HAVE_W32CE_SYSTEM
-+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
-+# define getenv(x) NULL
-+#endif
- /* Forward declaration.  */
--static wchar_t *utf8_to_wchar (const char *string, size_t length, size_t *retlen);
-+wchar_t *utf8_to_wchar (const char *string, size_t length, size_t *retlen);
- 
-+#ifdef HAVE_W32CE_SYSTEM
- static HANDLE
- MyCreateFileA (LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwSharedMode,
- 	     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-@@ -686,8 +688,10 @@ my_nl_locale_name (const char *categoryname)
- #endif /*!HAVE_W32CE_SYSTEM*/
+@@ -649,7 +649,11 @@ my_nl_locale_name (const char *categoryname)
+         return retval;
  
        /* Use native Win32 API locale ID.  */
--#ifdef HAVE_W32CE_SYSTEM
-+#if defined(HAVE_W32CE_SYSTEM)
-       lcid = GetSystemDefaultLCID ();
-+#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+-      lcid = GetThreadLocale ();
++#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
 +      lcid = LOCALE_USER_DEFAULT;
- #else
-       lcid = GetThreadLocale ();
- #endif
-@@ -1250,13 +1254,31 @@ load_domain (const char *filename)
-   struct loaded_domain *domain = NULL;
-   size_t to_read;
-   char *read_ptr;
-+  size_t wlen = 0;
-+  wchar_t *filenameW = utf8_to_wchar(filename, -1, &wlen);
- 
--  fh = CreateFileA (filename, GENERIC_READ, FILE_SHARE_WRITE, NULL,
--                    OPEN_EXISTING, 0, NULL);
-+  if (!filenameW)
-+  {
-+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-+	  fh = CreateFile2 (filenameW, GENERIC_READ, FILE_SHARE_WRITE, OPEN_EXISTING, NULL);
 +#else
-+      fh = CreateFileW (filenameW, GENERIC_READ, FILE_SHARE_WRITE, NULL,
-+                        OPEN_EXISTING, 0, NULL);
++      lcid = GetThreadLocale ();
 +#endif
-+	  free(filenameW);
+       /* Strip off the sorting rules, keep only the language part.  */
+       langid = LANGIDFROMLCID (lcid);
+     }
+@@ -1216,14 +1220,25 @@ load_domain (const char *filename)
+     if (!wfilename)
+       fh = INVALID_HANDLE_VALUE;
+     else
++#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
++      fh = CreateFile2 (wfilename, GENERIC_READ, FILE_SHARE_WRITE, OPEN_EXISTING, NULL);
++#else
+       fh = CreateFileW (wfilename, GENERIC_READ, FILE_SHARE_WRITE, NULL,
+                         OPEN_EXISTING, 0, NULL);
++#endif
+     xfree (wfilename);
+-  }
+-  if (fh == INVALID_HANDLE_VALUE)
+-    return NULL;
+-
+-  size = GetFileSize (fh, NULL);
++    if (fh == INVALID_HANDLE_VALUE)
++        return NULL;
++#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
++    WIN32_FILE_ATTRIBUTE_DATA fileinfo;
++    GetFileAttributesEx(wfilename, GetFileExInfoStandard, &fileinfo);
++    size = fileinfo.nFileSizeHigh;
++#else
++    size = GetFileSize(fh, NULL);
++#endif
 +  }
-+  else
-+	  fh = INVALID_HANDLE_VALUE;
-   if (fh == INVALID_HANDLE_VALUE)
-     return NULL;
- 
-+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-+  WIN32_FILE_ATTRIBUTE_DATA fileinfo;
-+  GetFileAttributesEx (filenameW, GetFileExInfoStandard, &fileinfo);
-+  size = fileinfo.nFileSizeHigh;
-+#else
-   size = GetFileSize (fh, NULL);
-+#endif
    if (size == INVALID_FILE_SIZE)
      {
        CloseHandle (fh);
-@@ -1458,6 +1480,9 @@ wchar_to_cp (const wchar_t *string, size_t length, size_t *retlen,
+@@ -1425,6 +1440,9 @@ wchar_to_cp (const wchar_t *string, size_t length, size_t *retlen,
  static char *
  wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
  {
@@ -723,7 +681,7 @@ index 569b126..f091925 100644
    unsigned int cpno = GetConsoleOutputCP ();
  
    /* GetConsoleOutputCP returns the 8-Bit codepage that should be used
-@@ -1465,6 +1490,7 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
+@@ -1432,6 +1450,7 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
       to the codepage GUI programs should use (CP_ACP). */
    if (!cpno)
      cpno = GetACP ();

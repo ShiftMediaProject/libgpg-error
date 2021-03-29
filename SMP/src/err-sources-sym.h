@@ -41,6 +41,7 @@ static const char msgstr[] =
   "GPG_ERR_SOURCE_KLEO" "\0"
   "GPG_ERR_SOURCE_G13" "\0"
   "GPG_ERR_SOURCE_ASSUAN" "\0"
+  "GPG_ERR_SOURCE_TPM2D" "\0"
   "GPG_ERR_SOURCE_TLS" "\0"
   "GPG_ERR_SOURCE_ANY" "\0"
   "GPG_ERR_SOURCE_USER_1" "\0"
@@ -68,20 +69,20 @@ static const int msgidx[] =
     297,
     316,
     338,
-    357,
-    376,
-    398,
-    420,
-    442,
-    464
+    359,
+    378,
+    397,
+    419,
+    441,
+    463,
+    485
   };
 
 static GPG_ERR_INLINE int
 msgidxof (int code)
 {
   return (0 ? 0
-  : ((code >= 0) && (code <= 15)) ? (code - 0)
-  : ((code >= 17) && (code <= 17)) ? (code - 1)
-  : ((code >= 31) && (code <= 35)) ? (code - 14)
-  : 36 - 14);
+  : ((code >= 0) && (code <= 17)) ? (code - 0)
+  : ((code >= 31) && (code <= 35)) ? (code - 13)
+  : 36 - 13);
 }
