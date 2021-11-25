@@ -29,6 +29,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
@@ -36,6 +37,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
@@ -43,6 +45,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
@@ -50,6 +53,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
@@ -127,7 +131,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.42" "0x012a00" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.43" "0x012b00" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -173,7 +177,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.42" "0x012a00" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.43" "0x012b00" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -219,7 +223,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.42" "0x012a00" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.43" "0x012b00" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in
@@ -266,7 +270,7 @@ copy ..\..\src\errnos.in .\errnos.in
 copy ..\..\src\w32-add.h .\w32-add.h
 mkdir syscfg
 copy ..\..\src\syscfg\lock-obj-pub.mingw32.h .\syscfg\lock-obj-pub.mingw32.h
-mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.42" "0x012a00" &gt; gpg-error.h
+mkheader.exe "win32-msvc-mingw32" "gpg-error.h.in" ../config.h "1.43" "0x012b00" &gt; gpg-error.h
 del gpg-error.h.in
 del err-sources.h.in
 del err-codes.h.in

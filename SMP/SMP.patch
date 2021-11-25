@@ -14,7 +14,7 @@ index 9b36158..ac8c522 100755
  $AUTOCONF${FORCE}
  
 diff --git a/src/argparse.c b/src/argparse.c
-index cb5c58c..855b6ba 100644
+index a144881..d2ca04b 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -206,7 +206,7 @@ index d2c3b8d..0792507 100644
  #endif
  
 diff --git a/src/init.c b/src/init.c
-index 6239682..0565a26 100644
+index 2d9f7ab..9d1c338 100644
 --- a/src/init.c
 +++ b/src/init.c
 @@ -53,6 +53,10 @@ static int tls_index = TLS_OUT_OF_INDEXES;  /* Index for the TLS functions.  */
@@ -265,7 +265,7 @@ index e4b7e40..e0c28b6 100644
  
  
 diff --git a/src/mkheader.c b/src/mkheader.c
-index 77826da..7267473 100644
+index 1d2ea20..88444b1 100644
 --- a/src/mkheader.c
 +++ b/src/mkheader.c
 @@ -16,7 +16,12 @@
@@ -281,7 +281,7 @@ index 77826da..7267473 100644
  
  #define PGM "mkheader"
  
-@@ -572,18 +577,9 @@ write_special (const char *fname, int lnr, const char *tag)
+@@ -573,18 +578,9 @@ write_special (const char *fname, int lnr, const char *tag)
                sys_types_h_included = 1;
              }
          }
@@ -510,7 +510,7 @@ index 3ede1f2..44a71a2 100644
        CloseHandle (process);
      }
 diff --git a/src/strerror.c b/src/strerror.c
-index 4cce17f..c224625 100644
+index fb1bebf..0554309 100644
 --- a/src/strerror.c
 +++ b/src/strerror.c
 @@ -32,6 +32,13 @@
@@ -524,9 +524,9 @@ index 4cce17f..c224625 100644
 +#   endif
 +#endif
 +
- /* Return a pointer to a string containing a description of the error
-    code in the error value ERR.  This function is not thread-safe.  */
- const char *
+ #if defined(ENABLE_NLS) && defined(HAVE_LANGINFO_CODESET)
+ #include <langinfo.h>
+ #endif
 diff --git a/src/sysutils.c b/src/sysutils.c
 index 8f70a66..024802c 100644
 --- a/src/sysutils.c
@@ -704,7 +704,7 @@ index 888b722..faad56b 100644
          return 1200;
      else if (_strnicmp(name, "cp", 2) == 0)
 diff --git a/src/w32-reg.c b/src/w32-reg.c
-index 8b1bf8a..e3addbc 100644
+index d1d2ca6..588cffa 100644
 --- a/src/w32-reg.c
 +++ b/src/w32-reg.c
 @@ -46,6 +46,9 @@ char *
@@ -735,9 +735,11 @@ index 8b1bf8a..e3addbc 100644
            if (nbytes && nbytes > n1) {
              xfree (tmp); /* Oops - truncated, better don't expand at all. */
              goto leave;
-@@ -151,4 +154,5 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
+@@ -151,6 +154,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
   leave:
    RegCloseKey (key_handle);
    return result;
 +#endif
  }
+ 
+ 

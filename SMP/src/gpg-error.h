@@ -66,12 +66,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.42"
-#define GPGRT_VERSION     "1.42"
+#define GPG_ERROR_VERSION "1.43"
+#define GPGRT_VERSION     "1.43"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x012a00
-#define GPGRT_VERSION_NUMBER     0x012a00
+#define GPG_ERROR_VERSION_NUMBER 0x012b00
+#define GPGRT_VERSION_NUMBER     0x012b00
 
 
 #ifdef __GNUC__
@@ -1035,7 +1035,7 @@ const char *gpgrt_check_version (const char *req_version);
 const char *gpg_error_check_version (const char *req_version);
 
 /* System specific type definitions.  */
-typedef int pid_t;
+typedef int     pid_t;
 
 # include <stdint.h>
 typedef int64_t gpgrt_ssize_t;

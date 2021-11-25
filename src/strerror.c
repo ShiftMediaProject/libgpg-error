@@ -32,6 +32,13 @@
 #include "gettext.h"
 #include "err-codes.h"
 
+#ifdef _MSC_VER
+#   include <crtversion.h>
+#   if _VC_CRT_MAJOR_VERSION < 14
+#       define snprintf _snprintf
+#   endif
+#endif
+
 #if defined(ENABLE_NLS) && defined(HAVE_LANGINFO_CODESET)
 #include <langinfo.h>
 #endif
