@@ -32,11 +32,8 @@
 #include "gettext.h"
 #include "err-codes.h"
 
-#ifdef _MSC_VER
-#   include <crtversion.h>
-#   if _VC_CRT_MAJOR_VERSION < 14
-#       define snprintf _snprintf
-#   endif
+#if defined(ENABLE_NLS) && defined(HAVE_LANGINFO_CODESET)
+#include <langinfo.h>
 #endif
 
 /* Return a pointer to a string containing a description of the error
@@ -176,9 +173,30 @@ _gpg_strerror_r (gpg_error_t err, char *buf, size_t buflen)
   errstr = dgettext (PACKAGE, msgstr + msgidx[msgidxof (code)]);
   errstr_len = strlen (errstr) + 1;
   cpy_len = errstr_len < buflen ? errstr_len : buflen;
+#if defined(ENABLE_NLS) && defined(HAVE_LANGINFO_CODESET)
+  /* Avoid truncation in the middle of "character" boundary.  */
+  if (buflen && errstr_len > buflen
+      && ((unsigned char)errstr[cpy_len-1] & 0xC0) == 0x80
+      && !strcasecmp (nl_langinfo (CODESET), "UTF-8"))
+    {
+      /* Go back to the boundary */
+      for (; cpy_len; cpy_len--)
+        if (((unsigned char)errstr[cpy_len-1] & 0xC0) != 0x80)
+          break;
+      memcpy (buf, errstr, cpy_len);
+      memset (buf+cpy_len, 0, buflen - cpy_len);
+    }
+  else
+    {
+      memcpy (buf, errstr, cpy_len);
+      if (buflen)
+        buf[buflen - 1] = '\0';
+    }
+#else
   memcpy (buf, errstr, cpy_len);
   if (buflen)
     buf[buflen - 1] = '\0';
+#endif
 
   return cpy_len == errstr_len ? 0 : ERANGE;
 }

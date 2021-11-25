@@ -249,6 +249,7 @@ parse_config_h (const char *fname)
     {
       fprintf (stderr, "%s:%d: error reading file: %s\n",
                fname, lnr, strerror (errno));
+      fclose (fp);
       return 1;
     }
 

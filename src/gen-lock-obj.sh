@@ -38,7 +38,7 @@
 #     AWK=gawk ./gen-lock-obj.sh
 #
 
-if test -n `echo -n`; then
+if test -n "`echo -n`"; then
     ECHO_C='\c'
     ECHO_N=''
 else
@@ -121,10 +121,10 @@ while test "$i" -lt $ac_mtx_size; do
     fi
     i=$(( i + 1 ))
 done
+echo '}}}'
 fi
 
 cat <<'EOF'
-}}}
 ##
 ## Local Variables:
 ## mode: c

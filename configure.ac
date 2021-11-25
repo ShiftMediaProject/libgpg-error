@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [42])
+m4_define([mym4_minor], [43])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,7 +51,7 @@ AC_INIT([mym4_package],[mym4_version],[https://bugs.gnupg.org])
 # Note that added error codes don't constitute an interface change.
 LIBGPG_ERROR_LT_CURRENT=32
 LIBGPG_ERROR_LT_AGE=32
-LIBGPG_ERROR_LT_REVISION=0
+LIBGPG_ERROR_LT_REVISION=1
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -82,6 +82,7 @@ AC_PROG_AWK
 AC_CHECK_TOOL(AR, ar, :)
 AC_USE_SYSTEM_EXTENSIONS
 
+AM_LANGINFO_CODESET
 
 # Taken from mpfr-4.0.1, then modified for LDADD_FOR_TESTS_KLUDGE
 dnl Under Linux, make sure that the old dtags are used if LD_LIBRARY_PATH
@@ -137,7 +138,7 @@ case "${host}" in
     *-apple-darwin*)
         # This is the equivalent of the _GNU_SOURCE feature-test-macro
         # on GNU libc systems.
-        AC_DEFINE(_DARWIN_C_SOURCE, 900000L,
+        AC_DEFINE(_DARWIN_C_SOURCE, 1,
                   Expose all libc features (__DARWIN_C_FULL).)
         ;;
     *)
@@ -190,7 +191,7 @@ AM_GNU_GETTEXT([external])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h locale.h stdint.h sys/select.h sys/time.h \
+AC_CHECK_HEADERS([locale.h stdint.h sys/select.h sys/time.h \
                   signal.h poll.h pwd.h])
 
 AC_FUNC_STRERROR_R
@@ -476,6 +477,7 @@ else
   if test "$gl_threads_api" = posix; then
     AC_CHECK_SIZEOF(pthread_mutex_t,,[AC_INCLUDES_DEFAULT
                                       #include <pthread.h>])
+    AC_CHECK_HEADERS([sys/single_threaded.h])
   fi
 fi
 

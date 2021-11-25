@@ -1,13 +1,13 @@
 # Russian translation for libgpg-error.
-# Copyright (C) 2020 Free Software Foundation, Inc.
+# Copyright (C) 2021 Free Software Foundation, Inc.
 # This file is distributed under the same license as the original package.
-# Ineiev <ineiev@gnu.org>, 2014, 2015, 2018, 2019, 2020
+# Ineiev <ineiev@gnu.org>, 2014, 2015, 2018, 2019, 2020, 2021
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2021-03-22 10:43+0100\n"
+"PO-Revision-Date: 2021-10-12 10:43+0100\n"
 "Last-Translator: Ineiev <ineiev@gnu.org>\n"
 "Language-Team: Russian <gnupg-ru@gnupg.org>\n"
 "Language: ru\n"
@@ -64,7 +64,7 @@ msgid "Assuan"
 msgstr "Assuan"
 
 msgid "TPM2d"
-msgstr "TPM2d"
+msgstr ""
 
 msgid "TLS"
 msgstr "TLS"
@@ -1445,28 +1445,20 @@ msgstr "недопустимая команда"
 msgid "invalid alias definition"
 msgstr "недопустимое определение синонима"
 
-#, fuzzy
-#| msgid "LDAP operations error"
 msgid "permission error"
-msgstr "Ошибка операций LDAP"
+msgstr "ошибка допуска"
 
 msgid "out of core"
 msgstr "нехватка выделенной памяти"
 
-#, fuzzy
-#| msgid "invalid command"
 msgid "invalid meta command"
-msgstr "недопустимая команда"
+msgstr "недопустимая метакоманда"
 
-#, fuzzy
-#| msgid "Unknown command"
 msgid "unknown meta command"
-msgstr "Неизвестная команда"
+msgstr "неизвестная метакоманда"
 
-#, fuzzy
-#| msgid "Unexpected IPC command"
 msgid "unexpected meta command"
-msgstr "Неожиданная команда IPC"
+msgstr "неожиданная метакоманда"
 
 msgid "invalid option"
 msgstr "недопустимый параметр"
@@ -1501,19 +1493,20 @@ msgstr "недопустимый параметр \"%.50s\"\n"
 
 #, c-format
 msgid "Note: no default option file '%s'\n"
-msgstr ""
+msgstr "Замечание: нет файла параметров по умолчанию '%s'\n"
 
 #, c-format
 msgid "reading options from '%s'\n"
-msgstr ""
+msgstr "чтение параметров из '%s'\n"
 
 #, c-format
 msgid "option file '%s': %s\n"
-msgstr ""
+msgstr "файл параметров '%s': %s\n"
 
 #, c-format
 msgid "Note: ignoring option \"--%s\" due to global config\n"
 msgstr ""
+"Замечание: параметр \"--%s\" игнорируется согласно глобальной конфигурации\n"
 
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr "Об ошибках сообщайте по адресу <https://bugs.gnupg.org>.\n"
@@ -1521,6 +1514,3 @@ msgstr "Об ошибках сообщайте по адресу <https://bugs.g
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "внимание: не распознано %s\n"
-
-#~ msgid "out of core\n"
-#~ msgstr "нехватка выделенной памяти\n"
