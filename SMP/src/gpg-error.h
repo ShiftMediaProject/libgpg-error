@@ -66,12 +66,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.43"
-#define GPGRT_VERSION     "1.43"
+#define GPG_ERROR_VERSION "1.44"
+#define GPGRT_VERSION     "1.44"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x012b00
-#define GPGRT_VERSION_NUMBER     0x012b00
+#define GPG_ERROR_VERSION_NUMBER 0x012c00
+#define GPGRT_VERSION_NUMBER     0x012c00
 
 
 #ifdef __GNUC__
@@ -1888,7 +1888,8 @@ typedef struct
 #define ARGPARSE_FLAG_USER     2048  /* Use user config file.                */
 #define ARGPARSE_FLAG_VERBOSE  4096  /* Print additional argparser info.     */
 #define ARGPARSE_FLAG_USERVERS 8192  /* Try version-ed user config files.    */
-#define ARGPARSE_FLAG_WITHATTR 16384 /* Return attribute bits.               */
+#define ARGPARSE_FLAG_WITHATTR 16384 /* Return attribute bits.  (Make sure   */
+                                     /* to act upon ARGPARSE_OPT_IGNORE.)    */
 
 /* Constants for (gpgrt_argparse_t).err.  */
 #define ARGPARSE_PRINT_WARNING  1    /* Print a diagnostic.                  */

@@ -14,7 +14,7 @@ index 9b36158..ac8c522 100755
  $AUTOCONF${FORCE}
  
 diff --git a/src/argparse.c b/src/argparse.c
-index a144881..d2ca04b 100644
+index cedb2f5..888c30a 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -54,10 +54,10 @@ index fe25657..35f08cd 100644
  #include <errno.h>
  #include <stddef.h>
 diff --git a/src/estream.c b/src/estream.c
-index f75e052..a2da261 100644
+index 36be4bb..3563217 100644
 --- a/src/estream.c
 +++ b/src/estream.c
-@@ -74,12 +74,15 @@
+@@ -71,12 +71,15 @@
  # include <sys/time.h>
  #endif
  #include <sys/types.h>
@@ -76,7 +76,7 @@ index f75e052..a2da261 100644
  #include <stdarg.h>
  #include <fcntl.h>
  #include <errno.h>
-@@ -89,6 +92,7 @@
+@@ -86,6 +89,7 @@
  #  include <winsock2.h>
  # endif
  # include <windows.h>
@@ -84,7 +84,7 @@ index f75e052..a2da261 100644
  #else
  # ifdef HAVE_POLL_H
  #  include <poll.h>
-@@ -115,6 +119,15 @@
+@@ -116,6 +120,15 @@
  
  
  #ifdef HAVE_W32_SYSTEM
@@ -100,7 +100,7 @@ index f75e052..a2da261 100644
  # ifndef  S_IRGRP
  #  define S_IRGRP S_IRUSR
  # endif
-@@ -164,7 +177,6 @@ int _setmode (int handle, int mode);
+@@ -165,7 +178,6 @@ int _setmode (int handle, int mode);
  /* A helper macro used to convert to a hex string.  */
  #define tohex(n) ((n) < 10 ? ((n) + '0') : (((n) - 10) + 'A'))
  
@@ -108,7 +108,7 @@ index f75e052..a2da261 100644
  /* Generally used types.  */
  
  typedef void *(*func_realloc_t) (void *mem, size_t size);
-@@ -4642,37 +4654,27 @@ tmpfd (void)
+@@ -4643,37 +4655,27 @@ tmpfd (void)
  {
  #ifdef HAVE_W32_SYSTEM
    int attempts, n;
@@ -148,7 +148,7 @@ index f75e052..a2da261 100644
    *p++ = '\\';
    name = p;
    for (attempts=0; attempts < 10; attempts++)
-@@ -4684,18 +4686,25 @@ tmpfd (void)
+@@ -4685,18 +4687,25 @@ tmpfd (void)
            *p++ = tohex (((value >> 28) & 0x0f));
            value <<= 4;
          }
@@ -193,7 +193,7 @@ index 4e8bd8b..2c64a40 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index d2c3b8d..0792507 100644
+index b97f38a..f112e59 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
