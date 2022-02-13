@@ -19,7 +19,7 @@
 
 # (Process this file with autoconf to produce a configure script.)
 # The following lines are used by ./autogen.sh.
-AC_PREREQ([2.59])
+AC_PREREQ([2.69])
 min_automake_version="1.14"
 
 # To build a release you need to create a tag with the version number
@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [43])
+m4_define([mym4_minor], [44])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -51,7 +51,7 @@ AC_INIT([mym4_package],[mym4_version],[https://bugs.gnupg.org])
 # Note that added error codes don't constitute an interface change.
 LIBGPG_ERROR_LT_CURRENT=32
 LIBGPG_ERROR_LT_AGE=32
-LIBGPG_ERROR_LT_REVISION=1
+LIBGPG_ERROR_LT_REVISION=2
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -65,7 +65,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([serial-tests dist-bzip2])
 AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([src/err-sources.h.in])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_SILENT_RULES
 
@@ -190,7 +190,6 @@ AM_GNU_GETTEXT_VERSION([0.19.3])
 AM_GNU_GETTEXT([external])
 
 # Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS([locale.h stdint.h sys/select.h sys/time.h \
                   signal.h poll.h pwd.h])
 
@@ -215,7 +214,7 @@ AC_SUBST(INSTALLSHELLPATH)
 
 AC_FUNC_FORK
 AC_CHECK_FUNCS([flockfile vasprintf mmap rand strlwr stpcpy setenv stat \
-                getrlimit getpwnam getpwuid getpwnam_r getpwuid_r ])
+                getrlimit getpwnam getpwuid getpwnam_r getpwuid_r inet_pton])
 
 
 #
@@ -547,17 +546,17 @@ case "$includedir" in
   '${prefix}/include')
     if test "$prefix" != / -a "$prefix" != /usr; then
       if test -z "$GPG_ERROR_CONFIG_CFLAGS"; then
-        GPG_ERROR_CONFIG_CFLAGS="-I$includedir"
+        GPG_ERROR_CONFIG_CFLAGS="-I\${includedir}"
       else
-        GPG_ERROR_CONFIG_CFLAGS="-I$includedir $GPG_ERROR_CONFIG_CFLAGS"
+        GPG_ERROR_CONFIG_CFLAGS="-I\${includedir} $GPG_ERROR_CONFIG_CFLAGS"
       fi
     fi
     ;;
   *)
     if test -z "$GPG_ERROR_CONFIG_CFLAGS"; then
-      GPG_ERROR_CONFIG_CFLAGS="-I$includedir"
+      GPG_ERROR_CONFIG_CFLAGS="-I\${includedir}"
     else
-      GPG_ERROR_CONFIG_CFLAGS="-I$includedir $GPG_ERROR_CONFIG_CFLAGS"
+      GPG_ERROR_CONFIG_CFLAGS="-I\${includedir} $GPG_ERROR_CONFIG_CFLAGS"
     fi
     ;;
 esac
@@ -566,13 +565,13 @@ case "$libdir" in
   '${exec_prefix}/lib')
     if test "$exec_prefix" = "NONE"; then
       if test "$prefix" != / -a "$prefix" != /usr; then
-        GPG_ERROR_CONFIG_LIBS="-L$libdir $GPG_ERROR_CONFIG_LIBS"
+        GPG_ERROR_CONFIG_LIBS="-L\${libdir} $GPG_ERROR_CONFIG_LIBS"
       fi
     elif test "$exec_prefix" != / -a "$exec_prefix" != /usr; then
-      GPG_ERROR_CONFIG_LIBS="-L$libdir $GPG_ERROR_CONFIG_LIBS"
+      GPG_ERROR_CONFIG_LIBS="-L\${libdir} $GPG_ERROR_CONFIG_LIBS"
     fi
     ;;
-  *) GPG_ERROR_CONFIG_LIBS="-L$libdir $GPG_ERROR_CONFIG_LIBS" ;;
+  *) GPG_ERROR_CONFIG_LIBS="-L\${libdir} $GPG_ERROR_CONFIG_LIBS" ;;
 esac
 
 AC_SUBST(GPG_ERROR_CONFIG_LIBS)
@@ -605,7 +604,7 @@ if test x"$gl_use_threads" = xno; then
   AC_MSG_NOTICE([generated src/lock-obj-pub.native.h for $host])
 elif test x$cross_compiling = xyes; then
   case $host in
-    *-*-linux-gnu*)
+    *-*-linux-gnu* | *-*-linux-musl*)
     AC_CHECK_TOOL(OBJDUMP, [objdump])
     if test -n "$OBJDUMP"; then
       lock_obj_h_generated=yes
@@ -632,6 +631,19 @@ AM_CONDITIONAL(HAVE_W32CE_SYSTEM, test "$have_w32ce_system" = yes)
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 AM_CONDITIONAL(FORCE_USE_SYSCFG, test x$force_use_syscfg = xyes)
 AM_CONDITIONAL(HAVE_GENERATED_LOCK_OBJ_H, test x$lock_obj_h_generated = xyes)
+
+have_lock_optimization=no
+if test "$gl_threads_api" = posix; then
+  if test x$ac_cv_header_sys_single_threaded_h = xyes; then
+    have_lock_optimization=yes
+  else
+    case "$gl_cv_have_weak" in
+        *yes) have_lock_optimization=yes ;;
+        * ) ;;
+    esac
+  fi
+fi
+AM_CONDITIONAL(HAVE_LOCK_OPTIMIZATION, test "$have_lock_optimization" = yes)
 
 AC_DEFINE_UNQUOTED(HOST_TRIPLET_STRING, "$host", [The host triplet])
 
