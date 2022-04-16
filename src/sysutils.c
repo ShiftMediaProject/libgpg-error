@@ -30,6 +30,9 @@
 # include <windows.h>
 # include <direct.h>
 # include <io.h>
+# ifndef W_OK
+#  define W_OK 2
+# endif
 #endif
 #ifdef HAVE_STAT
 # include <sys/stat.h>
