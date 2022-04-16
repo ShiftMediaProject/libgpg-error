@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [44])
+m4_define([mym4_minor], [45])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,9 +49,9 @@ AC_INIT([mym4_package],[mym4_version],[https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=32
-LIBGPG_ERROR_LT_AGE=32
-LIBGPG_ERROR_LT_REVISION=2
+LIBGPG_ERROR_LT_CURRENT=33
+LIBGPG_ERROR_LT_AGE=33
+LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -637,9 +637,9 @@ if test "$gl_threads_api" = posix; then
   if test x$ac_cv_header_sys_single_threaded_h = xyes; then
     have_lock_optimization=yes
   else
-    case "$gl_cv_have_weak" in
-        *yes) have_lock_optimization=yes ;;
-        * ) ;;
+    case "${host_os}" in
+      *-gnu*) have_lock_optimization=yes ;;
+      * ) ;;
     esac
   fi
 fi
