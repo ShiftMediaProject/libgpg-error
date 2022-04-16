@@ -54,7 +54,7 @@ index fe25657..35f08cd 100644
  #include <errno.h>
  #include <stddef.h>
 diff --git a/src/estream.c b/src/estream.c
-index 36be4bb..3563217 100644
+index 0542f59..572024d 100644
 --- a/src/estream.c
 +++ b/src/estream.c
 @@ -71,12 +71,15 @@
@@ -108,7 +108,7 @@ index 36be4bb..3563217 100644
  /* Generally used types.  */
  
  typedef void *(*func_realloc_t) (void *mem, size_t size);
-@@ -4643,37 +4655,27 @@ tmpfd (void)
+@@ -4770,37 +4782,27 @@ tmpfd (void)
  {
  #ifdef HAVE_W32_SYSTEM
    int attempts, n;
@@ -148,7 +148,7 @@ index 36be4bb..3563217 100644
    *p++ = '\\';
    name = p;
    for (attempts=0; attempts < 10; attempts++)
-@@ -4685,18 +4687,25 @@ tmpfd (void)
+@@ -4812,18 +4814,25 @@ tmpfd (void)
            *p++ = tohex (((value >> 28) & 0x0f));
            value <<= 4;
          }
@@ -528,7 +528,7 @@ index fb1bebf..0554309 100644
  #include <langinfo.h>
  #endif
 diff --git a/src/sysutils.c b/src/sysutils.c
-index 8f70a66..024802c 100644
+index bc3a68d..a1974a7 100644
 --- a/src/sysutils.c
 +++ b/src/sysutils.c
 @@ -22,10 +22,14 @@
@@ -547,7 +547,7 @@ index 8f70a66..024802c 100644
  #endif
  #ifdef HAVE_STAT
  # include <sys/stat.h>
-@@ -82,7 +86,7 @@ _gpgrt_getenv (const char *name)
+@@ -68,7 +72,7 @@ _gpgrt_getenv (const char *name)
      int len, size;
      char *result;
  
@@ -556,7 +556,7 @@ index 8f70a66..024802c 100644
      if (!len && GetLastError () == ERROR_ENVVAR_NOT_FOUND)
        {
          _gpg_err_set_errno (0);
-@@ -93,7 +97,7 @@ _gpgrt_getenv (const char *name)
+@@ -79,7 +83,7 @@ _gpgrt_getenv (const char *name)
      result = _gpgrt_malloc (size);
      if (!result)
        return NULL;
@@ -565,7 +565,7 @@ index 8f70a66..024802c 100644
      if (len >= size)
        {
          /* Changed in the meantime - retry.  */
-@@ -155,7 +159,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+@@ -141,7 +145,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
  
      if (!value && overwrite)
        {
@@ -574,7 +574,7 @@ index 8f70a66..024802c 100644
            return GPG_ERR_EINVAL;
          if (getenv (name))
            {
-@@ -169,8 +173,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+@@ -155,8 +159,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
          return 0;
        }
  
@@ -585,7 +585,7 @@ index 8f70a66..024802c 100644
        return GPG_ERR_EINVAL; /* (Might also be ENOMEM.) */
      if (overwrite || !getenv (name))
        {
-@@ -483,6 +487,7 @@ _gpgrt_getusername (void)
+@@ -570,6 +574,7 @@ _gpgrt_getusername (void)
    char *result = NULL;
  
  #ifdef HAVE_W32_SYSTEM
@@ -593,7 +593,7 @@ index 8f70a66..024802c 100644
    wchar_t wtmp[1];
    wchar_t *wbuf;
    DWORD wsize = 1;
-@@ -505,6 +510,7 @@ _gpgrt_getusername (void)
+@@ -592,6 +597,7 @@ _gpgrt_getusername (void)
    xfree (wbuf);
    return buf;
  
@@ -626,7 +626,7 @@ index 5bb1bcf..d1f1b71 100644
  /* Enable tracing.  The value is the module name to be printed.  */
  /*#define ENABLE_TRACING "estream" */
 diff --git a/src/w32-gettext.c b/src/w32-gettext.c
-index 7c4c9b0..1f4e82e 100644
+index 817c1ca..2f45f18 100644
 --- a/src/w32-gettext.c
 +++ b/src/w32-gettext.c
 @@ -649,7 +649,11 @@ my_nl_locale_name (const char *categoryname)
