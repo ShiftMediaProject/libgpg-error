@@ -1828,6 +1828,9 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
   else
     creation_distribution |= OPEN_EXISTING;
 
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+  hd = CreateFile2 (wpath, desired_access, share_mode, creation_distribution, NULL);
+#else
   hd = CreateFileW (wpath,
                     desired_access,
                     share_mode,
@@ -1835,6 +1838,7 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
                     creation_distribution,
                     0,     /* flags and attributes  */
                     NULL); /* template file  */
+#endif
   if (hd == INVALID_HANDLE_VALUE)
     {
       _set_errno (map_w32_to_errno (GetLastError ()));
