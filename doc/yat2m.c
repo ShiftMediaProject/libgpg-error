@@ -114,7 +114,7 @@
 
 #if MY_GCC_VERSION >= 20500
 # define ATTR_PRINTF(f, a) __attribute__ ((format(printf,f,a)))
-# define ATTR_NR_PRINTF(f, a) __attribute__ ((noreturn, format(printf,f,a)))
+# define ATTR_NR_PRINTF(f, a) __attribute__ ((__noreturn__, format(printf,f,a)))
 #else
 # define ATTR_PRINTF(f, a)
 # define ATTR_NR_PRINTF(f, a)
@@ -1323,7 +1323,8 @@ finish_page (void)
     }
   else if (opt_store)
     {
-      inf ("writing '%s'", thepage.name );
+      if (verbose)
+        inf ("writing '%s'", thepage.name );
       fp = fopen ( thepage.name, "w" );
       if (!fp)
         die ("failed to create '%s': %s\n", thepage.name, strerror (errno));

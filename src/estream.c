@@ -62,15 +62,15 @@
 
 #if defined(_WIN32) && !defined(HAVE_W32_SYSTEM)
 # define HAVE_W32_SYSTEM 1
-# if defined(__MINGW32CE__) && !defined (HAVE_W32CE_SYSTEM)
-#  define HAVE_W32CE_SYSTEM
-# endif
 #endif
 
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
 #include <sys/types.h>
+#ifdef HAVE_SYS_FILE_H
+# include <sys/file.h>
+#endif
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
 #endif
@@ -159,14 +159,7 @@
 #endif
 
 
-#ifdef HAVE_W32CE_SYSTEM
-# define _set_errno(a)  gpg_err_set_errno ((a))
-/* Setmode is missing in cegcc but available since CE 5.0.  */
-int _setmode (int handle, int mode);
-# define setmode(a,b)   _setmode ((a),(b))
-#else
-# define _set_errno(a)  do { errno = (a); } while (0)
-#endif
+#define _set_errno(a)  do { errno = (a); } while (0)
 
 #define IS_INVALID_FD(a)    ((a) == -1)
 
@@ -177,6 +170,7 @@ int _setmode (int handle, int mode);
 
 /* A helper macro used to convert to a hex string.  */
 #define tohex(n) ((n) < 10 ? ((n) + '0') : (((n) - 10) + 'A'))
+
 
 /* Generally used types.  */
 
@@ -1209,12 +1203,214 @@ static struct cookie_io_functions_s estream_functions_fd =
   };
 
 
+
+#ifdef HAVE_W32_SYSTEM
+/*
+ * Implementation of SOCKET based I/O.
+ */
 
+/* Cookie for SOCKET objects.  */
+typedef struct estream_cookie_sock
+{
+  SOCKET sock;   /* The SOCKET we are using for actual output.  */
+  int no_close;  /* If set we won't close the file descriptor.  */
+  int nonblock;  /* Non-blocking mode is enabled.  */
+} *estream_cookie_sock_t;
+
+
+/*
+ * Create function for objects indentified by a libc file descriptor.
+ */
+static int
+func_sock_create (void **cookie, SOCKET sock,
+                  unsigned int modeflags, int no_close)
+{
+  estream_cookie_sock_t sock_cookie;
+  int err;
+
+  trace (("enter: sock=%d mf=%x nc=%d", (int)sock, modeflags, no_close));
+
+  sock_cookie = mem_alloc (sizeof (*sock_cookie));
+  if (! sock_cookie)
+    err = -1;
+  else
+    {
+      sock_cookie->sock = sock;
+      sock_cookie->no_close = no_close;
+      sock_cookie->nonblock = !!(modeflags & O_NONBLOCK);
+      *cookie = sock_cookie;
+      err = 0;
+    }
+
+  trace_errno (err, ("leave: cookie=%p err=%d", *cookie, err));
+  return err;
+}
+
+
+/*
+ * Read function for SOCKET objects.
+ */
+static gpgrt_ssize_t
+func_sock_read (void *cookie, void *buffer, size_t size)
+
+{
+  estream_cookie_sock_t file_cookie = cookie;
+  gpgrt_ssize_t bytes_read;
+
+  trace (("enter: cookie=%p buffer=%p size=%d", cookie, buffer, (int)size));
+
+  if (!size)
+    bytes_read = -1; /* We don't know whether anything is pending.  */
+  else if (IS_INVALID_FD (file_cookie->sock))
+    {
+      _gpgrt_yield ();
+      bytes_read = 0;
+    }
+  else
+    {
+      _gpgrt_pre_syscall ();
+      do
+        {
+          bytes_read = recv (file_cookie->sock, buffer, size, 0);
+        }
+      while (bytes_read == -1 && errno == EINTR);
+      _gpgrt_post_syscall ();
+    }
+
+  trace_errno (bytes_read == -1, ("leave: bytes_read=%d", (int)bytes_read));
+  return bytes_read;
+}
+
+
+/*
+ * Write function for SOCKET objects.
+ */
+static gpgrt_ssize_t
+func_sock_write (void *cookie, const void *buffer, size_t size)
+{
+  estream_cookie_sock_t file_cookie = cookie;
+  gpgrt_ssize_t bytes_written;
+
+  trace (("enter: cookie=%p buffer=%p size=%d", cookie, buffer, (int)size));
+
+  if (IS_INVALID_FD (file_cookie->sock))
+    {
+      _gpgrt_yield ();
+      bytes_written = size; /* Yeah:  Success writing to the bit bucket.  */
+    }
+  else if (buffer)
+    {
+      _gpgrt_pre_syscall ();
+      do
+        {
+          bytes_written = send (file_cookie->sock, buffer, size, 0);
+        }
+      while (bytes_written == -1 && errno == EINTR);
+      _gpgrt_post_syscall ();
+    }
+  else
+    bytes_written = size; /* Note that for a flush SIZE should be 0.  */
+
+  trace_errno (bytes_written == -1,
+               ("leave: bytes_written=%d", (int)bytes_written));
+  return bytes_written;
+}
+
+
+/*
+ * Seek function for SOCKET objects.
+ */
+static int
+func_sock_seek (void *cookie, gpgrt_off_t *offset, int whence)
+{
+  (void)cookie;
+  (void)offset;
+  (void)whence;
+  _set_errno (ESPIPE);
+  return -1;
+}
+
+
+/*
+ * The IOCTL function for SOCKET objects.
+ */
+static int
+func_sock_ioctl (void *cookie, int cmd, void *ptr, size_t *len)
+{
+  estream_cookie_sock_t sock_cookie = cookie;
+  int ret;
+
+  if (cmd == COOKIE_IOCTL_NONBLOCK && !len)
+    {
+      sock_cookie->nonblock = !!ptr;
+      if (IS_INVALID_FD (sock_cookie->sock))
+        {
+          _set_errno (EINVAL);
+          ret = -1;
+        }
+      else
+        {
+          u_long mode = 0;
+
+          if (sock_cookie->nonblock)
+            mode = 1;
+
+          ret = ioctlsocket (sock_cookie->sock, FIONBIO, &mode);
+        }
+    }
+  else
+    {
+      _set_errno (EINVAL);
+      ret = -1;
+    }
+
+  return ret;
+}
+
+/*
+ * The destroy function for SOCKET objects.
+ */
+static int
+func_sock_destroy (void *cookie)
+{
+  estream_cookie_sock_t sock_cookie = cookie;
+  int err;
+
+  trace (("enter: cookie=%p", cookie));
+
+  if (sock_cookie)
+    {
+      if (IS_INVALID_FD (sock_cookie->sock))
+        err = 0;
+      else
+        err = sock_cookie->no_close? 0 : closesocket (sock_cookie->sock);
+      mem_free (sock_cookie);
+    }
+  else
+    err = 0;
+
+  trace_errno (err,("leave: err=%d", err));
+  return err;
+}
+
+
+/*
+ * Access object for the fd functions.
+ */
+static struct cookie_io_functions_s estream_functions_sock =
+  {
+    {
+      func_sock_read,
+      func_sock_write,
+      func_sock_seek,
+      func_sock_destroy,
+    },
+    func_sock_ioctl,
+  };
 
 /*
  * Implementation of W32 handle based I/O.
  */
-#ifdef HAVE_W32_SYSTEM
 
 /* Cookie for fd objects.  */
 typedef struct estream_cookie_w32
@@ -1380,6 +1576,12 @@ func_w32_seek (void *cookie, gpgrt_off_t *offset, int whence)
       return -1;
     }
 
+  if (GetFileType (w32_cookie->hd) == FILE_TYPE_PIPE)
+    {
+      _set_errno (ESPIPE);
+      return -1;
+    }
+
   if (whence == SEEK_SET)
     {
       method = FILE_BEGIN;
@@ -1400,9 +1602,6 @@ func_w32_seek (void *cookie, gpgrt_off_t *offset, int whence)
       _set_errno (EINVAL);
       return -1;
     }
-#ifdef HAVE_W32CE_SYSTEM
-# warning need to use SetFilePointer
-#else
   if (!w32_cookie->no_syscall_clamp)
     _gpgrt_pre_syscall ();
   if (!SetFilePointerEx (w32_cookie->hd, distance, &newoff, method))
@@ -1413,7 +1612,6 @@ func_w32_seek (void *cookie, gpgrt_off_t *offset, int whence)
     }
   if (!w32_cookie->no_syscall_clamp)
     _gpgrt_post_syscall ();
-#endif
   /* Note that gpgrt_off_t is always 64 bit.  */
   *offset = (gpgrt_off_t)newoff.QuadPart;
   return 0;
@@ -3661,6 +3859,53 @@ _gpgrt_fpopen_nc (FILE *fp, const char *mode)
 
 
 #ifdef HAVE_W32_SYSTEM
+static estream_t
+do_sockopen (SOCKET sock, const char *mode, int no_close, int with_locked_list)
+{
+  int create_called = 0;
+  estream_t stream = NULL;
+  void *cookie = NULL;
+  unsigned int modeflags, xmode;
+  int err;
+  es_syshd_t syshd;
+
+  err = parse_mode (mode, &modeflags, &xmode, NULL);
+  if (err)
+    goto out;
+  if ((xmode & X_SYSOPEN))
+    {
+      /* Not allowed for sockopen.  */
+      _set_errno (EINVAL);
+      err = -1;
+      goto out;
+    }
+
+  err = func_sock_create (&cookie, sock, modeflags, no_close);
+  if (err)
+    goto out;
+
+  syshd.type = ES_SYSHD_SOCK;
+  syshd.u.sock = sock;
+  create_called = 1;
+  err = create_stream (&stream, cookie, &syshd,
+                       BACKEND_SOCK, estream_functions_sock,
+                       modeflags, xmode, with_locked_list);
+
+  if (!err && stream)
+    {
+      if ((modeflags & O_NONBLOCK))
+        err = stream->intern->func_ioctl (cookie, COOKIE_IOCTL_NONBLOCK,
+                                          "", NULL);
+    }
+
+ out:
+  if (err && create_called)
+    (*estream_functions_sock.public.func_close) (cookie);
+
+  return stream;
+}
+
+
 estream_t
 do_w32open (HANDLE hd, const char *mode,
             int no_close, int with_locked_list)
@@ -3708,11 +3953,16 @@ do_sysopen (es_syshd_t *syshd, const char *mode, int no_close)
   switch (syshd->type)
     {
     case ES_SYSHD_FD:
+#ifndef HAVE_W32_SYSTEM
     case ES_SYSHD_SOCK:
+#endif
       stream = do_fdopen (syshd->u.fd, mode, no_close, 0);
       break;
 
 #ifdef HAVE_W32_SYSTEM
+    case ES_SYSHD_SOCK:
+      stream = do_sockopen (syshd->u.sock, mode, no_close, 0);
+      break;
     case ES_SYSHD_HANDLE:
       stream = do_w32open (syshd->u.handle, mode, no_close, 0);
       break;
@@ -4786,9 +5036,9 @@ tmpfd (void)
 {
 #ifdef HAVE_W32_SYSTEM
   int attempts, n;
-  wchar_t buffer[MAX_PATH+9+12+1];
+  WCHAR buffer[MAX_PATH+9+12+1];
 # define mystrlen(a) wcslen (a)
-  wchar_t *name, *p;
+  WCHAR *name, *p;
   HANDLE file;
   int pid = GetCurrentProcessId ();
   unsigned int value;
@@ -4828,7 +5078,7 @@ tmpfd (void)
                          0,
                          CREATE_NEW,
                          &ex);
-#else
+ #else
       file = CreateFileW (buffer,
                          GENERIC_READ | GENERIC_WRITE,
                          0,
@@ -4839,16 +5089,12 @@ tmpfd (void)
 #endif
       if (file != INVALID_HANDLE_VALUE)
         {
-#ifdef HAVE_W32CE_SYSTEM
-          int fd = (int)file;
-#else
           int fd = _open_osfhandle ((intptr_t)file, 0);
           if (fd == -1)
             {
               CloseHandle (file);
               return -1;
             }
-#endif
           return fd;
         }
       Sleep (1); /* One ms as this is the granularity of GetTickCount.  */

@@ -23,7 +23,7 @@
 
 #include <config.h>
 
-#if !defined(HAVE_W32_SYSTEM) || defined (HAVE_W32CE_SYSTEM)
+#if !defined(HAVE_W32_SYSTEM)
 #error This code is only used on W32.
 #endif
 
@@ -77,11 +77,14 @@
  * long as the range of the value in the type HANDLE can be
  * represented by an int, it works.
  *
- * FIXME: Breaking ABI for pid_t will be needed when the value won't
- * fit within 32-bit range on 64-bit machine.
+ * FIXME with original MinGW: Breaking ABI for pid_t will be needed
+ * when the value won't fit within 32-bit range on 64-bit machine.
+ *
+ * Note that pid_t is 64-bit integer in sys/types.h with MinGW-w64.
+ * So, no problem with MinGW-w64.
  */
 #define pid_to_handle(a) ((HANDLE)(a))
-#define handle_to_pid(a) ((int)(a))
+#define handle_to_pid(a) ((pid_t)(a))
 
 
 /* Return the maximum number of currently allowed open file
@@ -424,7 +427,7 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
     *r_outfp = NULL;
   if (r_errfp)
     *r_errfp = NULL;
-  *pid = (pid_t)(-1); /* Always required.  */
+  *pid = (pid_t)INVALID_HANDLE_VALUE; /* Always required.  */
 
   if (r_infp)
     {
@@ -657,7 +660,7 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
   HANDLE stdhd[3];
 
   /* Setup return values.  */
-  *pid = (pid_t)(-1);
+  *pid = (pid_t)INVALID_HANDLE_VALUE;
 
   /* Prepare security attributes.  */
   memset (&sec_attr, 0, sizeof sec_attr );
@@ -757,7 +760,7 @@ _gpgrt_wait_processes (const char **pgmnames, pid_t *pids, size_t count,
       if (r_exitcodes)
         r_exitcodes[i] = -1;
 
-      if (pids[i] == (pid_t)(-1))
+      if (pids[i] == (pid_t)INVALID_HANDLE_VALUE)
         return GPG_ERR_INV_VALUE;
 
       procs[i] = pid_to_handle (pids[i]);
@@ -907,7 +910,7 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
 void
 _gpgrt_kill_process (pid_t pid)
 {
-  if (pid != (pid_t) (-1))
+  if (pid != (pid_t)INVALID_HANDLE_VALUE)
     {
 #ifdef HAVE_W64_SYSTEM
       HANDLE process = OpenProcess (PROCESS_TERMINATE, FALSE, pid);
