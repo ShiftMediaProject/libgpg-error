@@ -1,8 +1,8 @@
 diff --git a/autogen.sh b/autogen.sh
-index 9b36158..ac8c522 100755
+index 9ea0612..91bf718 100755
 --- a/autogen.sh
 +++ b/autogen.sh
-@@ -505,8 +505,8 @@ info "Running $ACLOCAL ${aclocal_flags} ..."
+@@ -491,8 +491,8 @@ info "Running $ACLOCAL ${aclocal_flags} ..."
  $ACLOCAL ${aclocal_flags}
  info "Running autoheader..."
  $AUTOHEADER
@@ -14,7 +14,7 @@ index 9b36158..ac8c522 100755
  $AUTOCONF${FORCE}
  
 diff --git a/src/argparse.c b/src/argparse.c
-index cedb2f5..888c30a 100644
+index ef0c161..2ef1a16 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -39,10 +39,10 @@ index cedb2f5..888c30a 100644
  # define PATHSEP_C ':'
  # define DIRSEP_C  '/'
 diff --git a/src/estream-printf.c b/src/estream-printf.c
-index fe25657..35f08cd 100644
+index 831af55..3c3e057 100644
 --- a/src/estream-printf.c
 +++ b/src/estream-printf.c
-@@ -85,7 +85,9 @@
+@@ -82,7 +82,9 @@
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
@@ -54,15 +54,18 @@ index fe25657..35f08cd 100644
  #include <errno.h>
  #include <stddef.h>
 diff --git a/src/estream.c b/src/estream.c
-index 0542f59..917f213 100644
+index 17d599f..1f0cfa3 100644
 --- a/src/estream.c
 +++ b/src/estream.c
-@@ -71,12 +71,15 @@
+@@ -68,12 +68,18 @@
  # include <sys/time.h>
  #endif
  #include <sys/types.h>
 -#include <sys/file.h>
 -#include <sys/stat.h>
++#ifdef HAVE_SYS_FILE_H
++# include <sys/file.h>
++#endif
 +#ifdef HAVE_SYS_STAT_H
 +# include <sys/stat.h>
 +#endif
@@ -76,7 +79,7 @@ index 0542f59..917f213 100644
  #include <stdarg.h>
  #include <fcntl.h>
  #include <errno.h>
-@@ -86,6 +89,7 @@
+@@ -83,6 +89,7 @@
  #  include <winsock2.h>
  # endif
  # include <windows.h>
@@ -84,7 +87,7 @@ index 0542f59..917f213 100644
  #else
  # ifdef HAVE_POLL_H
  #  include <poll.h>
-@@ -116,6 +120,15 @@
+@@ -113,6 +120,15 @@
  
  
  #ifdef HAVE_W32_SYSTEM
@@ -100,15 +103,7 @@ index 0542f59..917f213 100644
  # ifndef  S_IRGRP
  #  define S_IRGRP S_IRUSR
  # endif
-@@ -165,7 +178,6 @@ int _setmode (int handle, int mode);
- /* A helper macro used to convert to a hex string.  */
- #define tohex(n) ((n) < 10 ? ((n) + '0') : (((n) - 10) + 'A'))
- 
--
- /* Generally used types.  */
- 
- typedef void *(*func_realloc_t) (void *mem, size_t size);
-@@ -1816,6 +1828,9 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
+@@ -2010,6 +2026,9 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
    else
      creation_distribution |= OPEN_EXISTING;
  
@@ -118,7 +113,7 @@ index 0542f59..917f213 100644
    hd = CreateFileW (wpath,
                      desired_access,
                      share_mode,
-@@ -1823,6 +1838,7 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
+@@ -2017,6 +2036,7 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
                      creation_distribution,
                      0,     /* flags and attributes  */
                      NULL); /* template file  */
@@ -126,19 +121,16 @@ index 0542f59..917f213 100644
    if (hd == INVALID_HANDLE_VALUE)
      {
        _set_errno (map_w32_to_errno (GetLastError ()));
-@@ -4770,37 +4786,27 @@ tmpfd (void)
+@@ -5016,27 +5036,27 @@ tmpfd (void)
  {
  #ifdef HAVE_W32_SYSTEM
    int attempts, n;
--#ifdef HAVE_W32CE_SYSTEM
-   wchar_t buffer[MAX_PATH+9+12+1];
- # define mystrlen(a) wcslen (a)
-   wchar_t *name, *p;
--#else
 -  char buffer[MAX_PATH+9+12+1];
 -# define mystrlen(a) strlen (a)
 -  char *name, *p;
--#endif
++  WCHAR buffer[MAX_PATH+9+12+1];
++# define mystrlen(a) wcslen (a)
++  WCHAR *name, *p;
    HANDLE file;
    int pid = GetCurrentProcessId ();
    unsigned int value;
@@ -152,11 +144,8 @@ index 0542f59..917f213 100644
        return -1;
      }
    p = buffer + mystrlen (buffer);
--#ifdef HAVE_W32CE_SYSTEM
-   wcscpy (p, L"_estream");
--#else
 -  strcpy (p, "_estream");
--#endif
++  wcscpy (p, L"_estream");
    p += 8;
    /* We try to create the directory but don't care about an error as
       it may already exist and the CreateFile would throw an error
@@ -166,12 +155,13 @@ index 0542f59..917f213 100644
    *p++ = '\\';
    name = p;
    for (attempts=0; attempts < 10; attempts++)
-@@ -4812,18 +4818,25 @@ tmpfd (void)
+@@ -5048,14 +5068,25 @@ tmpfd (void)
            *p++ = tohex (((value >> 28) & 0x0f));
            value <<= 4;
          }
--#ifdef HAVE_W32CE_SYSTEM
-       wcscpy (p, L".tmp");
+-      strcpy (p, ".tmp");
+-      file = CreateFile (buffer,
++      wcscpy (p, L".tmp");
 +#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
 +      CREATEFILE2_EXTENDED_PARAMETERS ex = { 0 };
 +      ex.dwFileFlags = FILE_FLAG_DELETE_ON_CLOSE;
@@ -181,10 +171,7 @@ index 0542f59..917f213 100644
 +                         0,
 +                         CREATE_NEW,
 +                         &ex);
- #else
--      strcpy (p, ".tmp");
--#endif
--      file = CreateFile (buffer,
++ #else
 +      file = CreateFileW (buffer,
                           GENERIC_READ | GENERIC_WRITE,
                           0,
@@ -195,7 +182,7 @@ index 0542f59..917f213 100644
 +#endif
        if (file != INVALID_HANDLE_VALUE)
          {
- #ifdef HAVE_W32CE_SYSTEM
+           int fd = _open_osfhandle ((intptr_t)file, 0);
 diff --git a/src/gpg-error.c b/src/gpg-error.c
 index 4e8bd8b..2c64a40 100644
 --- a/src/gpg-error.c
@@ -211,7 +198,7 @@ index 4e8bd8b..2c64a40 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index b97f38a..f112e59 100644
+index ccacf35..9332604 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
@@ -224,10 +211,10 @@ index b97f38a..f112e59 100644
  #endif
  
 diff --git a/src/init.c b/src/init.c
-index 2d9f7ab..9d1c338 100644
+index 493e3ba..b1b93f5 100644
 --- a/src/init.c
 +++ b/src/init.c
-@@ -53,6 +53,10 @@ static int tls_index = TLS_OUT_OF_INDEXES;  /* Index for the TLS functions.  */
+@@ -42,6 +42,10 @@ static int tls_index = TLS_OUT_OF_INDEXES;  /* Index for the TLS functions.  */
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
  
@@ -239,7 +226,7 @@ index 2d9f7ab..9d1c338 100644
  
  #define get_locale_dir() LOCALEDIR
 diff --git a/src/logging.c b/src/logging.c
-index e4b7e40..e0c28b6 100644
+index 96adce3..e15dac0 100644
 --- a/src/logging.c
 +++ b/src/logging.c
 @@ -38,13 +38,17 @@
@@ -283,7 +270,7 @@ index e4b7e40..e0c28b6 100644
  
  
 diff --git a/src/mkheader.c b/src/mkheader.c
-index 1d2ea20..88444b1 100644
+index e05dafd..33487a9 100644
 --- a/src/mkheader.c
 +++ b/src/mkheader.c
 @@ -16,7 +16,12 @@
@@ -299,28 +286,8 @@ index 1d2ea20..88444b1 100644
  
  #define PGM "mkheader"
  
-@@ -573,18 +578,9 @@ write_special (const char *fname, int lnr, const char *tag)
-               sys_types_h_included = 1;
-             }
-         }
--      else if (have_w64_system)
--        {
--          if (!stdint_h_included && have_stdint_h)
--            {
--              fputs ("#include <stdint.h>\n", stdout);
--              stdint_h_included = 1;
--            }
--          fputs ("typedef int64_t pid_t\n", stdout);
--        }
-       else
-         {
--          fputs ("typedef int     pid_t\n", stdout);
-+          fputs ("typedef int     pid_t;\n", stdout);
-         }
-     }
-   else if (!strcmp (tag, "include:err-sources"))
 diff --git a/src/spawn-w32.c b/src/spawn-w32.c
-index 3ede1f2..44a71a2 100644
+index 90c0538..fbfd69c 100644
 --- a/src/spawn-w32.c
 +++ b/src/spawn-w32.c
 @@ -34,12 +34,15 @@
@@ -340,7 +307,7 @@ index 3ede1f2..44a71a2 100644
  #include <windows.h>
  
  #include "gpgrt-int.h"
-@@ -315,7 +318,7 @@ do_create_pipe_and_estream (int filedes[2],
+@@ -318,7 +321,7 @@ do_create_pipe_and_estream (int filedes[2],
    err = GPG_ERR_GENERAL;
    if (!create_inheritable_pipe (fds, flags))
      {
@@ -349,7 +316,7 @@ index 3ede1f2..44a71a2 100644
        if (filedes[0] == -1)
          {
            _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[0]);
-@@ -323,7 +326,7 @@ do_create_pipe_and_estream (int filedes[2],
+@@ -326,7 +329,7 @@ do_create_pipe_and_estream (int filedes[2],
          }
        else
          {
@@ -358,7 +325,7 @@ index 3ede1f2..44a71a2 100644
            if (filedes[1] == -1)
              {
                _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[1]);
-@@ -396,7 +399,7 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
+@@ -399,7 +402,7 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
        0,         /* Returns pid.  */
        0          /* Returns tid.  */
      };
@@ -367,7 +334,7 @@ index 3ede1f2..44a71a2 100644
    int cr_flags;
    char *cmdline;
    HANDLE inpipe[2]  = {INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE};
-@@ -551,16 +554,16 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
+@@ -554,16 +557,16 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
                | CREATE_SUSPENDED);
    _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
                      pgmname, cmdline);
@@ -394,7 +361,7 @@ index 3ede1f2..44a71a2 100644
                          );
    if (!ret)
      {
-@@ -631,7 +634,11 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
+@@ -634,7 +637,11 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
    if (r_errfp)
      *r_errfp = errfp;
  
@@ -407,7 +374,7 @@ index 3ede1f2..44a71a2 100644
    return 0;
  }
  
-@@ -644,7 +651,7 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
+@@ -647,7 +654,7 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
    gpg_err_code_t err;
    SECURITY_ATTRIBUTES sec_attr;
    PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
@@ -416,7 +383,7 @@ index 3ede1f2..44a71a2 100644
    char *cmdline;
    int ret, i;
    HANDLE stdhd[3];
-@@ -675,18 +682,18 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
+@@ -678,18 +685,18 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
  
    _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
                      pgmname, cmdline);
@@ -447,7 +414,7 @@ index 3ede1f2..44a71a2 100644
                        );
    if (!ret)
      {
-@@ -714,7 +721,11 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
+@@ -717,7 +724,11 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
    ResumeThread (pi.hThread);
    CloseHandle (pi.hThread);
  
@@ -460,7 +427,7 @@ index 3ede1f2..44a71a2 100644
    return 0;
  }
  
-@@ -822,7 +833,7 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
+@@ -825,7 +836,7 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
        0,         /* Returns pid.  */
        0          /* Returns tid.  */
      };
@@ -469,7 +436,7 @@ index 3ede1f2..44a71a2 100644
    int cr_flags;
    char *cmdline;
    int ret;
-@@ -857,16 +868,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
+@@ -860,16 +871,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
                | DETACHED_PROCESS);
    _gpgrt_log_debug ("CreateProcess(detached), path='%s' cmdline='%s'\n",
                      pgmname, cmdline);
@@ -496,12 +463,9 @@ index 3ede1f2..44a71a2 100644
                         );
    if (!ret)
      {
-@@ -896,9 +907,13 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
- void
- _gpgrt_kill_process (pid_t pid)
+@@ -901,7 +912,11 @@ _gpgrt_kill_process (pid_t pid)
  {
--  if (pid != (pid_t) INVALID_HANDLE_VALUE)
-+  if (pid != (pid_t) (-1))
+   if (pid != (pid_t)INVALID_HANDLE_VALUE)
      {
 -      HANDLE process = (HANDLE) pid;
 +#ifdef HAVE_W64_SYSTEM
@@ -512,7 +476,7 @@ index 3ede1f2..44a71a2 100644
  
        /* Arbitrary error code.  */
        _gpgrt_pre_syscall ();
-@@ -911,9 +926,13 @@ _gpgrt_kill_process (pid_t pid)
+@@ -914,9 +929,13 @@ _gpgrt_kill_process (pid_t pid)
  void
  _gpgrt_release_process (pid_t pid)
  {
@@ -546,7 +510,7 @@ index fb1bebf..0554309 100644
  #include <langinfo.h>
  #endif
 diff --git a/src/sysutils.c b/src/sysutils.c
-index bc3a68d..5a80c10 100644
+index 1251ed6..28bf975 100644
 --- a/src/sysutils.c
 +++ b/src/sysutils.c
 @@ -22,10 +22,17 @@
@@ -606,7 +570,7 @@ index bc3a68d..5a80c10 100644
        return GPG_ERR_EINVAL; /* (Might also be ENOMEM.) */
      if (overwrite || !getenv (name))
        {
-@@ -570,6 +577,7 @@ _gpgrt_getusername (void)
+@@ -566,6 +573,7 @@ _gpgrt_getusername (void)
    char *result = NULL;
  
  #ifdef HAVE_W32_SYSTEM
@@ -614,7 +578,7 @@ index bc3a68d..5a80c10 100644
    wchar_t wtmp[1];
    wchar_t *wbuf;
    DWORD wsize = 1;
-@@ -592,6 +600,7 @@ _gpgrt_getusername (void)
+@@ -588,6 +596,7 @@ _gpgrt_getusername (void)
    xfree (wbuf);
    return buf;
  
@@ -623,7 +587,7 @@ index bc3a68d..5a80c10 100644
  
  # if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
 diff --git a/src/w32-estream.c b/src/w32-estream.c
-index 5bb1bcf..d1f1b71 100644
+index 06851a5..1efc76b 100644
 --- a/src/w32-estream.c
 +++ b/src/w32-estream.c
 @@ -30,6 +30,9 @@
@@ -644,8 +608,8 @@ index 5bb1bcf..d1f1b71 100644
 +typedef SSIZE_T ssize_t;
 +#endif
  
- /* Enable tracing.  The value is the module name to be printed.  */
- /*#define ENABLE_TRACING "estream" */
+ #ifndef EOPNOTSUPP
+ # define EOPNOTSUPP ENOSYS
 diff --git a/src/w32-gettext.c b/src/w32-gettext.c
 index 817c1ca..2f45f18 100644
 --- a/src/w32-gettext.c
@@ -725,7 +689,7 @@ index 888b722..faad56b 100644
          return 1200;
      else if (_strnicmp(name, "cp", 2) == 0)
 diff --git a/src/w32-reg.c b/src/w32-reg.c
-index d1d2ca6..588cffa 100644
+index b1134a5..26d1687 100644
 --- a/src/w32-reg.c
 +++ b/src/w32-reg.c
 @@ -46,6 +46,9 @@ char *
@@ -738,7 +702,7 @@ index d1d2ca6..588cffa 100644
    HKEY root_key, key_handle;
    DWORD n1, nbytes, type;
    char *result = NULL;
-@@ -111,7 +114,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
+@@ -110,7 +113,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
        tmp = xtrymalloc (n1 + 1);
        if (!tmp)
          goto leave;
@@ -747,7 +711,7 @@ index d1d2ca6..588cffa 100644
        if (nbytes && nbytes > n1)
          {
            xfree (tmp);
-@@ -119,7 +122,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
+@@ -118,7 +121,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
            tmp = xtrymalloc (n1 + 1);
            if (!tmp)
              goto leave;
@@ -756,7 +720,7 @@ index d1d2ca6..588cffa 100644
            if (nbytes && nbytes > n1) {
              xfree (tmp); /* Oops - truncated, better don't expand at all. */
              goto leave;
-@@ -151,6 +154,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
+@@ -164,6 +167,7 @@ _gpgrt_w32_reg_query_string (const char *root, const char *dir,
   leave:
    RegCloseKey (key_handle);
    return result;

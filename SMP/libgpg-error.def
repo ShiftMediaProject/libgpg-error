@@ -9,10 +9,6 @@ EXPORTS
  gpg_err_code_from_syserror @7
  gpg_err_set_errno @8
 
-
-
-
-
    _gpg_w32_bindtextdomain @11
    _gpg_w32_textdomain @12
    _gpg_w32_gettext @13
@@ -210,7 +206,6 @@ EXPORTS
  gpgrt_absfnameconcat @179
 
  gpgrt_reallocarray @180
- gpgrt_fclose @181
 
  gpgrt_fcancel @182
 
