@@ -43,6 +43,7 @@ static const char msgstr[] =
   gettext_noop ("Assuan") "\0"
   gettext_noop ("TPM2d") "\0"
   gettext_noop ("TLS") "\0"
+  gettext_noop ("TKD") "\0"
   gettext_noop ("Any source") "\0"
   gettext_noop ("User defined source 1") "\0"
   gettext_noop ("User defined source 2") "\0"
@@ -71,18 +72,19 @@ static const int msgidx[] =
     117,
     123,
     127,
-    138,
-    160,
-    182,
-    204,
-    226
+    131,
+    142,
+    164,
+    186,
+    208,
+    230
   };
 
 static GPG_ERR_INLINE int
 msgidxof (int code)
 {
   return (0 ? 0
-  : ((code >= 0) && (code <= 17)) ? (code - 0)
-  : ((code >= 31) && (code <= 35)) ? (code - 13)
-  : 36 - 13);
+  : ((code >= 0) && (code <= 18)) ? (code - 0)
+  : ((code >= 31) && (code <= 35)) ? (code - 12)
+  : 36 - 12);
 }

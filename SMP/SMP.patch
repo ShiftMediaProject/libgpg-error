@@ -1,8 +1,8 @@
 diff --git a/autogen.sh b/autogen.sh
-index 9ea0612..91bf718 100755
+index 4e1665b..5e0a77a 100755
 --- a/autogen.sh
 +++ b/autogen.sh
-@@ -491,8 +491,8 @@ info "Running $ACLOCAL ${aclocal_flags} ..."
+@@ -502,8 +502,8 @@ info "Running $ACLOCAL ${aclocal_flags} ..."
  $ACLOCAL ${aclocal_flags}
  info "Running autoheader..."
  $AUTOHEADER
@@ -14,7 +14,7 @@ index 9ea0612..91bf718 100755
  $AUTOCONF${FORCE}
  
 diff --git a/src/argparse.c b/src/argparse.c
-index ef0c161..2ef1a16 100644
+index 8651e00..7ee791b 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -198,7 +198,7 @@ index 4e8bd8b..2c64a40 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index ccacf35..9332604 100644
+index bce028e..a051709 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
@@ -226,7 +226,7 @@ index 493e3ba..b1b93f5 100644
  
  #define get_locale_dir() LOCALEDIR
 diff --git a/src/logging.c b/src/logging.c
-index 96adce3..e15dac0 100644
+index 9008ba4..2b2a2df 100644
 --- a/src/logging.c
 +++ b/src/logging.c
 @@ -38,13 +38,17 @@
@@ -270,7 +270,7 @@ index 96adce3..e15dac0 100644
  
  
 diff --git a/src/mkheader.c b/src/mkheader.c
-index e05dafd..33487a9 100644
+index 8fbfbd6..3360145 100644
 --- a/src/mkheader.c
 +++ b/src/mkheader.c
 @@ -16,7 +16,12 @@
@@ -287,7 +287,7 @@ index e05dafd..33487a9 100644
  #define PGM "mkheader"
  
 diff --git a/src/spawn-w32.c b/src/spawn-w32.c
-index 90c0538..fbfd69c 100644
+index 324b5fe..29b9814 100644
 --- a/src/spawn-w32.c
 +++ b/src/spawn-w32.c
 @@ -34,12 +34,15 @@
@@ -307,7 +307,7 @@ index 90c0538..fbfd69c 100644
  #include <windows.h>
  
  #include "gpgrt-int.h"
-@@ -318,7 +321,7 @@ do_create_pipe_and_estream (int filedes[2],
+@@ -300,7 +303,7 @@ do_create_pipe_and_estream (int filedes[2],
    err = GPG_ERR_GENERAL;
    if (!create_inheritable_pipe (fds, flags))
      {
@@ -316,7 +316,7 @@ index 90c0538..fbfd69c 100644
        if (filedes[0] == -1)
          {
            _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[0]);
-@@ -326,7 +329,7 @@ do_create_pipe_and_estream (int filedes[2],
+@@ -308,7 +311,7 @@ do_create_pipe_and_estream (int filedes[2],
          }
        else
          {
@@ -325,7 +325,7 @@ index 90c0538..fbfd69c 100644
            if (filedes[1] == -1)
              {
                _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[1]);
-@@ -399,7 +402,7 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
+@@ -411,7 +414,7 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
        0,         /* Returns pid.  */
        0          /* Returns tid.  */
      };
@@ -334,7 +334,7 @@ index 90c0538..fbfd69c 100644
    int cr_flags;
    char *cmdline;
    HANDLE inpipe[2]  = {INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE};
-@@ -554,16 +557,16 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
+@@ -565,16 +568,16 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
                | CREATE_SUSPENDED);
    _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
                      pgmname, cmdline);
@@ -361,20 +361,7 @@ index 90c0538..fbfd69c 100644
                          );
    if (!ret)
      {
-@@ -634,7 +637,11 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
-   if (r_errfp)
-     *r_errfp = errfp;
- 
--  *pid = handle_to_pid (pi.hProcess);
-+#ifdef HAVE_W64_SYSTEM
-+  *pid = (pi.dwProcessId);
-+#else
-+  *pid = (int)(pi.hProcess);
-+#endif
-   return 0;
- }
- 
-@@ -647,7 +654,7 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
+@@ -661,7 +664,7 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
    gpg_err_code_t err;
    SECURITY_ATTRIBUTES sec_attr;
    PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
@@ -383,7 +370,7 @@ index 90c0538..fbfd69c 100644
    char *cmdline;
    int ret, i;
    HANDLE stdhd[3];
-@@ -678,18 +685,18 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
+@@ -700,18 +703,18 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
  
    _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
                      pgmname, cmdline);
@@ -414,20 +401,7 @@ index 90c0538..fbfd69c 100644
                        );
    if (!ret)
      {
-@@ -717,7 +724,11 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
-   ResumeThread (pi.hThread);
-   CloseHandle (pi.hThread);
- 
--  *pid = handle_to_pid (pi.hProcess);
-+#ifdef HAVE_W64_SYSTEM
-+  *pid = (pi.dwProcessId);
-+#else
-+  *pid = (int)(pi.hProcess);
-+#endif
-   return 0;
- }
- 
-@@ -825,7 +836,7 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
+@@ -850,7 +853,7 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
        0,         /* Returns pid.  */
        0          /* Returns tid.  */
      };
@@ -436,7 +410,7 @@ index 90c0538..fbfd69c 100644
    int cr_flags;
    char *cmdline;
    int ret;
-@@ -860,16 +871,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
+@@ -885,16 +888,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
                | DETACHED_PROCESS);
    _gpgrt_log_debug ("CreateProcess(detached), path='%s' cmdline='%s'\n",
                      pgmname, cmdline);
@@ -463,36 +437,8 @@ index 90c0538..fbfd69c 100644
                         );
    if (!ret)
      {
-@@ -901,7 +912,11 @@ _gpgrt_kill_process (pid_t pid)
- {
-   if (pid != (pid_t)INVALID_HANDLE_VALUE)
-     {
--      HANDLE process = (HANDLE) pid;
-+#ifdef HAVE_W64_SYSTEM
-+      HANDLE process = OpenProcess (PROCESS_TERMINATE, FALSE, pid);
-+#else
-+      HANDLE process = (HANDLE)pid;
-+#endif
- 
-       /* Arbitrary error code.  */
-       _gpgrt_pre_syscall ();
-@@ -914,9 +929,13 @@ _gpgrt_kill_process (pid_t pid)
- void
- _gpgrt_release_process (pid_t pid)
- {
--  if (pid != (pid_t)INVALID_HANDLE_VALUE)
-+  if (pid != (pid_t) (-1))
-     {
-+#ifdef HAVE_W64_SYSTEM
-+      HANDLE process = OpenProcess(DELETE, FALSE, pid);
-+#else
-       HANDLE process = (HANDLE)pid;
-+#endif
- 
-       CloseHandle (process);
-     }
 diff --git a/src/strerror.c b/src/strerror.c
-index fb1bebf..0554309 100644
+index 51e347b..5f094cd 100644
 --- a/src/strerror.c
 +++ b/src/strerror.c
 @@ -32,6 +32,13 @@
@@ -510,7 +456,7 @@ index fb1bebf..0554309 100644
  #include <langinfo.h>
  #endif
 diff --git a/src/sysutils.c b/src/sysutils.c
-index 1251ed6..28bf975 100644
+index fac72bf..80c9c8e 100644
 --- a/src/sysutils.c
 +++ b/src/sysutils.c
 @@ -22,10 +22,17 @@
@@ -550,16 +496,7 @@ index 1251ed6..28bf975 100644
      if (len >= size)
        {
          /* Changed in the meantime - retry.  */
-@@ -141,7 +148,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
- 
-     if (!value && overwrite)
-       {
--        if (!SetEnvironmentVariable (name, NULL))
-+        if (!SetEnvironmentVariableA (name, NULL))
-           return GPG_ERR_EINVAL;
-         if (getenv (name))
-           {
-@@ -155,8 +162,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+@@ -159,8 +166,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
          return 0;
        }
  
@@ -570,7 +507,7 @@ index 1251ed6..28bf975 100644
        return GPG_ERR_EINVAL; /* (Might also be ENOMEM.) */
      if (overwrite || !getenv (name))
        {
-@@ -566,6 +573,7 @@ _gpgrt_getusername (void)
+@@ -570,6 +577,7 @@ _gpgrt_getusername (void)
    char *result = NULL;
  
  #ifdef HAVE_W32_SYSTEM
@@ -578,7 +515,7 @@ index 1251ed6..28bf975 100644
    wchar_t wtmp[1];
    wchar_t *wbuf;
    DWORD wsize = 1;
-@@ -588,6 +596,7 @@ _gpgrt_getusername (void)
+@@ -592,6 +600,7 @@ _gpgrt_getusername (void)
    xfree (wbuf);
    return buf;
  
