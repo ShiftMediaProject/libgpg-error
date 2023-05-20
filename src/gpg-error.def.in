@@ -202,6 +202,7 @@ EXPORTS
 ;; gpgrt_wait_processes         @157
 ;; gpgrt_kill_process           @158
 ;; gpgrt_release_process        @159
+;; gpgrt_close_all_fds          @188
 
  gpgrt_argparse               @160
  gpgrt_usage                  @161
@@ -242,5 +243,6 @@ EXPORTS
  gpgrt_fname_to_wchar         @185
  gpgrt_utf8_to_wchar          @186
  gpgrt_wchar_to_utf8          @187
+
 
 ;; end of file with public symbols for Windows.

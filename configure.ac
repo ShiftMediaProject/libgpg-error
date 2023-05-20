@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [46])
+m4_define([mym4_minor], [47])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,9 +49,9 @@ AC_INIT([mym4_package],[mym4_version],[https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=33
-LIBGPG_ERROR_LT_AGE=33
-LIBGPG_ERROR_LT_REVISION=1
+LIBGPG_ERROR_LT_CURRENT=34
+LIBGPG_ERROR_LT_AGE=34
+LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
 AC_SUBST(LIBGPG_ERROR_LT_CURRENT)
@@ -216,7 +216,10 @@ AC_MSG_WARN([[Without strerror_r, gpg_strerror_r might not be thread-safe]]))
 esac
 AC_SUBST(INSTALLSHELLPATH)
 
-AC_FUNC_FORK
+# We don't check 'fork' by configure script.  Use of fork is inferred from by
+# the target system (POSIX or Windows).
+# AC_FUNC_FORK
+
 AC_CHECK_FUNCS([flockfile vasprintf mmap rand strlwr stpcpy setenv stat \
                 getrlimit getpwnam getpwuid getpwnam_r getpwuid_r inet_pton])
 
