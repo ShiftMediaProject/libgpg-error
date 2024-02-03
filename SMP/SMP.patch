@@ -211,7 +211,7 @@ index bce028e..a051709 100644
  #endif
  
 diff --git a/src/init.c b/src/init.c
-index 493e3ba..b1b93f5 100644
+index 493e3ba..0fcd2a0 100644
 --- a/src/init.c
 +++ b/src/init.c
 @@ -42,6 +42,10 @@ static int tls_index = TLS_OUT_OF_INDEXES;  /* Index for the TLS functions.  */
@@ -225,6 +225,35 @@ index 493e3ba..b1b93f5 100644
  #else /*!HAVE_W32_SYSTEM*/
  
  #define get_locale_dir() LOCALEDIR
+@@ -121,6 +125,19 @@ _gpg_err_init (void)
+   return 0;
+ }
+ 
++#if defined(HAVE_W32_SYSTEM) && !defined(DLL_EXPORT) && defined(_WIN32) && defined(_MSC_VER)
++# define _GPG_ERR_WIN32_CONSTRUCTOR_(_func, p) \
++   static int _func ## _wrapper(void) { _func(); return 0; } \
++   __pragma(section(".CRT$XCU",read)) \
++   __declspec(allocate(".CRT$XCU")) int (* _func##_)(void) = _func ## _wrapper; \
++   __pragma(comment(linker,"/include:" p #_func "_"))
++# ifdef _WIN64
++#  define _GPG_ERR_WIN32_CONSTRUCTOR(f) _GPG_ERR_WIN32_CONSTRUCTOR_(f, "")
++# else
++#  define _GPG_ERR_WIN32_CONSTRUCTOR(f) _GPG_ERR_WIN32_CONSTRUCTOR_(f, "_")
++# endif
++_GPG_ERR_WIN32_CONSTRUCTOR(_gpg_err_init)
++#endif
+ 
+ /* Deinitialize libgpg-error.  This function is only used in special
+    circumstances.  No gpg-error function should be used after this
+@@ -636,7 +653,7 @@ get_tls (void)
+ 
+ /* Entry point called by the DLL loader.  */
+ #ifdef DLL_EXPORT
+-int WINAPI
++BOOL WINAPI
+ DllMain (HINSTANCE hinst, DWORD reason, LPVOID reserved)
+ {
+   struct tls_space_s *tls;
 diff --git a/src/logging.c b/src/logging.c
 index 9008ba4..2b2a2df 100644
 --- a/src/logging.c
@@ -456,7 +485,7 @@ index 51e347b..5f094cd 100644
  #include <langinfo.h>
  #endif
 diff --git a/src/sysutils.c b/src/sysutils.c
-index fac72bf..80c9c8e 100644
+index fac72bf..bde8e50 100644
 --- a/src/sysutils.c
 +++ b/src/sysutils.c
 @@ -22,10 +22,17 @@
@@ -496,6 +525,15 @@ index fac72bf..80c9c8e 100644
      if (len >= size)
        {
          /* Changed in the meantime - retry.  */
+@@ -145,7 +152,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+          * putenv tell us that one may use "NAME=" to unset an envvar,
+          * this seems not to be correct.  Thus we do the same as what
+          * we do in Unix (or well in GNU libc) and use just "NAME". */
+-        if (!SetEnvironmentVariable (name, NULL))
++        if (!SetEnvironmentVariableA (name, NULL))
+           return GPG_ERR_EINVAL;
+         if (getenv (name))
+           {
 @@ -159,8 +166,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
          return 0;
        }

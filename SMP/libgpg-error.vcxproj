@@ -172,7 +172,7 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";MKDIR_TAKES_ONE_ARG;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";DLL_EXPORT;MKDIR_TAKES_ONE_ARG;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4018;4267;4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -254,7 +254,7 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";MKDIR_TAKES_ONE_ARG;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";DLL_EXPORT;MKDIR_TAKES_ONE_ARG;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4018;4267;4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -498,7 +498,7 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";DLL_EXPORT;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4018;4267;4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -580,7 +580,7 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";MKDIR_TAKES_ONE_ARG;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;PKGDATADIR="";DLL_EXPORT;MKDIR_TAKES_ONE_ARG;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4018;4267;4312;4311;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
