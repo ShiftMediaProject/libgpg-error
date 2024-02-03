@@ -125,6 +125,19 @@ _gpg_err_init (void)
   return 0;
 }
 
+#if defined(HAVE_W32_SYSTEM) && !defined(DLL_EXPORT) && defined(_WIN32) && defined(_MSC_VER)
+# define _GPG_ERR_WIN32_CONSTRUCTOR_(_func, p) \
+   static int _func ## _wrapper(void) { _func(); return 0; } \
+   __pragma(section(".CRT$XCU",read)) \
+   __declspec(allocate(".CRT$XCU")) int (* _func##_)(void) = _func ## _wrapper; \
+   __pragma(comment(linker,"/include:" p #_func "_"))
+# ifdef _WIN64
+#  define _GPG_ERR_WIN32_CONSTRUCTOR(f) _GPG_ERR_WIN32_CONSTRUCTOR_(f, "")
+# else
+#  define _GPG_ERR_WIN32_CONSTRUCTOR(f) _GPG_ERR_WIN32_CONSTRUCTOR_(f, "_")
+# endif
+_GPG_ERR_WIN32_CONSTRUCTOR(_gpg_err_init)
+#endif
 
 /* Deinitialize libgpg-error.  This function is only used in special
    circumstances.  No gpg-error function should be used after this
@@ -640,7 +653,7 @@ get_tls (void)
 
 /* Entry point called by the DLL loader.  */
 #ifdef DLL_EXPORT
-int WINAPI
+BOOL WINAPI
 DllMain (HINSTANCE hinst, DWORD reason, LPVOID reserved)
 {
   struct tls_space_s *tls;
