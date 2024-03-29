@@ -95,8 +95,8 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
 copy .\src\gpg-error.h "$(OutDir)"\include\
-mkdir $(OutDir)\licenses
-copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
+mkdir "$(OutDir)"\licenses
+copy ..\COPYING.LIB "$(OutDir)"\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -257,8 +257,8 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
 copy .\src\gpg-error.h "$(OutDir)"\include\
-mkdir $(OutDir)\licenses
-copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
+mkdir "$(OutDir)"\licenses
+copy ..\COPYING.LIB "$(OutDir)"\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -413,8 +413,8 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
 copy .\src\gpg-error.h "$(OutDir)"\include\
-mkdir $(OutDir)\licenses
-copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
+mkdir "$(OutDir)"\licenses
+copy ..\COPYING.LIB "$(OutDir)"\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -575,8 +575,8 @@ del /f /q $(OutDir)\licenses\libgpg-error.txt
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
 copy .\src\gpg-error.h "$(OutDir)"\include\
-mkdir $(OutDir)\licenses
-copy ..\COPYING.LIB $(OutDir)\licenses\libgpg-error.txt</Command>
+mkdir "$(OutDir)"\licenses
+copy ..\COPYING.LIB "$(OutDir)"\licenses\libgpg-error.txt</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
