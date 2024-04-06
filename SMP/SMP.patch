@@ -1,20 +1,5 @@
-diff --git a/autogen.sh b/autogen.sh
-index 4e1665b..5e0a77a 100755
---- a/autogen.sh
-+++ b/autogen.sh
-@@ -502,8 +502,8 @@ info "Running $ACLOCAL ${aclocal_flags} ..."
- $ACLOCAL ${aclocal_flags}
- info "Running autoheader..."
- $AUTOHEADER
--info "Running automake --gnu ..."
--$AUTOMAKE --gnu;
-+info "Running automake --gnu --add-missing..."
-+$AUTOMAKE --gnu --add-missing;
- info "Running autoconf${FORCE} ..."
- $AUTOCONF${FORCE}
- 
 diff --git a/src/argparse.c b/src/argparse.c
-index 8651e00..7ee791b 100644
+index 6e6e158..b769c5b 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -39,7 +24,7 @@ index 8651e00..7ee791b 100644
  # define PATHSEP_C ':'
  # define DIRSEP_C  '/'
 diff --git a/src/estream-printf.c b/src/estream-printf.c
-index 831af55..3c3e057 100644
+index f419a1e..9eafad6 100644
 --- a/src/estream-printf.c
 +++ b/src/estream-printf.c
 @@ -82,7 +82,9 @@
@@ -54,7 +39,7 @@ index 831af55..3c3e057 100644
  #include <errno.h>
  #include <stddef.h>
 diff --git a/src/estream.c b/src/estream.c
-index 17d599f..1f0cfa3 100644
+index 66ebc4b..1d11e4e 100644
 --- a/src/estream.c
 +++ b/src/estream.c
 @@ -68,12 +68,18 @@
@@ -103,7 +88,7 @@ index 17d599f..1f0cfa3 100644
  # ifndef  S_IRGRP
  #  define S_IRGRP S_IRUSR
  # endif
-@@ -2010,6 +2026,9 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
+@@ -2030,6 +2046,9 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
    else
      creation_distribution |= OPEN_EXISTING;
  
@@ -113,15 +98,15 @@ index 17d599f..1f0cfa3 100644
    hd = CreateFileW (wpath,
                      desired_access,
                      share_mode,
-@@ -2017,6 +2036,7 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
+@@ -2037,6 +2056,7 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
                      creation_distribution,
-                     0,     /* flags and attributes  */
+                     flags_and_attrs,
                      NULL); /* template file  */
 +#endif
    if (hd == INVALID_HANDLE_VALUE)
      {
        _set_errno (map_w32_to_errno (GetLastError ()));
-@@ -5016,27 +5036,27 @@ tmpfd (void)
+@@ -5074,27 +5094,27 @@ tmpfd (void)
  {
  #ifdef HAVE_W32_SYSTEM
    int attempts, n;
@@ -155,7 +140,7 @@ index 17d599f..1f0cfa3 100644
    *p++ = '\\';
    name = p;
    for (attempts=0; attempts < 10; attempts++)
-@@ -5048,14 +5068,25 @@ tmpfd (void)
+@@ -5106,14 +5126,25 @@ tmpfd (void)
            *p++ = tohex (((value >> 28) & 0x0f));
            value <<= 4;
          }
@@ -198,7 +183,7 @@ index 4e8bd8b..2c64a40 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index bce028e..a051709 100644
+index fcf4eb6..dce473f 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
@@ -211,7 +196,7 @@ index bce028e..a051709 100644
  #endif
  
 diff --git a/src/init.c b/src/init.c
-index 493e3ba..0fcd2a0 100644
+index c4b7e56..e9ec85e 100644
 --- a/src/init.c
 +++ b/src/init.c
 @@ -42,6 +42,10 @@ static int tls_index = TLS_OUT_OF_INDEXES;  /* Index for the TLS functions.  */
@@ -245,7 +230,7 @@ index 493e3ba..0fcd2a0 100644
  
  /* Deinitialize libgpg-error.  This function is only used in special
     circumstances.  No gpg-error function should be used after this
-@@ -636,7 +653,7 @@ get_tls (void)
+@@ -655,7 +672,7 @@ get_tls (void)
  
  /* Entry point called by the DLL loader.  */
  #ifdef DLL_EXPORT
@@ -299,7 +284,7 @@ index 9008ba4..2b2a2df 100644
  
  
 diff --git a/src/mkheader.c b/src/mkheader.c
-index 8fbfbd6..3360145 100644
+index 2d7298c..2e7a8ed 100644
 --- a/src/mkheader.c
 +++ b/src/mkheader.c
 @@ -16,7 +16,12 @@
@@ -485,7 +470,7 @@ index 51e347b..5f094cd 100644
  #include <langinfo.h>
  #endif
 diff --git a/src/sysutils.c b/src/sysutils.c
-index fac72bf..bde8e50 100644
+index 8eee084..f602f58 100644
 --- a/src/sysutils.c
 +++ b/src/sysutils.c
 @@ -22,10 +22,17 @@
@@ -525,16 +510,16 @@ index fac72bf..bde8e50 100644
      if (len >= size)
        {
          /* Changed in the meantime - retry.  */
-@@ -145,7 +152,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
-          * putenv tell us that one may use "NAME=" to unset an envvar,
-          * this seems not to be correct.  Thus we do the same as what
-          * we do in Unix (or well in GNU libc) and use just "NAME". */
+@@ -140,7 +147,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+ 
+     if (!value && overwrite)
+       {
 -        if (!SetEnvironmentVariable (name, NULL))
 +        if (!SetEnvironmentVariableA (name, NULL))
            return GPG_ERR_EINVAL;
          if (getenv (name))
-           {
-@@ -159,8 +166,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
+ #if defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
+@@ -171,8 +178,8 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
          return 0;
        }
  
@@ -544,8 +529,8 @@ index fac72bf..bde8e50 100644
 +    if ((! exists || overwrite) && !SetEnvironmentVariableA (name, value))
        return GPG_ERR_EINVAL; /* (Might also be ENOMEM.) */
      if (overwrite || !getenv (name))
-       {
-@@ -570,6 +577,7 @@ _gpgrt_getusername (void)
+ #if defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
+@@ -594,6 +601,7 @@ _gpgrt_getusername (void)
    char *result = NULL;
  
  #ifdef HAVE_W32_SYSTEM
@@ -553,7 +538,7 @@ index fac72bf..bde8e50 100644
    wchar_t wtmp[1];
    wchar_t *wbuf;
    DWORD wsize = 1;
-@@ -592,6 +600,7 @@ _gpgrt_getusername (void)
+@@ -616,6 +624,7 @@ _gpgrt_getusername (void)
    xfree (wbuf);
    return buf;
  
