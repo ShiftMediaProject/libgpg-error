@@ -1,5 +1,5 @@
 /* yat2m.c - Yet Another Texi 2 Man converter
- *	Copyright (C) 2005, 2013, 2015, 2016, 2017 g10 Code GmbH
+ *	Copyright (C) 2005, 2013, 2015, 2016, 2017, 2023 g10 Code GmbH
  *      Copyright (C) 2006, 2008, 2011 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -124,14 +124,22 @@
 #else
 # define ATTR_MALLOC
 #endif
-
+#if __GNUC__ >= 4
+# define ATTR_SENTINEL(a) __attribute__ ((sentinel(a)))
+#else
+# define ATTR_SENTINEL(a)
+#endif
+#define DIM(v)		     (sizeof(v)/sizeof((v)[0]))
+#define DIMof(type,member)   DIM(((type *)0)->member)
+#define spacep(p)   (*(p) == ' ' || *(p) == '\t')
+#define digitp(p)   (*(p) >= '0' && *(p) <= '9')
 
 
 #define PGM "yat2m"
 #ifdef PACKAGE_VERSION
 # define VERSION PACKAGE_VERSION
 #else
-# define VERSION "1.0"
+# define VERSION "1.1"
 #endif
 
 /* The maximum length of a line including the linefeed and one extra
@@ -140,6 +148,9 @@
 
 /* Number of allowed condition nestings.  */
 #define MAX_CONDITION_NESTING  10
+
+/* Number of allowed table nestings.  */
+#define MAX_TABLE_NESTING  10
 
 static char const default_css[] =
   "<style type=\"text/css\">\n"
@@ -171,6 +182,7 @@ static int verbose;
 static int quiet;
 static int debug;
 static int htmlmode;
+static int gnupgorgmode;
 static const char *opt_source;
 static const char *opt_release;
 static const char *opt_date;
@@ -180,6 +192,17 @@ static int opt_store;
 
 /* Flag to keep track whether any error occurred.  */
 static int any_error;
+
+
+/* Memory buffer stuff.  */
+struct private_membuf_s
+{
+  size_t len;
+  size_t size;
+  char *buf;
+  int out_of_core;
+};
+typedef struct private_membuf_s membuf_t;
 
 
 /* Object to keep macro definitions.  */
@@ -215,6 +238,25 @@ static int condition_stack_idx;
 static int cond_is_active;     /* State of ifset/ifclear */
 static int cond_in_verbatim;   /* State of "manverb".  */
 
+/* The stack used to evaluate table setting for @item and @itemx.
+ * 1: argument of @item should be handled \- as minus
+ * 0: argument of @item should be handled - as hyphen
+ */
+static int table_item_stack[MAX_TABLE_NESTING];
+
+/* Variable to parse en-dash and em-dash.
+ * -1: not parse until the end of the line
+ *  0: not parse
+ *  1: parse -- for en-dash, --- for em-dash
+ */
+static int cond_parse_dash;
+
+/* Variable to generate \- (minus) for roff, which may distinguishes
+ * minus and hyphen.
+ * > 0 : emit \-
+ *   0 : emit -
+ */
+static int cond_2D_as_minus;
 
 /* Object to store one line of content.  */
 struct line_buffer_s
@@ -236,6 +278,7 @@ struct section_buffer_s
   line_buffer_t *lines_tail; /* Helper for faster appending to the
                                 linked list.  */
   line_buffer_t last_line;   /* Points to the last line appended.  */
+  unsigned int is_see_also:1; /* This is the SEE ALSO section.  */
 };
 typedef struct section_buffer_s *section_buffer_t;
 
@@ -263,15 +306,25 @@ static const char * const standard_sections[] =
     "ASSUAN", "NOTES", "BUGS", "AUTHOR", "SEE ALSO", NULL };
 
 
+/* Actions to be done at the end of a line.  */
+enum eol_actions
+  {
+   EOL_NOTHING = 0,
+   EOL_CLOSE_SUBSECTION
+  };
+
+
 /*-- Local prototypes.  --*/
 static void proc_texi_buffer (FILE *fp, const char *line, size_t len,
-                              int *table_level, int *eol_action);
+                              int *table_level, int *eol_action,
+                              section_buffer_t sect, int char_2D_is_minus);
 
 static void die (const char *format, ...) ATTR_NR_PRINTF(1,2);
 static void err (const char *format, ...) ATTR_PRINTF(1,2);
 static void inf (const char *format, ...) ATTR_PRINTF(1,2);
 static void *xmalloc (size_t n) ATTR_MALLOC;
 static void *xcalloc (size_t n, size_t m) ATTR_MALLOC;
+static char *xstrconcat (const char *s1, ...) ATTR_SENTINEL(0);
 
 
 
@@ -362,6 +415,157 @@ xstrdup (const char *string)
   if (!p)
     die ("out of core: %s", strerror (errno));
   strcpy (p, string);
+  return p;
+}
+
+static char *
+mystpcpy (char *a,const char *b)
+{
+  while( *b )
+    *a++ = *b++;
+  *a = 0;
+
+  return (char*)a;
+}
+
+
+/* Helper for xstrconcat and strconcat.  */
+static char *
+do_strconcat (int xmode, const char *s1, va_list arg_ptr)
+{
+  const char *argv[48];
+  size_t argc;
+  size_t needed;
+  char *buffer, *p;
+
+  argc = 0;
+  argv[argc++] = s1;
+  needed = strlen (s1);
+  while (((argv[argc] = va_arg (arg_ptr, const char *))))
+    {
+      needed += strlen (argv[argc]);
+      if (argc >= DIM (argv)-1)
+        die ("too may args for strconcat\n");
+      argc++;
+    }
+  needed++;
+  buffer = xmode? xmalloc (needed) : malloc (needed);
+  for (p = buffer, argc=0; argv[argc]; argc++)
+    p = mystpcpy (p, argv[argc]);
+
+  return buffer;
+}
+
+
+/* Concatenate the string S1 with all the following strings up to a
+ * NULL.  Returns a malloced buffer with the new string or die.  */
+static char *
+xstrconcat (const char *s1, ...)
+{
+  va_list arg_ptr;
+  char *result;
+
+  if (!s1)
+    result = xstrdup ("");
+  else
+    {
+      va_start (arg_ptr, s1);
+      result = do_strconcat (1, s1, arg_ptr);
+      va_end (arg_ptr);
+    }
+  return result;
+}
+
+
+/* A simple implementation of a dynamic buffer.  Use init_membuf() to
+ * create a buffer, put_membuf to append bytes and get_membuf to
+ * release and return the buffer.  Allocation errors are detected but
+ * only returned at the final get_membuf(), this helps not to clutter
+ * the code with out of core checks.  */
+static void
+init_membuf (membuf_t *mb, int initiallen)
+{
+  mb->len = 0;
+  mb->size = initiallen;
+  mb->out_of_core = 0;
+  mb->buf = malloc (initiallen);
+  if (!mb->buf)
+    mb->out_of_core = errno;
+}
+
+
+/* Store (BUF,LEN) in the memory buffer MB.  */
+static void
+put_membuf (membuf_t *mb, const void *buf, size_t len)
+{
+  if (mb->out_of_core || !len)
+    return;
+
+  if (mb->len + len >= mb->size)
+    {
+      char *p;
+
+      mb->size += len + 1024;
+      p = realloc (mb->buf, mb->size);
+      if (!p)
+        {
+          mb->out_of_core = errno ? errno : ENOMEM;
+          return;
+        }
+      mb->buf = p;
+    }
+  if (buf)
+    memcpy (mb->buf + mb->len, buf, len);
+  else
+    memset (mb->buf + mb->len, 0, len);
+  mb->len += len;
+}
+
+
+/* Store STRING in the memory buffer MB.  */
+static void
+put_membuf_str (membuf_t *mb, const char *string)
+{
+  if (!string)
+    string= "";
+  put_membuf (mb, string, strlen (string));
+}
+
+
+/* Return the value of a memory buffer.  LEN is optional.  */
+static void *
+get_membuf (membuf_t *mb, size_t *len)
+{
+  char *p;
+
+  if (mb->out_of_core)
+    {
+      if (mb->buf)
+        {
+          free (mb->buf);
+          mb->buf = NULL;
+        }
+      errno = mb->out_of_core;
+    }
+
+  p = mb->buf;
+  if (len)
+    *len = mb->len;
+  mb->buf = NULL;
+  mb->out_of_core = ENOMEM; /* hack to make sure it won't get reused. */
+  return p;
+}
+
+
+/* Return a STRING from the memory buffer MB or die.  */
+static char *
+xget_membuf (membuf_t *mb)
+{
+  char *p;
+  put_membuf (mb, "", 1);
+  p = get_membuf (mb, NULL);
+  if (!p)
+    die ("out of core in xget_membuf: %s", strerror (errno));
   return p;
 }
 
@@ -654,9 +858,82 @@ get_section_buffer (const char *name)
   /* Store the name.  */
   assert (!sect->name);
   sect->name = xstrdup (name);
+  sect->is_see_also = !strcmp (name, "SEE ALSO");
   return sect;
 }
 
+
+/* Return a malloced string alternating between bold and italics (or
+ * other) font attributes.  */
+static char *
+roff_alternate (const char *line, const char *mode)
+{
+  const char *s;
+  membuf_t mb;
+  enum {
+        x_init,
+        x_roman,
+        x_bold,
+        x_italics
+  } state, nextstate[2];
+  int toggle;  /* values are 0 and 1 to index nextstate.  */
+
+  init_membuf (&mb, 128);
+
+  state = x_init;
+  for (toggle = 0; toggle < 2; toggle++)
+    {
+      if (mode[toggle] == 'B')
+        nextstate[toggle] = x_bold;
+      else if (mode[toggle] == 'I')
+        nextstate[toggle] = x_italics;
+      else
+        nextstate[toggle] = x_roman;
+    }
+  toggle = 0;
+  for (s=line; *s; s++)
+    {
+      if (state == x_init)
+        {
+          if (!(*s == ' ' || *s == '\t'))
+            {
+              state = nextstate[toggle%2];
+              toggle++;
+              if (state == x_bold)
+                put_membuf_str (&mb, "<strong>");
+              else if (state == x_italics)
+                put_membuf_str (&mb, "<em>");
+              else
+                put_membuf_str (&mb, "<span>");
+            }
+        }
+      else
+        {
+          if (*s == ' ' || *s == '\t')
+            {
+              if (state == x_bold)
+                put_membuf_str (&mb, "</strong>");
+              else if (state == x_italics)
+                put_membuf_str (&mb, "</em>");
+              else
+                put_membuf_str (&mb, "</span>");
+
+              put_membuf (&mb, s, 1);
+              state = x_init;
+            }
+        }
+
+      put_membuf (&mb, s, 1);
+    }
+  if (state == x_bold)
+    put_membuf_str (&mb, "</strong>");
+  else if (state == x_italics)
+    put_membuf_str (&mb, "</em>");
+  else if (state == x_roman)
+    put_membuf_str (&mb, "</span>");
+
+  return xget_membuf (&mb);
+}
 
 
 /* Add the content of LINE to the section named SECTNAME.  */
@@ -665,6 +942,77 @@ add_content (const char *sectname, char *line, int verbatim)
 {
   section_buffer_t sect;
   line_buffer_t lb;
+  char *linebuffer = NULL;
+  char *src, *dst;
+  const char *s;
+
+  if (verbatim && htmlmode)
+    {
+      /* This is roff rendered - map this to HTML.  */
+      if (!strncmp (line, ".B ", 3))
+        linebuffer = xstrconcat ("<strong>", line+3, "</strong>", NULL);
+      else if (!strncmp (line, ".I ", 3))
+        linebuffer = xstrconcat ("<em>", line+3, "</em>", NULL);
+      else if (!strncmp (line, ".BI ", 4))
+        linebuffer = roff_alternate (line+4, "BI");
+      else if (!strncmp (line, ".IB ", 4))
+        linebuffer = roff_alternate (line+4, "IB");
+      else if (!strncmp (line, ".BR ", 4))
+        linebuffer = roff_alternate (line+4, "BR");
+      else if (!strncmp (line, ".RB ", 4))
+        linebuffer = roff_alternate (line+4, "RB");
+      else if (!strncmp (line, ".RI ", 4))
+        linebuffer = roff_alternate (line+4, "RI");
+      else if (!strncmp (line, ".IR ", 4))
+        linebuffer = roff_alternate (line+4, "IR");
+      else if (!strncmp (line, ".br", 3))
+        linebuffer = xstrdup ("<br/>");
+      else if (!strncmp (line, "\\- ", 3))
+        linebuffer = xstrconcat (" &mdash; ", line+3, NULL);
+      else if (strchr (line, '\\'))  /* We need to remove them later.  */
+        linebuffer = xstrdup ("<br/>\n");
+
+      if (linebuffer)
+        {
+          /* Remove backslash escapes;  */
+          for (src=dst=linebuffer; *src; src++)
+            {
+              if (*src == '\\' && src[1] == '\\')
+                *dst++ = '\\';
+              else if (*src == '\\')
+                ;
+              else
+                *dst++ = *src;
+            }
+          *dst = 0;
+          line = linebuffer;
+        }
+    }
+  else if (htmlmode)
+    {
+      size_t n0, n1;
+
+      for (s=line, n0=n1=0; *s; s++, n0++)
+        if (*s == '<' || *s == '>')
+          n1 += 3;
+        else if (*s == '&')
+          n1 += 4;
+      if (n1)
+        {
+          dst = linebuffer = xmalloc (n0 + n1 + 1);
+          for (s=line; *s; s++)
+            if (*s == '<')
+              strcpy (dst, "&lt;"), dst += 4;
+            else if (*s == '>')
+              strcpy (dst, "&gt;"), dst += 4;
+            else if (*s == '&')
+              strcpy (dst, "&amp;"), dst += 5;
+            else
+              *dst++ = *s;
+          *dst = 0;
+          line = linebuffer;
+        }
+    }
 
   sect = get_section_buffer (sectname);
   if (sect->last_line && !sect->last_line->verbatim == !verbatim)
@@ -690,6 +1038,8 @@ add_content (const char *sectname, char *line, int verbatim)
       *sect->lines_tail = lb;
       sect->lines_tail = &lb->next;
     }
+
+  free (linebuffer);
 }
 
 
@@ -747,12 +1097,35 @@ write_th (FILE *fp)
 
   if (htmlmode)
     {
-      fputs ("<html>\n"
-             "<head>\n", fp);
+      if (gnupgorgmode)
+        {
+          fputs
+            ("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+             "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n"
+             "         \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
+             "<html xmlns=\"http://www.w3.org/1999/xhtml\""
+             " lang=\"en\" xml:lang=\"en\">\n", fp);
+        }
+      else
+        fputs ("<html>\n", fp);
+      fputs ("<head>\n", fp);
       fprintf (fp, " <title>%s(%s)</title>\n", name, p);
-      fputs (default_css, fp);
+      if (gnupgorgmode)
+        {
+          fputs ("<meta http-equiv=\"Content-Type\""
+                 " content=\"text/html;charset=utf-8\" />\n", fp);
+          fputs ("<meta name=\"viewport\""
+                 " content=\"width=device-width, initial-scale=1\" />\n"
+                 "<link rel=\"stylesheet\" href=\"/share/site.css\""
+                 " type=\"text/css\" />\n", fp);
+        }
+      else
+        fputs (default_css, fp);
       fputs ("</head>\n"
              "<body>\n", fp);
+      if (gnupgorgmode)
+        fputs ("<div id=\"wrapper\">\n"
+               "<div id=\"content\">\n", fp);
       fputs ("<div class=\"y2m\">\n", fp);
     }
 
@@ -814,6 +1187,9 @@ write_bottom (FILE *fp)
            "</p>\n",
            opt_release, isodatestring (), name, p);
   fputs ("</div><!-- class y2m -->\n", fp);
+  if (gnupgorgmode)
+    fputs ("</div><!-- end content -->\n"
+           "</div><!-- end wrapper -->\n", fp);
   fputs ("</body>\n"
          "</html>\n", fp);
 
@@ -838,7 +1214,7 @@ write_sh (FILE *fp, const char *name)
       if (htmlmode)
         fprintf (fp,
                  "<div class=\"y2m-section\">\n"
-                 "<p class=\"y2m-sh\">%s</p>\n", name);
+                 "<h2 class=\"y2m-sh\">%s</h2>\n", name);
       else
         fprintf (fp, ".SH %s\n", name);
       in_section = 1;
@@ -885,7 +1261,8 @@ write_html_item (FILE *fp, const char *line, size_t len, int itemx)
           if (len)
             {
               fputs (" <span class=\"y2m-args\">", fp);
-              proc_texi_buffer (fp, rest, len, &table_level, &eol_action);
+              proc_texi_buffer (fp, rest, len, &table_level, &eol_action,
+                                NULL, 0);
               fputs ("</span>", fp);
             }
           fputs ("</span>\n", fp);
@@ -899,43 +1276,45 @@ write_html_item (FILE *fp, const char *line, size_t len, int itemx)
    write output if needed to FP. REST is the remainder of the line
    which should either point to an opening brace or to a white space.
    The function returns the number of characters already processed
-   from REST.  LEN is the usable length of REST.  TABLE_LEVEL is used to
-   control the indentation of tables.  */
+   from REST.  LEN is the usable length of REST.  TABLE_LEVEL is used
+   to control the indentation of tables.  SECT has info about the
+   current section or is NULL.  */
 static size_t
 proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
-               int *table_level, int *eol_action)
+               int *table_level, int *eol_action, section_buffer_t sect)
 {
   static struct {
     const char *name;    /* Name of the command.  */
-    int what;            /* What to do with this command. */
+    int what;            /* What to do with this command.  */
+    int enable_2D_minus; /* Interpret '-' as minus.  */
     const char *lead_in; /* String to print with a opening brace.  */
-    const char *lead_out;/* String to print with the closing brace. */
+    const char *lead_out;/* String to print with the closing brace.  */
     const char *html_in; /* Same as LEAD_IN but for HTML.  */
     const char *html_out;/* Same as LEAD_OUT but for HTML.  */
   } cmdtbl[] = {
-    { "command", 0, "\\fB", "\\fR", "<i>", "</i>" },
-    { "code",    0, "\\fB", "\\fR", "<samp>", "</samp>" },
-    { "url",     0, "\\fB", "\\fR", "<strong>", "</strong>" },
-    { "sc",      0, "\\fB", "\\fR", "<span class=\"y2m-sc\">", "</span>" },
-    { "var",     0, "\\fI", "\\fR", "<u>", "</u>" },
-    { "samp",    0, "\\(oq", "\\(cq"  },
-    { "kbd",     0, "\\(oq", "\\(cq"  },
-    { "file",    0, "\\(oq\\fI","\\fR\\(cq" },
-    { "env",     0, "\\(oq\\fI","\\fR\\(cq" },
-    { "acronym", 0 },
-    { "dfn",     0 },
-    { "option",  0, "\\fB", "\\fR", "<samp>", "</samp>" },
-    { "example", 1, ".RS 2\n.nf\n",      NULL, "\n<pre>\n", "\n</pre>\n" },
-    { "smallexample", 1, ".RS 2\n.nf\n", NULL, "\n<pre>\n", "\n</pre>\n" },
+    { "command", 9, 1, "\\fB", "\\fP", "<i>", "</i>" },
+    { "code",    0, 1, "\\fB", "\\fP", "<samp>", "</samp>" },
+    { "url",     0, 1, "\\fB", "\\fP", "<strong>", "</strong>" },
+    { "sc",      0, 0, "\\fB", "\\fP", "<span class=\"y2m-sc\">", "</span>" },
+    { "var",     0, 0, "\\fI", "\\fP", "<u>", "</u>" },
+    { "samp",    0, 1, "\\(oq", "\\(cq"  },
+    { "kbd",     0, 1, "\\(oq", "\\(cq"  },
+    { "file",    0, 1, "\\(oq\\fI","\\fP\\(cq" },
+    { "env",     0, 1, "\\(oq\\fI","\\fP\\(cq" },
+    { "acronym", 0, 0 },
+    { "dfn",     0, 0 },
+    { "option",  0, 1, "\\fB", "\\fP", "<samp>", "</samp>" },
+    { "example", 10, 1, ".RS 2\n.nf\n",      NULL, "\n<pre>\n", "\n</pre>\n" },
+    { "smallexample", 10, 1, ".RS 2\n.nf\n", NULL, "\n<pre>\n", "\n</pre>\n" },
     { "asis",    7 },
     { "anchor",  7 },
     { "cartouche", 1 },
-    { "ref",     0, "[", "]" },
-    { "xref",    0, "See: [", "]" },
-    { "pxref",   0, "see: [", "]" },
-    { "uref",    0, "(\\fB", "\\fR)" },
-    { "footnote",0, " ([", "])" },
-    { "emph",    0, "\\fI", "\\fR", "<em>", "</em>" },
+    { "ref",     0, 0, "[", "]" },
+    { "xref",    0, 0, "See: [", "]" },
+    { "pxref",   0, 0, "see: [", "]" },
+    { "uref",    0, 0, "(\\fB", "\\fP)" },
+    { "footnote",0, 0, " ([", "])" },
+    { "emph",    0, 0, "\\fI", "\\fP", "<em>", "</em>" },
     { "w",       1 },
     { "c",       5 },
     { "efindex", 1 },
@@ -945,18 +1324,23 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
     { "noindent", 0 },
     { "section", 1 },
     { "chapter", 1 },
-    { "subsection", 6, "\n.SS " },
+    { "subsection", 6, 0, "\n.SS ", NULL, "<h3>" },
     { "chapheading", 0},
-    { "item",    2, ".TP\n.B " },
-    { "itemx",   2, ".TQ\n.B " },
-    { "table",   3, NULL, NULL, "<ul>\n", "</ul>\n" },
-    { "itemize",   3 },
-    { "bullet",  0, "* " },
-    { "*",       0, "\n.br"},
+    { "item",    2, 0, ".TP\n.B " },
+    { "itemx",   2, 0, ".TQ\n.B " },
+    { "table",   3 },
+    { "itemize", 3 },
+    { "bullet",  0, 0, "* " },
+    { "*",       0, 0, "\n.br"},
     { "/",       0 },
     { "end",     4 },
-    { "quotation",1, ".RS\n\\fB" },
+    { "quotation", 1, 0, ".RS\n\\fB" },
     { "value", 8 },
+    { "dots", 0, 0, "...", NULL, "&hellip;" },
+    { "minus", 0, 0, "\\-", NULL, "&minus;" },
+    /* From here, macro for table */
+    { "gcctabopt",       0, 1 },
+    { "gnupgtabopt",     0, 1 },
     { NULL }
   };
   size_t n;
@@ -965,6 +1349,8 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
   const char *lead_out = NULL;
   const char *html_out = NULL;
   int ignore_args = 0;
+  int see_also_command = 0;
+  int enable_2D_minus = 0;
 
   for (i=0; cmdtbl[i].name && strcmp (cmdtbl[i].name, command); i++)
     ;
@@ -973,12 +1359,18 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
       writestr (cmdtbl[i].lead_in, cmdtbl[i].html_in, fp);
       lead_out = cmdtbl[i].lead_out;
       html_out = cmdtbl[i].html_out;
+      enable_2D_minus = cmdtbl[i].enable_2D_minus;
       switch (cmdtbl[i].what)
         {
+        case 10:
+          cond_parse_dash = 0;
+          cond_2D_as_minus = 1;
+          /* Fallthrough */
         case 1: /* Throw away the entire line.  */
           s = memchr (rest, '\n', len);
           return s? (s-rest)+1 : len;
         case 2: /* Handle @item.  */
+          cond_parse_dash = -1;
           if (htmlmode)
             {
               s = memchr (rest, '\n', len);
@@ -986,16 +1378,65 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
               write_html_item (fp, rest, n, !strcmp(cmdtbl[i].name, "itemx"));
               return n;
             }
+          else
+            {
+              s = memchr (rest, '\n', len);
+              if (s)
+                {
+                  n = (s-rest)+1;
+                  proc_texi_buffer (fp, rest, n, table_level, eol_action,
+                                    sect, table_item_stack[*table_level]);
+                  return n;
+                }
+            }
           break;
         case 3: /* Handle table.  */
-          if (++(*table_level) > 1)
+          ++*table_level;
+          if (*table_level >= MAX_TABLE_NESTING)
+            die ("too many nesting level of table\n");
+          if (*table_level > (htmlmode? 0 : 1))
             {
-              write_html_item (fp, NULL, 0, 0);
+              if (htmlmode)
+                write_html_item (fp, NULL, 0, 0);
               writestr (".RS\n", "<ul>\n", fp);
             }
-          /* Now throw away the entire line. */
+
           s = memchr (rest, '\n', len);
-          return s? (s-rest)+1 : len;
+          if (s)
+            {
+              size_t n0 = n = (s-rest)+1;
+
+              for (s=rest; n && (*s == ' ' || *s == '\t'); s++, n--)
+                ;
+              if (n && *s == '@')
+                {
+                  char argbuf[256];
+                  int argidx;
+
+                  s++;
+                  n--;
+                  for (argidx = 0; argidx < n; argidx++)
+                    if (s[argidx] == ' ' || s[argidx] == '\t'
+                        || s[argidx] == '\n')
+                      break;
+                    else
+                      argbuf[argidx] = s[argidx];
+                  argbuf[argidx] = 0;
+                  for (i=0; cmdtbl[i].name; i++)
+                    if (!strcmp (cmdtbl[i].name, argbuf))
+                      break;
+                  if (cmdtbl[i].name && cmdtbl[i].enable_2D_minus)
+                    table_item_stack[*table_level] = 1;
+                  else
+                    table_item_stack[*table_level] = 0;
+                  return n0;
+                }
+              else
+                return len;
+            }
+          else
+            /* Now throw away the entire line. */
+            return len;
           break;
         case 4: /* Handle end.  */
           for (s=rest, n=len; n && (*s == ' ' || *s == '\t'); s++, n--)
@@ -1013,11 +1454,15 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
           else if (n >= 7 && !memcmp (s, "example", 7)
               && (!n || s[7] == ' ' || s[7] == '\t' || s[7] == '\n'))
             {
+              cond_parse_dash = 1;
+              cond_2D_as_minus = 0;
               writestr (".fi\n.RE\n", "</pre>\n", fp);
             }
           else if (n >= 12 && !memcmp (s, "smallexample", 12)
               && (!n || s[12] == ' ' || s[12] == '\t' || s[12] == '\n'))
             {
+              cond_parse_dash = 1;
+              cond_2D_as_minus = 0;
               writestr (".fi\n.RE\n", "</pre>\n", fp);
             }
           else if (n >= 9 && !memcmp (s, "quotation", 9)
@@ -1054,7 +1499,7 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
           s = memchr (rest, '\n', len);
           return s? (s-rest)+1 : len;
         case 6:
-          *eol_action = 1;
+          *eol_action = EOL_CLOSE_SUBSECTION;
           break;
         case 7:
           ignore_args = 1;
@@ -1096,6 +1541,11 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
                 }
             }
           break;
+        case 9:  /* @command{} */
+          if (sect && sect->is_see_also)
+            see_also_command = 1;
+          break;
+
         default:
           break;
         }
@@ -1110,7 +1560,7 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
       if (m)
         {
           proc_texi_buffer (fp, m->value, strlen (m->value),
-                            table_level, eol_action);
+                            table_level, eol_action, NULL, 0);
           ignore_args = 1; /* Parameterized macros are not yet supported. */
         }
       else
@@ -1131,8 +1581,55 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
           err ("closing brace for command '%s' not found", command);
           return len;
         }
-      if (n > 2 && !ignore_args)
-        proc_texi_buffer (fp, rest+1, n-2, table_level, eol_action);
+
+
+      if (n > 2 && len && !ignore_args)
+        {
+          char *workstr;  /* Let's work on a copy.  */
+          char *p;
+          macro_t m;
+          const char *cmdname;
+
+          n -= 2;
+
+          workstr = xmalloc (len);
+          memcpy (workstr, rest+1, len-1);
+          workstr[len-1] = 0;
+          if (see_also_command && htmlmode
+              && workstr[n] == '}' && workstr[n+1] == '('
+              && digitp (workstr+n+2)
+              && (p = strchr (workstr + n + 2, ')')))
+            {
+              /* Seems to be a command with section number.  P points
+               * to the closing parentheses.  Render as link.  */
+
+              workstr[n] = 0;
+              *p = 0;
+              cmdname = workstr;
+              if (*workstr == '@' && workstr[1])
+                {
+                  for (m = macrolist; m ; m = m->next)
+                    if (!strcmp (m->name, workstr+1))
+                      break;
+                  if (m)
+                    cmdname = m->value;
+                }
+
+
+              fprintf (fp, "<a href=\"%s.%s.html\">%s</a>(%s)",
+                       cmdname, workstr + n + 2,
+                       cmdname, workstr + n + 2);
+
+              n = p + 2 - workstr;
+            }
+          else
+            {
+              proc_texi_buffer (fp, workstr, n, table_level, eol_action,
+                                NULL, enable_2D_minus);
+              n += 2;
+            }
+          free (workstr);
+        }
     }
   else
     n = 0;
@@ -1144,10 +1641,12 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
 
 
 
-/* Process the string LINE with LEN bytes of Texinfo content. */
+/* Process the string LINE with LEN bytes of Texinfo content.  SECT
+ * has infos about the current secion or is NULL.  */
 static void
 proc_texi_buffer (FILE *fp, const char *line, size_t len,
-                  int *table_level, int *eol_action)
+                  int *table_level, int *eol_action, section_buffer_t sect,
+                  int char_2D_is_minus)
 {
   const char *s;
   char cmdbuf[256];
@@ -1185,7 +1684,8 @@ proc_texi_buffer (FILE *fp, const char *line, size_t len,
           else if (*s == '{' || *s == ' ' || *s == '\t' || *s == '\n')
             {
               cmdbuf[cmdidx] = 0;
-              n = proc_texi_cmd (fp, cmdbuf, s, len, table_level, eol_action);
+              n = proc_texi_cmd (fp, cmdbuf, s, len, table_level, eol_action,
+                                 sect);
               assert (n <= len);
               s += n; len -= n;
               s--; len++;
@@ -1205,16 +1705,41 @@ proc_texi_buffer (FILE *fp, const char *line, size_t len,
         {
           switch (*eol_action)
             {
-            case 1: /* Create a dummy paragraph. */
-              writestr ("\n\\ \n", "\n<-- dummy par -->\n", fp);
+            case EOL_CLOSE_SUBSECTION:
+              writestr ("\n\\ \n", "</h3>\n", fp);
               break;
             default:
               writechr (*s, fp);
+              break;
             }
           *eol_action = 0;
+          if (cond_parse_dash == -1)
+            cond_parse_dash = 0;
         }
       else if (*s == '\\')
-        writestr ("\\\\", "\\\\", fp);
+        writestr ("\\[rs]", "&bsol;", fp);
+      else if (cond_parse_dash == 1 && sect && *s == '-')
+        /* Handle -- and --- when it's _not_ in an argument.  */
+        {
+          if (len < 2 || s[1] != '-')
+            writechr (*s, fp);
+          else if (len < 3 || s[2] != '-')
+            {
+              writestr ("\\[en]", "&ndash;", fp);
+              len--;
+              s++;
+            }
+          else
+            {
+              writestr ("\\[em]", "&mdash;", fp);
+              len -= 2;
+              s += 2;
+            }
+        }
+      else if (*s == '-' && (cond_2D_as_minus || char_2D_is_minus))
+        {
+          writestr ("\\-", "-", fp);
+        }
       else
         writechr (*s, fp);
     }
@@ -1222,7 +1747,7 @@ proc_texi_buffer (FILE *fp, const char *line, size_t len,
   if (in_cmd > 1)
     {
       cmdbuf[cmdidx] = 0;
-      n = proc_texi_cmd (fp, cmdbuf, s, len, table_level, eol_action);
+      n = proc_texi_cmd (fp, cmdbuf, s, len, table_level, eol_action, sect);
       assert (n <= len);
       s += n; len -= n;
       s--; len++;
@@ -1231,9 +1756,11 @@ proc_texi_buffer (FILE *fp, const char *line, size_t len,
 }
 
 
-/* Do something with the Texinfo line LINE.  */
+/* Do something with the Texinfo line LINE.  If SECT is not NULL is
+ * has information about the current section.  */
 static void
-parse_texi_line (FILE *fp, const char *line, int *table_level)
+parse_texi_line (FILE *fp, const char *line, int *table_level,
+                 section_buffer_t sect)
 {
   int eol_action = 0;
 
@@ -1241,21 +1768,33 @@ parse_texi_line (FILE *fp, const char *line, int *table_level)
   if (!strchr (line, '@'))
     {
       /* FIXME: In html mode escape HTML stuff. */
+      if (htmlmode && *line)
+        fputs ("<p>", fp);
       writestr (line, line, fp);
+      if (htmlmode && *line)
+        fputs ("</p>", fp);
       writechr ('\n', fp);
       return;
     }
-  proc_texi_buffer (fp, line, strlen (line), table_level, &eol_action);
+  proc_texi_buffer (fp, line, strlen (line), table_level, &eol_action,
+                    sect, 0);
   writechr ('\n', fp);
 }
 
 
 /* Write all the lines LINES to FP.  */
 static void
-write_content (FILE *fp, line_buffer_t lines)
+write_content (FILE *fp, section_buffer_t sect)
 {
   line_buffer_t line;
   int table_level = 0;
+  line_buffer_t lines = sect->lines;
+
+  /* inf ("===BEGIN==============================================="); */
+  /* for (line = lines; line; line = line->next) */
+  /*   inf ("line='%s'", line->line); */
+  /* inf ("===END==============================================="); */
+
 
   for (line = lines; line; line = line->next)
     {
@@ -1271,7 +1810,7 @@ write_content (FILE *fp, line_buffer_t lines)
 /*           fputs ("TEXI---", fp); */
 /*           fputs (line->line, fp); */
 /*           fputs ("---\n", fp); */
-          parse_texi_line (fp, line->line, &table_level);
+          parse_texi_line (fp, line->line, &table_level, sect);
         }
     }
 }
@@ -1323,11 +1862,13 @@ finish_page (void)
     }
   else if (opt_store)
     {
+      char *fname = xstrconcat (thepage.name, htmlmode? ".html":NULL, NULL);
       if (verbose)
-        inf ("writing '%s'", thepage.name );
-      fp = fopen ( thepage.name, "w" );
+        inf ("writing '%s'", fname);
+      fp = fopen (fname, "w" );
       if (!fp)
-        die ("failed to create '%s': %s\n", thepage.name, strerror (errno));
+        die ("failed to create '%s': %s\n", fname, strerror (errno));
+      free (fname);
     }
   else
     fp = stdout;
@@ -1349,7 +1890,7 @@ finish_page (void)
       if (sect)
         {
           write_sh (fp, sect->name);
-          write_content (fp, sect->lines);
+          write_content (fp, sect);
           /* Now continue with all non standard sections directly
              following this one. */
           for (i++; i < thepage.n_sections; i++)
@@ -1360,7 +1901,7 @@ finish_page (void)
               if (sect->name)
                 {
                   write_sh (fp, sect->name);
-                  write_content (fp, sect->lines);
+                  write_content (fp, sect);
                 }
             }
 
@@ -1701,6 +2242,7 @@ top_parse_file (const char *fname, FILE *fp)
     set_macro (m->name, xstrdup ("1"));
   cond_is_active = 1;
   cond_in_verbatim = 0;
+  cond_parse_dash = 1;
 
   parse_file (fname, fp, &section_name, 0);
   free (section_name);
@@ -1746,6 +2288,7 @@ main (int argc, char **argv)
                 "  --date EPOCH     use EPOCH as publication date\n"
                 "  --store          write output using @manpage name\n"
                 "  --select NAME    only output pages with @manpage NAME\n"
+                "  --gnupgorg       prepare for use at www.gnupg.org\n"
                 "  --verbose        enable extra informational output\n"
                 "  --debug          enable additional debug output\n"
                 "  --help           display this help and exit\n"
@@ -1767,6 +2310,11 @@ main (int argc, char **argv)
       else if (!strcmp (*argv, "--html"))
         {
           htmlmode = 1;
+          argc--; argv++;
+        }
+      else if (!strcmp (*argv, "--gnupgorg"))
+        {
+          gnupgorgmode = 1;
           argc--; argv++;
         }
       else if (!strcmp (*argv, "--verbose"))
@@ -1875,6 +2423,6 @@ main (int argc, char **argv)
 
 /*
 Local Variables:
-compile-command: "gcc -Wall -g -Wall -o yat2m yat2m.c"
+compile-command: "gcc -Wall -g -o yat2m yat2m.c"
 End:
 */

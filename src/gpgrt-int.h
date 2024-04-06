@@ -121,6 +121,7 @@ void *_gpgrt_calloc (size_t n, size_t m);
 char *_gpgrt_strdup (const char *string);
 char *_gpgrt_strconcat (const char *s1, ...) GPGRT_ATTR_SENTINEL(0);
 void _gpgrt_free (void *a);
+void _gpgrt_wipememory (void *ptr, size_t len);
 /* The next is only to be used by visibility.c.  */
 char *_gpgrt_strconcat_core (const char *s1, va_list arg_ptr);
 
@@ -302,6 +303,7 @@ struct _gpgrt_stream_internal
   unsigned int stdstream_fd:2;   /* 0, 1 or 2 for a standard stream.  */
   unsigned int printable_fname_inuse: 1;  /* es_fname_get has been used.  */
   unsigned int samethread: 1;    /* The "samethread" mode keyword.  */
+  unsigned int wipe: 1;          /* The "wipe" mode keyword.  */
   size_t print_ntotal;           /* Bytes written from in print_writer. */
   notify_list_t onclose;         /* On close notify function list.  */
 };

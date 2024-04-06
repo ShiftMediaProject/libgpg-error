@@ -1193,25 +1193,36 @@ pr_string (estream_printf_out_t outfnc, void *outfncarg,
   int rc;
   size_t n;
   const char *string, *s;
+  char *stringbuf = NULL;
 
   if (arg->vt != VALTYPE_STRING)
     return -1;
+
+  string = value.a_string;
+
+  /* Make sure STRING is nul terminated, for call of string filter.  */
+  if (string && arg->precision >= 0)
+    {
+      /* STRING may be nul terminated shorter then the PRECISION.  */
+      for (n=0,s=string; n < arg->precision && *s; s++)
+        n++;
+
+      stringbuf = my_printf_realloc (NULL, n+1);
+      if (!stringbuf)
+        return -1;
+      memcpy (stringbuf, string, n);
+      stringbuf[n] = 0;
+      string = stringbuf;
+    }
+
   if (sf)
-    string = sf (value.a_string, string_no, sfvalue);
-  else
-    string = value.a_string;
+    string = sf (string, string_no, sfvalue);
 
   if (!string)
     string = "(null)";
-  if (arg->precision >= 0)
-    {
-      /* Test for nul after N so that we can pass a non-nul terminated
-         string.  */
-      for (n=0,s=string; n < arg->precision && *s; s++)
-        n++;
-    }
-  else
-    n = strlen (string);
+  n = strlen (string);
+  if (arg->precision >= 0 && n >= arg->precision)
+    n = arg->precision;
 
   if (!(arg->flags & FLAG_LEFT_JUST)
       && arg->width >= 0 && arg->width > n )
@@ -1238,7 +1249,9 @@ pr_string (estream_printf_out_t outfnc, void *outfncarg,
 
  leave:
   if (sf) /* Tell the filter to release resources.  */
-    sf (value.a_string, -1, sfvalue);
+    sf (string, -1, sfvalue);
+  if (stringbuf)
+    my_printf_realloc (stringbuf, 0);
 
   return rc;
 }

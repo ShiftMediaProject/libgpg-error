@@ -243,6 +243,18 @@ mem_free (void *p)
 }
 
 
+static void
+mem_free2 (void *p, size_t n, int with_wipe)
+{
+  if (p)
+    {
+      if (with_wipe)
+        _gpgrt_wipememory (p, n);
+      _gpgrt_free (p);
+    }
+}
+
+
 /*
  * A Windows helper function to map a W32 API error code to a standard
  * system error code.  That actually belong into sysutils but to allow
@@ -286,6 +298,9 @@ map_w32_to_errno (DWORD w32_err)
 
     case ERROR_ALREADY_EXISTS:
       return EEXIST;
+
+    case ERROR_FILE_INVALID:
+      return EIO;
 
       /* This mapping has been taken from reactOS.  */
     case ERROR_TOO_MANY_OPEN_FILES: return EMFILE;
@@ -637,6 +652,7 @@ typedef struct estream_cookie_mem
   size_t block_size;		/* Block size.  */
   struct {
     unsigned int grow: 1;	/* MEMORY is allowed to grow.  */
+    unsigned int wipe: 1;	/* MEMORY shall be wiped.  */
   } flags;
   func_realloc_t func_realloc;
   func_free_t func_free;
@@ -645,7 +661,7 @@ typedef struct estream_cookie_mem
 
 /*
  * Create function for memory objects.  DATA is either NULL or a user
- * supplied buffer with the initial conetnt of the memory buffer.  If
+ * supplied buffer with the initial content of the memory buffer.  If
  * DATA is NULL, DATA_N and DATA_LEN need to be 0 as well.  If DATA is
  * not NULL, DATA_N gives the allocated size of DATA and DATA_LEN the
  * used length in DATA.  If this function succeeds DATA is now owned
@@ -656,7 +672,7 @@ static int
 func_mem_create (void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
                  unsigned char *_GPGRT__RESTRICT data, size_t data_n,
                  size_t data_len,
-                 size_t block_size, unsigned int grow,
+                 size_t block_size, unsigned int grow, unsigned int wipe,
                  func_realloc_t func_realloc, func_free_t func_free,
                  unsigned int modeflags,
                  size_t memory_limit)
@@ -696,6 +712,7 @@ func_mem_create (void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
       mem_cookie->data_len = data_len;
       mem_cookie->block_size = block_size;
       mem_cookie->flags.grow = !!grow;
+      mem_cookie->flags.wipe = !!wipe;
       mem_cookie->func_realloc
         = grow? (func_realloc ? func_realloc : mem_realloc) : NULL;
       mem_cookie->func_free = func_free ? func_free : mem_free;
@@ -947,6 +964,8 @@ func_mem_destroy (void *cookie)
 
   if (cookie)
     {
+      if (mem_cookie->flags.wipe)
+        _gpgrt_wipememory (mem_cookie->memory, mem_cookie->memory_size);
       mem_cookie->func_free (mem_cookie->memory);
       mem_free (mem_cookie);
     }
@@ -1966,7 +1985,8 @@ func_file_create (void **cookie, int *filedes,
 #ifdef HAVE_W32_SYSTEM
 static int
 func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
-                      unsigned int modeflags, unsigned int cmode)
+                      unsigned int modeflags, unsigned int cmode,
+                      unsigned int flags_and_attrs)
 {
   estream_cookie_w32_t hd_cookie;
   wchar_t *wpath = NULL;
@@ -2034,7 +2054,7 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
                     share_mode,
                     NULL,  /* security attributes */
                     creation_distribution,
-                    0,     /* flags and attributes  */
+                    flags_and_attrs,
                     NULL); /* template file  */
 #endif
   if (hd == INVALID_HANDLE_VALUE)
@@ -2064,6 +2084,8 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
 #define X_SAMETHREAD	(1 << 0)
 #define X_SYSOPEN	(1 << 1)
 #define X_POLLABLE	(1 << 2)
+#define X_SEQUENTIAL	(1 << 3)
+#define X_WIPE          (1 << 4)
 
 /* Parse the mode flags of fopen et al.  In addition to the POSIX
  * defined mode flags keyword parameters are supported.  These are
@@ -2109,6 +2131,15 @@ func_file_create_w32 (void **cookie, HANDLE *rethd, const char *path,
  *    POSIX this is a NOP but under Windows we create up to two
  *    threads, one for reading and one for writing, do any I/O there,
  *    and synchronize with them in order to support es_poll.
+ *
+ * sequential
+ *
+ *    Indicate that the file will in general be access in sequential
+ *    way.  On Windows FILE_FLAG_SEQUENTIAL_SCAN will thus be used.
+ *
+ * wipe
+ *
+ *    Overwrites internal buffers at fclose time.
  *
  * Note: R_CMODE is optional because is only required by functions
  * which are able to creat a file.
@@ -2239,6 +2270,26 @@ parse_mode (const char *modestr,
               return -1;
             }
           *r_xmode |= X_POLLABLE;
+        }
+      else if (!strncmp (modestr, "sequential", 10))
+        {
+          modestr += 10;
+          if (*modestr && !strchr (" \t,", *modestr))
+            {
+              _set_errno (EINVAL);
+              return -1;
+            }
+          *r_xmode |= X_SEQUENTIAL;
+        }
+      else if (!strncmp (modestr, "wipe", 4))
+        {
+          modestr += 10;
+          if (*modestr && !strchr (" \t,", *modestr))
+            {
+              _set_errno (EINVAL);
+              return -1;
+            }
+          *r_xmode |= X_WIPE;
         }
     }
   if (!got_cmode)
@@ -2436,6 +2487,7 @@ init_stream_obj (estream_t stream,
   stream->intern->printable_fname = NULL;
   stream->intern->printable_fname_inuse = 0;
   stream->intern->samethread = !! (xmode & X_SAMETHREAD);
+  stream->intern->wipe = !! (xmode & X_WIPE);
   stream->intern->onclose = NULL;
 
   stream->data_len = 0;
@@ -2636,8 +2688,10 @@ do_close (estream_t stream, int cancel_mode, int with_locked_list)
       err = deinit_stream_obj (stream);
       destroy_stream_lock (stream);
       if (stream->intern->deallocate_buffer)
-        mem_free (stream->buffer);
-      mem_free (stream->intern);
+        mem_free2 (stream->buffer, stream->buffer_size, stream->intern->wipe);
+
+      mem_free2 (stream->intern, sizeof (struct _gpgrt_stream_internal),
+                 stream->intern->wipe);
       mem_free (stream);
     }
   else
@@ -3289,7 +3343,7 @@ doreadline (estream_t _GPGRT__RESTRICT stream, size_t max_length,
   line_stream_cookie = NULL;
 
   err = func_mem_create (&line_stream_cookie, NULL, 0, 0,
-                         BUFFER_BLOCK_SIZE, 1,
+                         BUFFER_BLOCK_SIZE, 1, stream->intern->wipe,
                          mem_realloc, mem_free,
                          O_RDWR,
                          0);
@@ -3455,7 +3509,7 @@ es_set_buffering (estream_t _GPGRT__RESTRICT stream,
   if (stream->intern->deallocate_buffer)
     {
       stream->intern->deallocate_buffer = 0;
-      mem_free (stream->buffer);
+      mem_free2 (stream->buffer, stream->buffer_size, stream->intern->wipe);
       stream->buffer = NULL;
     }
 
@@ -3549,11 +3603,15 @@ _gpgrt_fopen (const char *_GPGRT__RESTRICT path,
 #ifdef HAVE_W32_SYSTEM
   if ((xmode & X_SYSOPEN))
     {
+      unsigned int flagsattrs = 0;
+
       kind = BACKEND_W32;
       functions = &estream_functions_w32;
       syshd.type = ES_SYSHD_HANDLE;
+      if ((xmode & X_SEQUENTIAL))
+        flagsattrs |= FILE_FLAG_SEQUENTIAL_SCAN;
       err = func_file_create_w32 (&cookie, &syshd.u.handle,
-                                  path, modeflags, cmode);
+                                  path, modeflags, cmode, flagsattrs);
     }
   else
 #endif /* W32 */
@@ -3587,7 +3645,7 @@ _gpgrt_fopen (const char *_GPGRT__RESTRICT path,
 
 /* Create a new estream object in memory.  If DATA is not NULL this
    buffer will be used as the memory buffer; thus after this functions
-   returns with the success the the memory at DATA belongs to the new
+   returns with the success the memory at DATA belongs to the new
    estream.  The allocated length of DATA is given by DATA_LEN and its
    used length by DATA_N.  Usually this is malloced buffer; if a
    static buffer is provided, the caller must pass false for GROW and
@@ -3617,7 +3675,7 @@ _gpgrt_mopen (void *_GPGRT__RESTRICT data, size_t data_n, size_t data_len,
     goto out;
 
   err = func_mem_create (&cookie, data, data_n, data_len,
-                         BUFFER_BLOCK_SIZE, grow,
+                         BUFFER_BLOCK_SIZE, grow, (xmode & X_WIPE),
                          func_realloc, func_free, modeflags, 0);
   if (err)
     goto out;
@@ -3652,7 +3710,7 @@ _gpgrt_fopenmem (size_t memlimit, const char *_GPGRT__RESTRICT mode)
   modeflags |= O_RDWR;
 
   if (func_mem_create (&cookie, NULL, 0, 0,
-                       BUFFER_BLOCK_SIZE, 1,
+                       BUFFER_BLOCK_SIZE, 1, (xmode & X_WIPE),
                        mem_realloc, mem_free, modeflags,
                        memlimit))
     return NULL;

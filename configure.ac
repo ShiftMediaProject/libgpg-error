@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [47])
+m4_define([mym4_minor], [48])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,8 +49,8 @@ AC_INIT([mym4_package],[mym4_version],[https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=34
-LIBGPG_ERROR_LT_AGE=34
+LIBGPG_ERROR_LT_CURRENT=35
+LIBGPG_ERROR_LT_AGE=35
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -156,6 +156,43 @@ LT_PREREQ([2.2.6])
 LT_INIT([win32-dll disable-static])
 LT_LANG([Windows Resource])
 
+#
+# Specify how we support our local modification of libtool for Windows
+# 64-bit.  Options are:
+#
+# (1) apply: when appying patch fails, it results failure of entire build
+# (2) never: never apply the patch (no try)
+# (3) try: use patched if it goes well, use original if fails
+#
+AC_ARG_WITH([libtool-modification],
+  AS_HELP_STRING([--with-libtool-modification=apply|never|try],
+                 [how to handle libtool modification (default=never)]),
+                 build_libtool_modification=$withval,
+                 build_libtool_modification=never)
+
+#
+# Apply a patch (locally maintained one of ours) to libtool
+#
+case $host in
+  x86_64-*mingw32*)
+AC_CONFIG_COMMANDS([libtool-patch],[[
+  if test "$build_selection" = never; then
+    echo "patch not applied"
+  elif (mv -f libtool libtool.orig; \
+        sed -f $srcdir/build-aux/libtool-patch.sed libtool.orig >libtool); then
+    echo "applied successfully"
+  elif test "$build_selection" = try; then
+    mv -f libtool.orig libtool
+    echo "patch failed, thus, using original"
+  else
+    echo "patch failed"
+    as_fn_exit 1
+  fi
+]],[build_selection=$build_libtool_modification])
+  ;;
+  *)
+  ;;
+esac
 
 # We need to compile and run a program on the build machine.
 AX_CC_FOR_BUILD
@@ -590,7 +627,7 @@ if test x"$gl_use_threads" = xno; then
   AC_MSG_NOTICE([generated src/lock-obj-pub.native.h for $host])
 elif test x$cross_compiling = xyes; then
   case $host in
-    *-*-linux-gnu* | *-*-linux-musl*)
+    *-*-gnu* | *-*-linux-gnu* | *-*-linux-musl*)
     AC_CHECK_TOOL(OBJDUMP, [objdump])
     if test -n "$OBJDUMP"; then
       lock_obj_h_generated=yes

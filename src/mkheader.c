@@ -33,6 +33,7 @@ static char *srcdir;
 static const char *hdr_version;
 static const char *hdr_version_number;
 static int cross_building; /* Command line flag.  */
+static int verbose;
 
 /* Values take from the supplied config.h.  */
 static int have_stdint_h;
@@ -112,6 +113,8 @@ canon_host_triplet (const char *triplet, int no_vendor_hack, char **r_os)
 
     {"x86_64-pc-linux-gnuhardened1", "x86_64-unknown-linux-gnu" },
     {"x86_64-pc-linux-gnu" },
+
+    {"x86_64-pc-gnu"},
 
     {"powerpc-unknown-linux-gnuspe", "powerpc-unknown-linux-gnu" },
 
@@ -430,7 +433,7 @@ include_file (const char *fname, int lnr, const char *name, void (*outf)(char*))
       exit (1);
     }
 
-  if (repl_flag)
+  if (repl_flag && verbose)
     fprintf (stderr,"%s:%d: note: including '%s'\n",
              fname, lnr, incfname);
 
@@ -651,6 +654,12 @@ main (int argc, char **argv)
       cross_building = 1;
       argc--; argv++;
     }
+  if (!strcmp (*argv, "--verbose"))
+    {
+      verbose = 1;
+      argc--; argv++;
+    }
+
 
   if (argc == 1)
     {
@@ -663,10 +672,14 @@ main (int argc, char **argv)
     ; /* Standard operation.  */
   else
     {
-      fputs ("usage: " PGM
+      fputs ("usage: " PGM " [options]"
              " host_triplet template.h config.h version version_number\n"
-             "       " PGM
-             " host_triplet\n",
+             "       " PGM " [options]"
+             " host_triplet\n"
+             "\n"
+             "Options:\n"
+             "  --cross        Specify cross building\n"
+             "  --verbose      Show what is going on\n",
              stderr);
       return 1;
     }
