@@ -1,8 +1,8 @@
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.48"
+#define PACKAGE_VERSION "1.49"
 
 /* GIT commit id revision used to build this package */
-#define BUILD_REVISION "0b8891e"
+#define BUILD_REVISION "5822584"
 
 /* The time this package was configured for a build */
-#define BUILD_TIMESTAMP "2024-04-06T11:59+0000"
+#define BUILD_TIMESTAMP "2024-06-08T13:39+0000"

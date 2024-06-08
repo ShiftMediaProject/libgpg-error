@@ -1,5 +1,5 @@
 diff --git a/src/argparse.c b/src/argparse.c
-index 6e6e158..b769c5b 100644
+index 106e818..7ccf0e7 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -183,7 +183,7 @@ index 4e8bd8b..2c64a40 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index fcf4eb6..dce473f 100644
+index 3eacc1a..e65d93a 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
@@ -240,7 +240,7 @@ index c4b7e56..e9ec85e 100644
  {
    struct tls_space_s *tls;
 diff --git a/src/logging.c b/src/logging.c
-index 9008ba4..2b2a2df 100644
+index 4f52d80..ad21ff5 100644
 --- a/src/logging.c
 +++ b/src/logging.c
 @@ -38,13 +38,17 @@
