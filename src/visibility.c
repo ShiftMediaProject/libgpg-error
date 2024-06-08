@@ -961,6 +961,14 @@ gpgrt_log_get_stream (void)
   return _gpgrt_log_get_stream ();
 }
 
+
+void
+gpgrt_add_post_log_func (void (*f)(int))
+{
+  _gpgrt_add_post_log_func (f);
+}
+
+
 void
 gpgrt_log (int level, const char *fmt, ...)
 {
@@ -981,6 +989,17 @@ void
 gpgrt_logv_prefix (int level, const char *prefix,
                     const char *fmt, va_list arg_ptr)
 {
+  _gpgrt_logv_prefix (level, prefix, fmt, arg_ptr);
+}
+
+void
+gpgrt_logv_domain (const char *domain, int level, const char *prefix,
+                   const void *buffer, size_t length,
+                   const char *fmt, va_list arg_ptr)
+{
+  (void)domain;  /* Not yet used.  */
+  (void)buffer;
+  (void)length;
   _gpgrt_logv_prefix (level, prefix, fmt, arg_ptr);
 }
 

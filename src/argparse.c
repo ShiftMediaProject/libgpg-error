@@ -118,6 +118,7 @@ struct _gpgrt_argparse_internal_s
   int idx;   /* Note that this is saved and restored in _gpgrt_argparser. */
   int inarg;                       /* (index into args) */
   unsigned int verbose:1;          /* Print diagnostics.                */
+  unsigned int forceeof:1;         /* Force EOF due to an read errror.  */
   unsigned int stopped:1;          /* Option processing has stopped.    */
   unsigned int in_sysconf:1;       /* Processing global config file.    */
   unsigned int mark_forced:1;      /* Mark options as forced.           */
@@ -343,6 +344,7 @@ initialize (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, estream_t fp)
       arg->internal->last = NULL;
       arg->internal->inarg = 0;
       arg->internal->stopped = 0;
+      arg->internal->forceeof = 0;
       arg->internal->in_sysconf = 0;
       arg->internal->command_seen = 0;
       arg->internal->explicit_cmd_mode = 0;
@@ -1794,6 +1796,8 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
       /* Get the next character from the line.  */
       if (unread_buf_count)
         c = unread_buf[3 - unread_buf_count--];
+      else if (arg->internal->forceeof)
+        c = EOF;
       else
         c = _gpgrt_fgetc (fp);
 
@@ -1921,10 +1925,18 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
           else if (c == EOF)
             {
               ignore_invalid_option_clear (arg);
-              if (_gpgrt_ferror (fp))
-                arg->r_opt = ARGPARSE_READ_ERROR;
+              if (_gpgrt_ferror (fp) && !arg->internal->forceeof)
+                {
+                  arg->r_opt = ARGPARSE_READ_ERROR;
+                  /* We delay the EOF so that the caller can print a
+                   * "read error".  */
+                  arg->internal->forceeof = 1;
+                }
               else
-                arg->r_opt = 0; /* EOF. */
+                {
+                  arg->r_opt = 0; /* EOF. */
+                  arg->internal->forceeof = 0;
+                }
               goto leave;
             }
           state = Ainit;
@@ -2317,6 +2329,7 @@ _gpgrt_argparser (gpgrt_argparse_t *arg, gpgrt_opt_t *opts,
       arg->internal->verbose = 0;
       arg->internal->expand = 0;
       arg->internal->stopped = 0;
+      arg->internal->forceeof = 0;
       arg->internal->inarg = 0;
       _gpgrt_fclose (arg->internal->conffp);
       arg->internal->conffp = _gpgrt_fopen (arg->internal->confname, "r");
@@ -2402,6 +2415,7 @@ _gpgrt_argparser (gpgrt_argparse_t *arg, gpgrt_opt_t *opts,
       arg->internal->verbose = 0;
       arg->internal->expand = 0;
       arg->internal->stopped = 0;
+      arg->internal->forceeof = 0;
       arg->internal->inarg = 0;
       arg->internal->in_sysconf = 0;
       _gpgrt_fclose (arg->internal->conffp);
@@ -2449,6 +2463,7 @@ _gpgrt_argparser (gpgrt_argparse_t *arg, gpgrt_opt_t *opts,
       arg->internal->verbose = 0;
       arg->internal->expand = 0;
       arg->internal->stopped = 0;
+      arg->internal->forceeof = 0;
       arg->internal->inarg = 0;
       arg->internal->in_sysconf = 0;
       if (!arg->argc || !arg->argv || !*arg->argv)

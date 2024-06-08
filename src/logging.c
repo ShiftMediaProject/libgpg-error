@@ -112,6 +112,18 @@ static int force_prefixes;
 static int missing_lf;
 static int errorcount;
 
+/* The list of registered functions to be called after logging.  */
+struct post_log_func_item_s;
+typedef struct post_log_func_item_s *post_log_func_item_t;
+struct post_log_func_item_s
+{
+  post_log_func_item_t next;
+  void (*func) (int);
+};
+static post_log_func_item_t post_log_func_list;
+
+
+
 
 /* An object to convey data to the fmt_string_filter.  */
 struct fmt_string_filter_s
@@ -666,6 +678,59 @@ _gpgrt_log_get_stream (void)
 }
 
 
+/* Add a function F to the list of functions called after a log_fatal
+ * or log_bug right before terminating the process.  If a function
+ * with that address has already been registered, it is not added a
+ * second time.  */
+void
+_gpgrt_add_post_log_func (void (*f)(int))
+{
+  post_log_func_item_t item;
+
+  for (item = post_log_func_list; item; item = item->next)
+    if (item->func == f)
+      return; /* Function has already been registered.  */
+
+  /* We use a standard malloc here.  */
+  item = malloc (sizeof *item);
+  if (item)
+    {
+      item->func = f;
+      item->next = post_log_func_list;
+      post_log_func_list = item;
+    }
+  else
+    _gpgrt_log_fatal ("out of core in gpgrt_add_post_log_func\n");
+}
+
+
+/* Run the post log function handlers.  These are only called for
+ * fatal and bug errors and should be aware that the process will
+ * terminate.  */
+static void
+run_post_log_funcs (int level)
+{
+  static int running;  /* Just to avoid recursive calls.  */
+  post_log_func_item_t next;
+  void (*f)(int);
+
+  if (running)
+    return;
+  running = 1;
+
+  while (post_log_func_list)
+    {
+      next = post_log_func_list->next;
+      f = post_log_func_list->func;
+      post_log_func_list->func = NULL;
+      post_log_func_list = next;
+      if (f)
+        f (level);
+    }
+}
+
+
+
 /* A filter used with the fprintf_sf function to sanitize the args for
  * "%s" format specifiers.  */
 static char *
@@ -847,14 +912,14 @@ print_prefix (int level, int leading_backspace)
 
 
 /* Internal worker function.  Exported so that we can use it in
- * visibility.c.  Returs the number of characters printed or 0 if the
- * line ends in a LF. */
+ * visibility.c.  Returns the number of characters printed sans prefix
+ * or 0 if the line ends in a LF. */
 int
 _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
                       const char *prefmt, const char *fmt, va_list arg_ptr)
 {
   int leading_backspace = (fmt && *fmt == '\b');
-  int length;
+  int length, prefixlen;
   int rc;
 
   if (!logstream)
@@ -895,6 +960,7 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
           _gpgrt_fputs_unlocked (prefmt, logstream);
           length += strlen (prefmt);
         }
+      prefixlen = length;
 
       if (ignore_arg_ptr)
         { /* This is used by log_string and comes with the extra
@@ -930,6 +996,8 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
       if (*fmt && fmt[strlen(fmt)-1] != '\n')
         missing_lf = 1;
     }
+  else
+    prefixlen = length;
 
   /* If we have an EXTRASTRING print it now while we still hold the
    * lock on the logstream.  */
@@ -991,6 +1059,7 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
     {
       if (missing_lf)
         _gpgrt_putc_unlocked ('\n', logstream);
+      run_post_log_funcs (level);
       _gpgrt_funlockfile (logstream);
       exit (2);
     }
@@ -998,6 +1067,7 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
     {
       if (missing_lf)
         _gpgrt_putc_unlocked ('\n', logstream );
+      run_post_log_funcs (level);
       _gpgrt_funlockfile (logstream);
       /* Using backtrace requires a configure test and to pass
        * -rdynamic to gcc.  Thus we do not enable it now.  */
@@ -1021,7 +1091,7 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
   if (level == GPGRT_LOGLVL_ERROR)
     _gpgrt_inc_errorcount ();
 
-  return length;
+  return length > prefixlen? (length - prefixlen): length;
 }
 
 
@@ -1178,13 +1248,28 @@ _gpgrt_logv_printhex (const void *buffer, size_t length,
                       const char *fmt, va_list arg_ptr)
 {
   int wrap = 0;
+  int wrapamount = 0;
   int cnt = 0;
   const unsigned char *p;
+  int trunc = 0;  /* Only print a shortened string.  */
 
   /* FIXME: This printing is not yet protected by _gpgrt_flockfile.  */
   if (fmt && *fmt)
     {
-      _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG, 0, NULL, NULL, fmt, arg_ptr);
+      const char *s;
+
+      if (*fmt == '|' && fmt[1] == '!' && (s=strchr (fmt+2, '|')) && s[1])
+        {
+          /* Skip initial keywords and parse them.  */
+          fmt += 2;
+          if (strstr (fmt, "trunc"))
+            trunc = 1;
+
+          fmt = s+1;
+        }
+
+      wrapamount = _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG, 0, NULL, NULL,
+                                         fmt, arg_ptr);
       wrap = 1;
     }
 
@@ -1198,10 +1283,19 @@ _gpgrt_logv_printhex (const void *buffer, size_t length,
           _gpgrt_log_printf ("%02x", *p);
           if (wrap && ++cnt == 32 && length)
             {
+              if (trunc)
+                {
+                  _gpgrt_log_printf (" …");
+                  break;
+                }
+
               cnt = 0;
               /* (we indicate continuations with a backslash) */
               _gpgrt_log_printf (" \\\n");
-              _gpgrt_log_debug ("%s", "");
+              if (wrap)
+                _gpgrt_log_debug ("%*s", wrapamount, "");
+              else
+                _gpgrt_log_debug ("%s", "");
               if (fmt && *fmt)
                 _gpgrt_log_printf (" ");
             }
