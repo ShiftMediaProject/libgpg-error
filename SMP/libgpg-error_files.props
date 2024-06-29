@@ -25,6 +25,7 @@
     <ClCompile Include="..\src\estream.c" />
     <ClCompile Include="..\src\init.c" />
     <ClCompile Include="..\src\logging.c" />
+    <ClCompile Include="..\src\spawn-w32.c" />
     <ClCompile Include="..\src\strerror-sym.c" />
     <ClCompile Include="..\src\strerror.c" />
     <ClCompile Include="..\src\stringutils.c" />

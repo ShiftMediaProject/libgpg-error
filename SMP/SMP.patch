@@ -1,5 +1,5 @@
 diff --git a/src/argparse.c b/src/argparse.c
-index 106e818..7ccf0e7 100644
+index c59e5b2..3e9f9c0 100644
 --- a/src/argparse.c
 +++ b/src/argparse.c
 @@ -33,14 +33,19 @@
@@ -183,7 +183,7 @@ index 4e8bd8b..2c64a40 100644
  static char *get_locale_dir (void);
  static void drop_locale_dir (char *locale_dir);
 diff --git a/src/gpg-error.h.in b/src/gpg-error.h.in
-index 3eacc1a..e65d93a 100644
+index 5b1b9d2..c22a6ba 100644
 --- a/src/gpg-error.h.in
 +++ b/src/gpg-error.h.in
 @@ -249,7 +249,7 @@ typedef unsigned int gpg_error_t;
@@ -284,7 +284,7 @@ index 4f52d80..ad21ff5 100644
  
  
 diff --git a/src/mkheader.c b/src/mkheader.c
-index 2d7298c..2e7a8ed 100644
+index d9b8331..d002fb4 100644
 --- a/src/mkheader.c
 +++ b/src/mkheader.c
 @@ -16,7 +16,12 @@
@@ -301,10 +301,10 @@ index 2d7298c..2e7a8ed 100644
  #define PGM "mkheader"
  
 diff --git a/src/spawn-w32.c b/src/spawn-w32.c
-index 324b5fe..29b9814 100644
+index e6ce28f..8789c4b 100644
 --- a/src/spawn-w32.c
 +++ b/src/spawn-w32.c
-@@ -34,12 +34,15 @@
+@@ -34,13 +34,24 @@
  #ifdef HAVE_SIGNAL_H
  # include <signal.h>
  #endif
@@ -319,9 +319,49 @@ index 324b5fe..29b9814 100644
  #define WIN32_LEAN_AND_MEAN  /* We only need the OS core stuff.  */
 +#include <io.h>
  #include <windows.h>
++# ifndef F_OK
++#  define F_OK 0
++# endif
++
++# include <process.h>
++# if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
++#  define IS_UWP 1
++# endif
  
+ #define NEED_STRUCT_SPAWN_CB_ARG
  #include "gpgrt-int.h"
-@@ -300,7 +303,7 @@ do_create_pipe_and_estream (int filedes[2],
+@@ -205,6 +216,7 @@ create_inheritable_pipe (HANDLE filedes[2], int flags)
+     }
+   _gpgrt_post_syscall ();
+ 
++#ifndef IS_UWP
+   if ((flags & INHERIT_READ) == 0)
+     if (! SetHandleInformation (r, HANDLE_FLAG_INHERIT, 0))
+       goto fail;
+@@ -212,6 +224,7 @@ create_inheritable_pipe (HANDLE filedes[2], int flags)
+   if ((flags & INHERIT_WRITE) == 0)
+     if (! SetHandleInformation (w, HANDLE_FLAG_INHERIT, 0))
+       goto fail;
++#endif
+ 
+   filedes[0] = r;
+   filedes[1] = w;
+@@ -231,10 +244,14 @@ w32_open_null (int for_write)
+ {
+   HANDLE hfile;
+ 
++#ifndef IS_UWP
+   hfile = CreateFileW (L"nul",
+                        for_write? GENERIC_WRITE : GENERIC_READ,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE,
+                        NULL, OPEN_EXISTING, 0, NULL);
++#else
++  hfile = CreateFile2(L"nul", for_write ? GENERIC_WRITE : GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, NULL);
++#endif
+   if (hfile == INVALID_HANDLE_VALUE)
+     _gpgrt_log_debug ("can't open 'nul': ec=%d\n", (int)GetLastError ());
+   return hfile;
+@@ -261,7 +278,7 @@ do_create_pipe_and_estream (int filedes[2],
    err = GPG_ERR_GENERAL;
    if (!create_inheritable_pipe (fds, flags))
      {
@@ -329,8 +369,8 @@ index 324b5fe..29b9814 100644
 +      filedes[0] = _open_osfhandle ((intptr_t) (fds[0]), O_RDONLY);
        if (filedes[0] == -1)
          {
-           _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[0]);
-@@ -308,7 +311,7 @@ do_create_pipe_and_estream (int filedes[2],
+           _gpgrt_log_info ("failed to translate osfhandle %p\n", fds[0]);
+@@ -269,7 +286,7 @@ do_create_pipe_and_estream (int filedes[2],
          }
        else
          {
@@ -338,119 +378,151 @@ index 324b5fe..29b9814 100644
 +          filedes[1] = _open_osfhandle ((intptr_t) (fds[1]), O_APPEND);
            if (filedes[1] == -1)
              {
-               _gpgrt_log_error ("failed to translate osfhandle %p\n", fds[1]);
-@@ -411,7 +414,7 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
-       0,         /* Returns pid.  */
-       0          /* Returns tid.  */
-     };
--  STARTUPINFO si;
-+  STARTUPINFOA si;
-   int cr_flags;
-   char *cmdline;
-   HANDLE inpipe[2]  = {INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE};
-@@ -565,16 +568,16 @@ _gpgrt_spawn_process (const char *pgmname, const char *argv[],
-               | CREATE_SUSPENDED);
-   _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
-                     pgmname, cmdline);
--  ret = CreateProcess (pgmname,     /* Program to start.  */
--                      cmdline,       /* Command line arguments.  */
--                      &sec_attr,     /* Process security attributes.  */
--                      &sec_attr,     /* Thread security attributes.  */
--                      TRUE,          /* Inherit handles.  */
--                      cr_flags,      /* Creation flags.  */
--                      NULL,          /* Environment.  */
--                      NULL,          /* Use current drive/directory.  */
--                      &si,           /* Startup information. */
--                      &pi            /* Returns process information.  */
-+  ret = CreateProcessA (pgmname,     /* Program to start.  */
-+                       cmdline,       /* Command line arguments.  */
-+                       &sec_attr,     /* Process security attributes.  */
-+                       &sec_attr,     /* Thread security attributes.  */
-+                       TRUE,          /* Inherit handles.  */
-+                       cr_flags,      /* Creation flags.  */
-+                       NULL,          /* Environment.  */
-+                       NULL,          /* Use current drive/directory.  */
-+                       &si,           /* Startup information. */
-+                       &pi            /* Returns process information.  */
-                         );
-   if (!ret)
-     {
-@@ -661,7 +664,7 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
-   gpg_err_code_t err;
+               _gpgrt_log_info ("failed to translate osfhandle %p\n", fds[1]);
+@@ -332,6 +349,7 @@ _gpgrt_make_pipe (int filedes[2], estream_t *r_fp, int direction, int nonblock)
+ static int
+ check_windows_version (void)
+ {
++#ifndef IS_UWP
+   static int is_vista_or_later = -1;
+ 
+   OSVERSIONINFO osvi;
+@@ -347,6 +365,9 @@ check_windows_version (void)
+     }
+ 
+   return is_vista_or_later;
++#else
++    return 1;
++#endif
+ }
+ 
+ 
+@@ -355,7 +376,11 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
+ {
    SECURITY_ATTRIBUTES sec_attr;
    PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
--  STARTUPINFO si;
-+  STARTUPINFOA si;
-   char *cmdline;
-   int ret, i;
-   HANDLE stdhd[3];
-@@ -700,18 +703,18 @@ _gpgrt_spawn_process_fd (const char *pgmname, const char *argv[],
++#ifndef IS_UWP
+   STARTUPINFOEXW si;
++#else
++  STARTUPINFOW si;
++#endif
+   int cr_flags;
+   wchar_t *wcmdline = NULL;
+   wchar_t *wpgmname = NULL;
+@@ -408,6 +433,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
  
-   _gpgrt_log_debug ("CreateProcess, path='%s' cmdline='%s'\n",
-                     pgmname, cmdline);
--  ret = CreateProcess (pgmname,      /* Program to start.  */
--                      cmdline,       /* Command line arguments.  */
--                      &sec_attr,     /* Process security attributes.  */
--                      &sec_attr,     /* Thread security attributes.  */
--                      TRUE,          /* Inherit handles.  */
--                      (CREATE_DEFAULT_ERROR_MODE
--                       | GetPriorityClass (GetCurrentProcess ())
--                       | CREATE_SUSPENDED | DETACHED_PROCESS),
--                      NULL,          /* Environment.  */
--                      NULL,          /* Use current drive/directory.  */
--                      &si,           /* Startup information. */
--                      &pi            /* Returns process information.  */
-+  ret = CreateProcessA (pgmname,      /* Program to start.  */
-+                       cmdline,       /* Command line arguments.  */
-+                       &sec_attr,     /* Process security attributes.  */
-+                       &sec_attr,     /* Thread security attributes.  */
-+                       TRUE,          /* Inherit handles.  */
-+                       (CREATE_DEFAULT_ERROR_MODE
-+                        | GetPriorityClass (GetCurrentProcess ())
-+                        | CREATE_SUSPENDED | DETACHED_PROCESS),
-+                       NULL,          /* Environment.  */
-+                       NULL,          /* Use current drive/directory.  */
-+                       &si,           /* Startup information. */
-+                       &pi            /* Returns process information.  */
-                       );
-   if (!ret)
-     {
-@@ -850,7 +853,7 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
-       0,         /* Returns pid.  */
-       0          /* Returns tid.  */
-     };
--  STARTUPINFO si;
-+  STARTUPINFOA si;
+       if (j)
+         {
++#ifndef IS_UWP
+           if (check_windows_version ())
+             {
+               InitializeProcThreadAttributeList (NULL, 1, 0, &attr_list_size);
+@@ -423,6 +449,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
+                                          PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+                                          hd, sizeof (HANDLE) * j, NULL, NULL);
+             }
++#endif
+           ask_inherit = TRUE;
+         }
+     }
+@@ -433,6 +460,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
+   sec_attr.bInheritHandle = FALSE;
+ 
+   /* Start the process.  */
++#ifndef IS_UWP
+   si.StartupInfo.cb = sizeof (si);
+   si.StartupInfo.dwFlags = ((i > 0 ? STARTF_USESTDHANDLES : 0)
+                             | STARTF_USESHOWWINDOW);
+@@ -440,6 +468,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
+   si.StartupInfo.hStdInput  = act->hd[0];
+   si.StartupInfo.hStdOutput = act->hd[1];
+   si.StartupInfo.hStdError  = act->hd[2];
++#endif
+ 
+   cr_flags = (CREATE_DEFAULT_ERROR_MODE
+               | GetPriorityClass (GetCurrentProcess ())
+@@ -478,8 +507,10 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
+       xfree (cmdline);
+       return GPG_ERR_GENERAL;
+     }
++#ifndef IS_UWP
+   if (si.lpAttributeList)
+     DeleteProcThreadAttributeList (si.lpAttributeList);
++#endif
+   xfree (wpgmname);
+   xfree (wcmdline);
+   xfree (cmdline);
+@@ -558,7 +589,11 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+   gpgrt_process_t process;
+   SECURITY_ATTRIBUTES sec_attr;
+   PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
++#ifndef IS_UWP
+   STARTUPINFOEXW si;
++#else
++  STARTUPINFOW si;
++#endif
    int cr_flags;
    char *cmdline;
-   int ret;
-@@ -885,16 +888,16 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
-               | DETACHED_PROCESS);
-   _gpgrt_log_debug ("CreateProcess(detached), path='%s' cmdline='%s'\n",
-                     pgmname, cmdline);
--  ret = CreateProcess (pgmname,       /* Program to start.  */
--                      cmdline,       /* Command line arguments.  */
--                      &sec_attr,     /* Process security attributes.  */
--                      &sec_attr,     /* Thread security attributes.  */
--                      FALSE,         /* Inherit handles.  */
--                      cr_flags,      /* Creation flags.  */
--                      NULL,          /* Environment.  */
--                      NULL,          /* Use current drive/directory.  */
--                      &si,           /* Startup information. */
--                      &pi            /* Returns process information.  */
-+  ret = CreateProcessA (pgmname,       /* Program to start.  */
-+                       cmdline,       /* Command line arguments.  */
-+                       &sec_attr,     /* Process security attributes.  */
-+                       &sec_attr,     /* Thread security attributes.  */
-+                       FALSE,         /* Inherit handles.  */
-+                       cr_flags,      /* Creation flags.  */
-+                       NULL,          /* Environment.  */
-+                       NULL,          /* Use current drive/directory.  */
-+                       &si,           /* Startup information. */
-+                       &pi            /* Returns process information.  */
-                        );
-   if (!ret)
+   wchar_t *wcmdline = NULL;
+@@ -748,6 +783,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+ 
+       if (j)
+         {
++#ifndef IS_UWP
+           if (check_windows_version ())
+             {
+               InitializeProcThreadAttributeList (NULL, 1, 0, &attr_list_size);
+@@ -779,6 +815,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+                                          PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+                                          hd, sizeof (HANDLE) * j, NULL, NULL);
+             }
++#endif
+           ask_inherit = TRUE;
+         }
+     }
+@@ -789,6 +826,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+   sec_attr.bInheritHandle = FALSE;
+ 
+   /* Start the process.  */
++#ifndef IS_UWP
+   si.StartupInfo.cb = sizeof (si);
+   si.StartupInfo.dwFlags = ((i > 0 ? STARTF_USESTDHANDLES : 0)
+                             | STARTF_USESHOWWINDOW);
+@@ -796,6 +834,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+   si.StartupInfo.hStdInput  = act->hd[0];
+   si.StartupInfo.hStdOutput = act->hd[1];
+   si.StartupInfo.hStdError  = act->hd[2];
++#endif
+ 
+   /* log_debug ("CreateProcess, path='%s' cmdline='%s'\n", pgmname, cmdline); */
+   cr_flags = (CREATE_DEFAULT_ERROR_MODE
+@@ -848,8 +887,10 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+       return GPG_ERR_GENERAL;
+     }
+ 
++#ifndef IS_UWP
+   if (si.lpAttributeList)
+     DeleteProcThreadAttributeList (si.lpAttributeList);
++#endif
+   xfree (wpgmname);
+   xfree (wcmdline);
+   xfree (cmdline);
+@@ -869,6 +910,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+   /*           pi.hProcess, pi.hThread, */
+   /*           (int) pi.dwProcessId, (int) pi.dwThreadId); */
+ 
++#ifndef IS_UWP
+   if (allow_foreground_window)
      {
+       /* Fixme: For unknown reasons AllowSetForegroundWindow returns
+@@ -878,6 +920,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
+         _gpgrt_log_info ("AllowSetForegroundWindow() failed: ec=%d\n",
+                          (int)GetLastError ());
+     }
++#endif
+ 
+   /* Process has been created suspended; resume it now. */
+   _gpgrt_pre_syscall ();
 diff --git a/src/strerror.c b/src/strerror.c
 index 51e347b..5f094cd 100644
 --- a/src/strerror.c
