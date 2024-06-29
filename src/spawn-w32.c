@@ -44,6 +44,14 @@
 #define WIN32_LEAN_AND_MEAN  /* We only need the OS core stuff.  */
 #include <io.h>
 #include <windows.h>
+# ifndef F_OK
+#  define F_OK 0
+# endif
+
+# include <process.h>
+# if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+#  define IS_UWP 1
+# endif
 
 #define NEED_STRUCT_SPAWN_CB_ARG
 #include "gpgrt-int.h"
@@ -208,6 +216,7 @@ create_inheritable_pipe (HANDLE filedes[2], int flags)
     }
   _gpgrt_post_syscall ();
 
+#ifndef IS_UWP
   if ((flags & INHERIT_READ) == 0)
     if (! SetHandleInformation (r, HANDLE_FLAG_INHERIT, 0))
       goto fail;
@@ -215,6 +224,7 @@ create_inheritable_pipe (HANDLE filedes[2], int flags)
   if ((flags & INHERIT_WRITE) == 0)
     if (! SetHandleInformation (w, HANDLE_FLAG_INHERIT, 0))
       goto fail;
+#endif
 
   filedes[0] = r;
   filedes[1] = w;
@@ -234,10 +244,14 @@ w32_open_null (int for_write)
 {
   HANDLE hfile;
 
+#ifndef IS_UWP
   hfile = CreateFileW (L"nul",
                        for_write? GENERIC_WRITE : GENERIC_READ,
                        FILE_SHARE_READ | FILE_SHARE_WRITE,
                        NULL, OPEN_EXISTING, 0, NULL);
+#else
+  hfile = CreateFile2(L"nul", for_write ? GENERIC_WRITE : GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, NULL);
+#endif
   if (hfile == INVALID_HANDLE_VALUE)
     _gpgrt_log_debug ("can't open 'nul': ec=%d\n", (int)GetLastError ());
   return hfile;
@@ -335,6 +349,7 @@ _gpgrt_make_pipe (int filedes[2], estream_t *r_fp, int direction, int nonblock)
 static int
 check_windows_version (void)
 {
+#ifndef IS_UWP
   static int is_vista_or_later = -1;
 
   OSVERSIONINFO osvi;
@@ -350,6 +365,9 @@ check_windows_version (void)
     }
 
   return is_vista_or_later;
+#else
+    return 1;
+#endif
 }
 
 
@@ -358,7 +376,11 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
 {
   SECURITY_ATTRIBUTES sec_attr;
   PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
+#ifndef IS_UWP
   STARTUPINFOEXW si;
+#else
+  STARTUPINFOW si;
+#endif
   int cr_flags;
   wchar_t *wcmdline = NULL;
   wchar_t *wpgmname = NULL;
@@ -411,6 +433,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
 
       if (j)
         {
+#ifndef IS_UWP
           if (check_windows_version ())
             {
               InitializeProcThreadAttributeList (NULL, 1, 0, &attr_list_size);
@@ -426,6 +449,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
                                          PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
                                          hd, sizeof (HANDLE) * j, NULL, NULL);
             }
+#endif
           ask_inherit = TRUE;
         }
     }
@@ -436,6 +460,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
   sec_attr.bInheritHandle = FALSE;
 
   /* Start the process.  */
+#ifndef IS_UWP
   si.StartupInfo.cb = sizeof (si);
   si.StartupInfo.dwFlags = ((i > 0 ? STARTF_USESTDHANDLES : 0)
                             | STARTF_USESHOWWINDOW);
@@ -443,6 +468,7 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
   si.StartupInfo.hStdInput  = act->hd[0];
   si.StartupInfo.hStdOutput = act->hd[1];
   si.StartupInfo.hStdError  = act->hd[2];
+#endif
 
   cr_flags = (CREATE_DEFAULT_ERROR_MODE
               | GetPriorityClass (GetCurrentProcess ())
@@ -481,8 +507,10 @@ spawn_detached (const char *pgmname, char *cmdline, gpgrt_spawn_actions_t act)
       xfree (cmdline);
       return GPG_ERR_GENERAL;
     }
+#ifndef IS_UWP
   if (si.lpAttributeList)
     DeleteProcThreadAttributeList (si.lpAttributeList);
+#endif
   xfree (wpgmname);
   xfree (wcmdline);
   xfree (cmdline);
@@ -561,7 +589,11 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
   gpgrt_process_t process;
   SECURITY_ATTRIBUTES sec_attr;
   PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
+#ifndef IS_UWP
   STARTUPINFOEXW si;
+#else
+  STARTUPINFOW si;
+#endif
   int cr_flags;
   char *cmdline;
   wchar_t *wcmdline = NULL;
@@ -751,6 +783,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
 
       if (j)
         {
+#ifndef IS_UWP
           if (check_windows_version ())
             {
               InitializeProcThreadAttributeList (NULL, 1, 0, &attr_list_size);
@@ -782,6 +815,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
                                          PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
                                          hd, sizeof (HANDLE) * j, NULL, NULL);
             }
+#endif
           ask_inherit = TRUE;
         }
     }
@@ -792,6 +826,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
   sec_attr.bInheritHandle = FALSE;
 
   /* Start the process.  */
+#ifndef IS_UWP
   si.StartupInfo.cb = sizeof (si);
   si.StartupInfo.dwFlags = ((i > 0 ? STARTF_USESTDHANDLES : 0)
                             | STARTF_USESHOWWINDOW);
@@ -799,6 +834,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
   si.StartupInfo.hStdInput  = act->hd[0];
   si.StartupInfo.hStdOutput = act->hd[1];
   si.StartupInfo.hStdError  = act->hd[2];
+#endif
 
   /* log_debug ("CreateProcess, path='%s' cmdline='%s'\n", pgmname, cmdline); */
   cr_flags = (CREATE_DEFAULT_ERROR_MODE
@@ -851,8 +887,10 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
       return GPG_ERR_GENERAL;
     }
 
+#ifndef IS_UWP
   if (si.lpAttributeList)
     DeleteProcThreadAttributeList (si.lpAttributeList);
+#endif
   xfree (wpgmname);
   xfree (wcmdline);
   xfree (cmdline);
@@ -872,6 +910,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
   /*           pi.hProcess, pi.hThread, */
   /*           (int) pi.dwProcessId, (int) pi.dwThreadId); */
 
+#ifndef IS_UWP
   if (allow_foreground_window)
     {
       /* Fixme: For unknown reasons AllowSetForegroundWindow returns
@@ -881,6 +920,7 @@ _gpgrt_process_spawn (const char *pgmname, const char *argv[],
         _gpgrt_log_info ("AllowSetForegroundWindow() failed: ec=%d\n",
                          (int)GetLastError ());
     }
+#endif
 
   /* Process has been created suspended; resume it now. */
   _gpgrt_pre_syscall ();
