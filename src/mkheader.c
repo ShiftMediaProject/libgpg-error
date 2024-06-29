@@ -578,23 +578,20 @@ write_special (const char *fname, int lnr, const char *tag)
       else
         fputs ("int", stdout);
     }
-  else if (!strcmp (tag, "define:gpgrt_process_t"))
+  else if (!strcmp (tag, "define:spawn_actions_functions"))
     {
       if (have_w32_system || have_w64_system)
         {
-          fputs ("typedef void *gpgrt_process_t;\n", stdout);
+          fputs ("void gpgrt_spawn_actions_set_envvars (gpgrt_spawn_actions_t, char *);\n", stdout);
+          fputs ("void gpgrt_spawn_actions_set_redirect (gpgrt_spawn_actions_t, void *, void *, void *);\n", stdout);
+          fputs ("void gpgrt_spawn_actions_set_inherit_handles (gpgrt_spawn_actions_t, void **);\n", stdout);
         }
       else
         {
-          if (have_sys_types_h)
-            {
-              if (!sys_types_h_included)
-                {
-                  fputs ("#include <sys/types.h>\n", stdout);
-                  sys_types_h_included = 1;
-                }
-            }
-          fputs ("typedef pid_t gpgrt_process_t;\n", stdout);
+          fputs ("void gpgrt_spawn_actions_set_environ (gpgrt_spawn_actions_t, char **);\n", stdout);
+          fputs ("void gpgrt_spawn_actions_set_redirect (gpgrt_spawn_actions_t, int, int, int);\n", stdout);
+          fputs ("void gpgrt_spawn_actions_set_inherit_fds (gpgrt_spawn_actions_t, const int *);\n", stdout);
+          fputs ("void gpgrt_spawn_actions_set_atfork (gpgrt_spawn_actions_t, void (*)(void *), void *);", stdout);
         }
     }
   else if (!strcmp (tag, "include:err-sources"))

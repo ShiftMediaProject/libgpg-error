@@ -634,142 +634,108 @@ gpg_err_code_t _gpgrt_make_pipe (int filedes[2], estream_t *r_fp,
 #define _gpgrt_create_inbound_pipe(a,b,c)  _gpgrt_make_pipe ((a), (b), -1, (c))
 #define _gpgrt_create_outbound_pipe(a,b,c) _gpgrt_make_pipe ((a), (b),  1, (c))
 
+/* Actions (at spawning a child process), which is OS-specific.  */
+gpg_err_code_t _gpgrt_spawn_actions_new (gpgrt_spawn_actions_t *r_act);
+void _gpgrt_spawn_actions_release (gpgrt_spawn_actions_t act);
+#ifdef HAVE_W32_SYSTEM
+void _gpgrt_spawn_actions_set_envvars (gpgrt_spawn_actions_t, char *);
+void _gpgrt_spawn_actions_set_redirect (gpgrt_spawn_actions_t,
+                                        void *, void *, void *);
+void _gpgrt_spawn_actions_set_inherit_handles (gpgrt_spawn_actions_t, void **);
+#else
+void _gpgrt_spawn_actions_set_environ (gpgrt_spawn_actions_t, char **);
+void _gpgrt_spawn_actions_set_redirect (gpgrt_spawn_actions_t, int, int, int);
+void _gpgrt_spawn_actions_set_inherit_fds (gpgrt_spawn_actions_t,
+                                           const int *);
+void _gpgrt_spawn_actions_set_atfork (gpgrt_spawn_actions_t, void (*)(void *),
+                                      void *);
+#endif
 
-/* Fork and exec the program PGMNAME.
- *
- * If R_INFP is NULL connect stdin of the new process to /dev/null; if
- * it is not NULL store the address of a pointer to a new estream
- * there. If R_OUTFP is NULL connect stdout of the new process to
- * /dev/null; if it is not NULL store the address of a pointer to a
- * new estream there.  If R_ERRFP is NULL connect stderr of the new
- * process to /dev/null; if it is not NULL store the address of a
- * pointer to a new estream there.  On success the process id of the
- * new process is stored at R_PID.  On error -1 is stored at R_PID and
- * if R_OUTFP or R_ERRFP are not NULL, NULL is stored there.
+/* Spawn the program PGMNAME with ARGV1.
  *
  * The arguments for the process are expected in the NULL terminated
- * array ARGV.  The program name itself should not be included there.
+ * array ARGV1.  The program name itself should not be included there.
  *
- * IF EXCEPT is not NULL, it is expected to be an ordered list of file
- * descriptors, terminated by an entry with the value (-1).  These
- * file descriptors won't be closed before spawning a new program.
- *
- * Returns 0 on success or an error code.  Calling gpgrt_wait_process
- * and gpgrt_release_process is required if the function succeeded.
+ * Returns 0 on success or an error code.
  *
  * FLAGS is a bit vector:
  *
- * GPGRT_SPAWN_NONBLOCK
- *        If set the two output streams are created in non-blocking
- *        mode and the input stream is switched to non-blocking mode.
- *        This is merely a convenience feature because the caller
- *        could do the same with gpgrt_set_nonblock.  Does not yet
- *        work for Windows.
- *
- * GPGRT_SPAWN_DETACHED
+ * GPGRT_PROCESS_DETACHED
  *        If set the process will be started as a background process.
- *        This flag is only useful under W32 systems, so that no new
- *        console is created and pops up a console window when starting
- *        the server.
+ *        No furthrer interaction between caller is expected.
  *
- * GPGRT_SPAWN_RUN_ASFW
- *        On W32 run AllowSetForegroundWindow for the child.  Note that
- *        due to unknown problems this actually allows
- *        SetForegroundWindow for all children of this process.
+ * GPGRT_PROCESS_STDIN_PIPE
+ * GPGRT_PROCESS_STDOUT_PIPE
+ * GPGRT_PROCESS_STDERR_PIPE
+ *        Spawned child process is connected by pipes to the parent.
  *
- * GNUPG_SPAWN_KEEP_STDIN
- * GNUPG_SPAWN_KEEP_STDOUT
- * GNUPG_SPAWN_KEEP_STDERR
+ * GPGRT_PROCESS_STDIN_KEEP
+ * GPGRT_PROCESS_STDOUT_KEEP
+ * GPGRT_PROCESS_STDERR_KEEP
  *        Do not assign /dev/null to a non-required standard file
  *        descriptor.
  *
+ * If ACT is not null, it specifies OS-specific internal actions at
+ * spawning a process; User may specify setting of environment
+ * variables, redirect of standard io, and inheriting file
+ * descriptors.
+ *
+ * If R_PROCESS is not null, the process object is returned into it.
+ * In this case, calling gpgrt_process_process is required if the
+ * function succeeded.
+ *
+ * If R_PROCESS is null, it waits for the child process's termination.
+ *
  */
-gpg_err_code_t
-_gpgrt_spawn_process (const char *pgmname, const char *argv[],
-                      int *execpt, unsigned int flags,
-                      estream_t *r_infp,
-                      estream_t *r_outfp,
-                      estream_t *r_errfp,
-                      gpgrt_process_t *r_process_id);
+gpg_err_code_t _gpgrt_process_spawn (const char *pgmname, const char *argv1[],
+                                     unsigned int flags,
+                                     gpgrt_spawn_actions_t act,
+                                     gpgrt_process_t *r_process);
 
+/* Kill a process; that is send an appropriate signal to the PROCESS.  */
+gpg_err_code_t _gpgrt_process_terminate (gpgrt_process_t process);
 
-/* Variant of gpgrt_spawn_process.  This function forks and then execs
- * PGMNAME, while connecting INFD to stdin, OUTFD to stdout and ERRFD
- * to stderr (any of them may be -1 to connect them to /dev/null).
- * The arguments for the process are expected in the NULL terminated
- * array ARGV.  The program name itself should not be included there.
- * Calling gpgrt_wait_process and gpgrt_release_process is required.
- * Returns 0 on success or an error code.  If SPAWN_CB is not NULL,
- * the given function will be called with SPAWN_CB_ARG to determine if
- * file descriptors/handles should be inherited or not.  The callback
- * function should return 1 to ask keeping file descriptors/handles.
- * If SPAWN_CB is NULL, or it returns 0, all file descriptors (except
- * INFD, OUTFD, and ERRFD) will be closed on POSIX machine.  On POSIX
- * machine, it is called right after the fork, by child process.
+gpg_err_code_t _gpgrt_process_get_fds (gpgrt_process_t process,
+                                       unsigned int flags,
+                                       int *r_fd_in, int *r_fd_out,
+                                       int *r_fd_err);
+
+/*
+ * FLAGS can be:
+ *
+ * GPGRT_PROCESS_STREAM_NONBLOCK
+ *        If set the two stream(s) are created in non-blocking mode.
  */
-gpg_err_code_t _gpgrt_spawn_process_fd (const char *pgmname,
-                                        const char *argv[],
-                                        int infd, int outfd, int errfd,
-                                        int (*spawn_cb) (void *),
-                                        void *spawn_cb_arg,
-                                        gpgrt_process_t *r_process_id);
+gpg_err_code_t _gpgrt_process_get_streams (gpgrt_process_t process,
+                                           unsigned int flags,
+                                           gpgrt_stream_t *r_fp_in,
+                                           gpgrt_stream_t *r_fp_out,
+                                           gpgrt_stream_t *r_fp_err);
 
-/* Spawn a new process and immediately detach from it.  The name of
- * the program to exec is PGMNAME and its arguments are in ARGV (the
- * programname is automatically passed as first argument).
- * Environment strings in ENVP are set.  An error is returned if
- * pgmname is not executable; to make this work it is necessary to
- * provide an absolute file name.  */
-gpg_err_code_t _gpgrt_spawn_process_detached (const char *pgmname,
-                                              const char *argv[],
-                                              const char *envp[]);
+gpg_err_code_t _gpgrt_process_vctl (gpgrt_process_t process,
+                                    unsigned int request, va_list arg_ptr);
 
-/* If HANG is true, waits for the process identified by PROCESS_ID to
+/* If HANG is true, waits for the process identified by PROCESS to
  * exit; if HANG is false, checks whether the process has terminated.
- * PGMNAME should be the same as supplied to the spawn function and is
- * only used for diagnostics.  Return values:
+ * Return values:
  *
  * 0
- *     The process exited successful.  0 is stored at R_EXITCODE.
- *
- * GPG_ERR_GENERAL
- *     The process exited without success.  The exit code of process
- *     is then stored at R_EXITCODE.  An exit code of -1 indicates
- *     that the process terminated abnormally (e.g. due to a signal).
+ *     The process exited.
  *
  * GPG_ERR_TIMEOUT
  *     The process is still running (returned only if HANG is false).
  *
- * GPG_ERR_INV_VALUE
- *     An invalid PID has been specified.
- *
- * Other error codes may be returned as well.  Unless otherwise noted,
- * -1 will be stored at R_EXITCODE.  R_EXITCODE may be passed as NULL
- * if the exit code is not required (in that case an error message will
- * be printed).  Note that under Windows PID is not the process id but
- * the handle of the process.  */
-gpg_err_code_t _gpgrt_wait_process (const char *pgmname,
-                                    gpgrt_process_t process_id, int hang,
-                                    int *r_exitcode);
+ * GPG_ERR_ECHILD / GPG_ERR_GENERAL
+ *     Waiting the process failed.
+ */
+gpg_err_code_t _gpgrt_process_wait (gpgrt_process_t process, int hang);
 
-/* Like _gpgrt_wait_process, but for COUNT processes.  */
-gpg_err_code_t _gpgrt_wait_processes (const char **pgmnames,
-                                      gpgrt_process_t *process_ids,
-                                      size_t count, int hang,
-                                      int *r_exitcodes);
+/* Release the process identified by PROCESS.  */
+void _gpgrt_process_release (gpgrt_process_t process);
 
-/* Kill a process; that is send an appropriate signal to the process.
- * gpgrt_wait_process must be called to actually remove the process
- * from the system.  An invalid PROCESS_ID is ignored.  */
-void _gpgrt_kill_process (gpgrt_process_t process_id);
-
-/* Release the process identified by PROCESS_ID.  This function is
- * actually only required for Windows but it does not harm to always
- * call it.  It is a nop if PROCESS_ID is invalid.  */
-void _gpgrt_release_process (gpgrt_process_t process_id);
 
 /* Close all file resources (descriptors), except KEEP_FDS.  */
-void _gpgrt_close_all_fds (int from, int *keep_fds);
+void _gpgrt_close_all_fds (int from, const int *keep_fds);
 
 
 /*
