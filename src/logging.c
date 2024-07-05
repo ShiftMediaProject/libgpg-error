@@ -1285,7 +1285,7 @@ _gpgrt_logv_printhex (const void *buffer, size_t length,
             {
               if (trunc)
                 {
-                  _gpgrt_log_printf (" …");
+                  _gpgrt_log_printf (" ...");
                   break;
                 }
 
